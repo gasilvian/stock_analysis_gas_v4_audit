@@ -24,6 +24,23 @@ sources:
   - AFFO/FFO/NAV and bank NPL/deposit/charge-off fields generally require manual override.
   tier: pragmatic
   license_status: unreviewed
+  license_notes:
+  - >-
+    yfinance is an unofficial open-source library (Apache-2.0 for the code itself) and is
+    not affiliated with, endorsed by, or vetted by Yahoo; it accesses Yahoo Finance
+    endpoints whose data is governed by Yahoo's own Terms of Service.
+  - >-
+    Yahoo's ToS restrict data usage to personal, non-commercial purposes and prohibit
+    redistribution; this matches the product's internal_personal_educational legal scope
+    but has NOT been reviewed by a lawyer (license_status stays unreviewed).
+  - >-
+    Consequences already enforced in this registry - production_eligible remains false,
+    provider stays tier=pragmatic with visible degradation, allowed_fields stay
+    restrictive, and no yfinance-derived value may be relabeled official/curated.
+  - >-
+    Documented 2026-07-09 per Post-P0.14 audit section 9; operator acknowledgment of the
+    personal-use posture may be recorded here, but only an actual legal review may change
+    license_status to reviewed.
   ttl_days: 7
   allowed_fields:
   - prices
