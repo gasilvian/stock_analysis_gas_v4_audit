@@ -107,6 +107,7 @@ def run_real_dashboard_bootstrap(
     schema_path: str = DEFAULT_SCHEMA,
     bond_csv: str = DEFAULT_BOND_CURATED,
     erp_json: str = DEFAULT_ERP_CURATED,
+    sec_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
     from sws_engine.orchestration.company_run import run_company_analysis
 
@@ -157,6 +158,17 @@ def run_real_dashboard_bootstrap(
                 payload = provider.build_payload(
                     ticker, valuation_date=vdate, market=market, industry=None,
                     overrides=rates_overrides or None)
+                if sec_dir:
+                    # P1.3b (B4/B8): merge SEC official-filing values with
+                    # documented sec_precedence; conflicts stay visible in
+                    # payload.source_conflicts, provider_profile unchanged.
+                    from sws_engine.sec.payload_merge import merge_sec_updates_from_dir
+                    sec_report = merge_sec_updates_from_dir(payload, sec_dir)
+                    item["sec_enrichment"] = {
+                        "reason_code": sec_report["reason_code"],
+                        "applied_fields_count": len(sec_report["applied_fields"]),
+                        "conflicts_count": len(sec_report["conflicts"]),
+                    }
                 output = run_company_analysis(payload, assumptions_path, schema_path)
 
                 # persist artifacts to disk (audit trail)

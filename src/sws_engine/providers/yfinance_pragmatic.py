@@ -23,6 +23,11 @@ YFINANCE_UNAVAILABLE_FIELDS = (
 class YFinancePragmaticProvider(BaseProvider):
     profile = ProviderProfile.YFINANCE_PRAGMATIC.value
 
+    # Field lineage providers whose declared quality is trusted at check time.
+    # yfinance-sourced fields stay blanket approximation per the pragmatic
+    # doctrine; explicit enrichment/injection sources carry their own truth.
+    TRUSTED_LINEAGE_PROVIDERS = {"sec_companyfacts", "curated_rates", "manual_override"}
+
     def prepare(self, payload: dict) -> ProviderResult:
         payload = dict(payload)
         quality = {}
@@ -34,9 +39,22 @@ class YFinancePragmaticProvider(BaseProvider):
                     f"PROVIDER_LIMITATION: '{f}' not available via yfinance; "
                     f"dependent checks degraded to UNKNOWN"
                 )
+        # P1.3b (B4/B8): fields enriched from trusted explicit sources (SEC
+        # official filings, curated rates injection, manual overrides) keep
+        # their declared lineage quality instead of being blanket-stamped
+        # approximation — otherwise SEC exact/E0 enrichment would be invisible
+        # to every check. Fields without such lineage keep the pragmatic
+        # approximation default, so pure-yfinance payloads are unchanged.
+        field_lineage = ((payload.get("lineage") or {}).get("field_lineage") or {})
         for k, v in payload.items():
             if v is not None and k not in ("lineage", "provider_profile"):
-                quality.setdefault(k, SourceQuality.APPROXIMATION.value)
+                lin = field_lineage.get(k) or {}
+                lin_provider = str(lin.get("provider") or lin.get("source_id") or "")
+                lin_quality = lin.get("source_quality")
+                if lin_provider in self.TRUSTED_LINEAGE_PROVIDERS and lin_quality:
+                    quality.setdefault(k, str(lin_quality))
+                else:
+                    quality.setdefault(k, SourceQuality.APPROXIMATION.value)
         degradations.append(
             "yfinance_pragmatic outputs are pragmatic approximations, "
             "not a faithful replication of the SWS methodology"

@@ -42,3 +42,41 @@ contact email. Live fetches now enforce this before any network activity:
   exponential backoff (1s/2s/4s) on top of the polite pre-request sleep.
 - Successful live fetches are cached on disk (`raw/companyfacts/`), so
   repeat runs read the cache unless `--refresh` is passed.
+
+## Payload merge and precedence (P1.3b)
+
+The `{ticker}_sec_payload_updates.json` artifacts are now consumable:
+
+- `build-payload-yfinance --sec-payload-updates PATH` merges one artifact
+  into the freshly built payload;
+- `real-dashboard-bootstrap --sec-dir DIR` looks up
+  `{ticker}_sec_payload_updates.json` (directly or under `normalized/`) for
+  every ticker and merges when present; absence is an honest no-op
+  (`SEC_UPDATES_NOT_FOUND`).
+
+Precedence, documented and enforced by `sws_engine.sec.payload_merge`:
+
+1. SEC official filings (exact/E0/official_filing) replace provider
+   (yfinance_pragmatic) values for the statement fields they cover.
+2. Curated rates injection uses disjoint fields and is unaffected.
+3. Manual operator overrides applied afterwards (the `merge-overrides` step)
+   win over SEC — a deliberate operator decision outranks automation.
+4. A SEC field with `source_quality=missing` or a null value never blanks or
+   downgrades a present base value.
+
+Conflict visibility: when the base payload carried a materially different
+value (>0.5% relative for numerics), a record
+`{field, base_value, base_provider, sec_value, relative_diff,
+resolution=sec_precedence}` is appended to `payload.source_conflicts` and a
+`SOURCE_CONFLICT_DETECTED` builder warning is emitted. Nothing is resolved
+silently. `provider_profile` is intentionally preserved — per-field lineage,
+not the profile, carries the official_filing truth, so yfinance degradation
+on unenriched fields stays visible.
+
+At check time, the `yfinance_pragmatic` profile honors the declared lineage
+quality of trusted enrichment sources (`sec_companyfacts`, `curated_rates`,
+`manual_override`); all other fields keep the blanket pragmatic
+approximation. Confidence rises only as far as honesty allows: checks mixing
+SEC and yfinance inputs stay approximation (worst-of-inputs), and the UNKNOWN
+mass from missing analyst estimates / industry averages is untouched until
+those curated sources exist (calibration backlog B3/B4).

@@ -70,6 +70,11 @@ def main(argv=None):
     byf.add_argument("--industry", default=None)
     byf.add_argument("--output", required=True)
     byf.add_argument("--refresh", action="store_true")
+    byf.add_argument("--sec-payload-updates", default=None,
+                     help="P1.3b: optional {ticker}_sec_payload_updates.json from "
+                          "refresh-sec-financials; merged with sec_precedence and "
+                          "visible source_conflicts (manual merge-overrides applied "
+                          "later still win)")
 
     cl = sub.add_parser("company-live", help="build yfinance payload and run company analysis")
     cl.add_argument("--ticker", required=True)
@@ -145,6 +150,11 @@ def main(argv=None):
     rdb.add_argument("-s", "--schema", default=DEFAULT_SCHEMA)
     rdb.add_argument("--bond-csv", default="data/real_sources/rates/bond_yields_10y_curated.csv")
     rdb.add_argument("--erp-json", default="data/real_sources/rates/erp_curated.json")
+    rdb.add_argument("--sec-dir", default=None,
+                     help="P1.3b: directory with refresh-sec-financials outputs "
+                          "({ticker}_sec_payload_updates.json, directly or under normalized/); "
+                          "when set, SEC official-filing values are merged into each payload "
+                          "with sec_precedence and visible source_conflicts")
 
     ccu = sub.add_parser("create-curated-universe-from-yfinance",
                          help="create a pragmatic curated universe CSV from yfinance metadata")
@@ -1065,12 +1075,26 @@ def main(argv=None):
 
             payload = provider.build_payload(args.ticker, valuation_date=args.valuation_date, market=args.market, industry=args.industry)
             if args.cmd == "build-payload-yfinance":
+                sec_merge_report = None
+                if getattr(args, "sec_payload_updates", None):
+                    from sws_engine.sec.payload_merge import apply_sec_payload_updates, load_sec_payload_updates
+                    sec_merge_report = apply_sec_payload_updates(
+                        payload, load_sec_payload_updates(args.sec_payload_updates))
                 import os
                 os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
                 with open(args.output, "w", encoding="utf-8") as fh:
                     json.dump(payload, fh, indent=2)
                 from sws_engine.providers.yfinance_mapper import capability_summary_from_payload
-                print(json.dumps({"written": args.output, "capability_summary": capability_summary_from_payload(payload)}, indent=2))
+                result = {"written": args.output, "capability_summary": capability_summary_from_payload(payload)}
+                if sec_merge_report is not None:
+                    result["sec_merge"] = {
+                        "status": sec_merge_report["status"],
+                        "reason_code": sec_merge_report["reason_code"],
+                        "applied_fields_count": len(sec_merge_report["applied_fields"]),
+                        "conflicts_count": len(sec_merge_report["conflicts"]),
+                        "skipped_missing_count": len(sec_merge_report["skipped_missing"]),
+                    }
+                print(json.dumps(result, indent=2))
                 return 0
 
             from sws_engine.orchestration.company_run import run_company_analysis
@@ -1151,7 +1175,8 @@ def main(argv=None):
             output_dir=args.output_dir, continue_on_error=args.continue_on_error,
             min_success_count=args.min_success_count,
             assumptions_path=args.assumptions, schema_path=args.schema,
-            bond_csv=args.bond_csv, erp_json=args.erp_json)
+            bond_csv=args.bond_csv, erp_json=args.erp_json,
+            sec_dir=args.sec_dir)
         print(json.dumps({
             "status": rep["status"],
             "tickers_succeeded": rep["tickers_succeeded"],
