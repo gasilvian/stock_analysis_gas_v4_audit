@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from sws_engine.sec.cik_resolver import CikRecord, resolve_cik
+from sws_engine.sec.cik_resolver import resolve_cik
 from sws_engine.sec.companyfacts_adapter import get_companyfacts
 from sws_engine.sec.mapping_report import mapping_report_md
 from sws_engine.sec.statement_snapshot import build_statement_snapshot

@@ -11,7 +11,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 FOOTER = (
     "\n---\n"

@@ -7,7 +7,7 @@ checks into PASS/FAIL.
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable
 
 CRITICAL_FIELD_KEYWORDS: dict[str, list[str]] = {
     "fcf_estimates": ["fcf", "free_cash_flow", "free cash flow"],

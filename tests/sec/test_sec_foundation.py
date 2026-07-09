@@ -1,9 +1,11 @@
 import json
 import os
-from pathlib import Path
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-D = lambda *p: os.path.join(ROOT, *p)
+
+
+def D(*p):
+    return os.path.join(ROOT, *p)
 
 
 def test_cik_resolver_sec_shape():

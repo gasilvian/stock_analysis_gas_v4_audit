@@ -5,7 +5,6 @@ from jsonschema import validate
 
 from sws_engine.research.run_comparison import (
     build_run_comparison_package,
-    render_run_comparison_report_md,
     run_comparison_from_files,
     write_run_comparison_artifacts,
 )
