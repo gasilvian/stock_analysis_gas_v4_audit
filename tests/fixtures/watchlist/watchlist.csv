@@ -1,0 +1,4 @@
+ticker,idea_source,priority,notes
+AAPL,manual,high,standard clean
+JPM,manual,medium,bank model
+MISS,manual,low,missing artifacts

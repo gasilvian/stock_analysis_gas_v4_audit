@@ -1,0 +1,58 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sws-snowflake-engine-api:3.1
+    environment:
+      SWS_DB_PATH: /app/data/sws.db
+      SWS_ASSUMPTIONS_PATH: /app/config/assumptions.yaml
+      SWS_SCHEMA_PATH: /app/schemas/output_schema.json
+      SWS_API_AUTH_ENABLED: ${SWS_API_AUTH_ENABLED:-false}
+      SWS_API_KEY: ${SWS_API_KEY:-}
+      SWS_CORS_ORIGINS: http://localhost:8501,http://127.0.0.1:8501
+    volumes:
+      - sws_data:/app/data
+      - sws_cache:/app/data/cache
+      - sws_snapshots:/app/validation/snapshots
+      - ./config:/app/config:ro
+      - ./schemas:/app/schemas:ro
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard.Dockerfile
+    image: sws-snowflake-engine-dashboard:3.1
+    environment:
+      DASHBOARD_API_URL: http://api:8000
+      DASHBOARD_API_KEY: ${SWS_API_KEY:-}
+      DASHBOARD_TIMEOUT_SECONDS: 30
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8501:8501"
+  eod-refresh:
+    image: sws-snowflake-engine-api:3.1
+    profiles: ["ops"]
+    environment:
+      SWS_DB_PATH: /app/data/sws.db
+    volumes:
+      - sws_data:/app/data
+      - sws_cache:/app/data/cache
+      - sws_snapshots:/app/validation/snapshots
+      - ./config:/app/config:ro
+      - ./schemas:/app/schemas:ro
+      - ./logs:/app/logs
+    command: ["python", "-m", "sws_engine.cli", "eod-refresh", "--watchlist", "data/watchlists/watchlist_synthetic.csv", "--date", "2026-07-06", "--db", "data/sws.db", "--universe", "data/universe/universe_US-SYN.csv", "--market", "US-SYN", "--logs-dir", "logs"]
+volumes:
+  sws_data:
+  sws_cache:
+  sws_snapshots:

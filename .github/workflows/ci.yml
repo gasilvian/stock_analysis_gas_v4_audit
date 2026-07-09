@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-and-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package
+        run: python -m pip install -U pip && python -m pip install -e ".[dev,api,dashboard,live,ci,e2e]"
+      - name: Ruff lint
+        run: ruff check src dashboard tests scripts
+      - name: Offline pytest
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+        run: python -m pytest -q
+      - name: Validate demo output schema
+        run: python scripts/ci/validate_demo_outputs.py
+      - name: Governance gate - no runtime normalized score
+        run: python scripts/ci/check_no_score_normalized.py
+      - name: Governance gate - dashboard attribution footer
+        run: python scripts/ci/check_attribution_footer.py
+      - name: Governance gate - real source readiness remains honest
+        run: python scripts/ci/check_real_source_population_workflow.py
+      - name: Legal scope report
+        run: python -m sws_engine.cli legal-scope-report --scope config/legal_scope.yaml
+      - name: Source registry report
+        run: python -m sws_engine.cli source-registry-report --registry config/source_registry.yaml || true
+      - name: Production readiness dry-run
+        run: python -m sws_engine.cli production-readiness --scope config/legal_scope.yaml --registry config/source_registry.yaml || true
+      - name: Verify validation reports exist
+        run: test -f validation/validation_report_v3.1_live_data_stepA.md && test -f validation/validation_report_v3.1_BCDE_operational_step.md

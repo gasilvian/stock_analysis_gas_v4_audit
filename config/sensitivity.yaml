@@ -1,0 +1,33 @@
+metadata:
+  version: "v4.0-p0.5"
+  description: "Auxiliary sensitivity policy. Does not modify assumptions.yaml or valuation formulas."
+
+discount_rate_terminal_growth:
+  discount_rate_bps: [-100, 0, 100]
+  terminal_growth_bps: [-50, 0, 50]
+
+valuation_range:
+  bear:
+    discount_rate_bps: 100
+    terminal_growth_bps: -50
+  base:
+    discount_rate_bps: 0
+    terminal_growth_bps: 0
+  bull:
+    discount_rate_bps: -100
+    terminal_growth_bps: 50
+
+erp_sensitivity_bps: [-100, 0, 100]
+risk_free_sensitivity_bps: [-100, 0, 100]
+
+terminal_value_dominance_threshold: 0.75
+
+fragility_thresholds:
+  medium_spread_pct_of_base: 0.25
+  high_spread_pct_of_base: 0.60
+
+reverse_dcf:
+  min_growth: -0.20
+  max_growth: 0.30
+  tolerance: 0.0001
+  max_iterations: 100

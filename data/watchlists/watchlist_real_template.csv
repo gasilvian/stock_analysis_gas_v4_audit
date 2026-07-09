@@ -1,0 +1,3 @@
+ticker,snapshot_path,industry,country,market,region,provider_mode,manual_override_path
+AAPL,data/recorded_yfinance/AAPL_snapshot.json,Technology,United States,US,North America,yfinance-live,
+MSFT,data/recorded_yfinance/MSFT_snapshot.json,Technology,United States,US,North America,yfinance-live,

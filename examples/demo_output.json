@@ -1,0 +1,606 @@
+{
+  "ticker": "DEMO",
+  "exchange": "DemoEX",
+  "valuation_date": "2026-07-06",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "valuation_model": "two_stage_fcf",
+  "valuation_variant": "manual_input",
+  "valuation_model_source_class": "E3",
+  "fair_value": 120.0,
+  "price": 80.0,
+  "discount_pct": 0.3333333333333333,
+  "scores": {
+    "value": {
+      "score_raw": 5,
+      "known_checks_count": 6,
+      "unknown_checks_count": 0,
+      "coverage_pct": 1.0
+    },
+    "future": {
+      "score_raw": 5,
+      "known_checks_count": 6,
+      "unknown_checks_count": 0,
+      "coverage_pct": 1.0
+    },
+    "past": {
+      "score_raw": 6,
+      "known_checks_count": 6,
+      "unknown_checks_count": 0,
+      "coverage_pct": 1.0
+    },
+    "health": {
+      "score_raw": 5,
+      "known_checks_count": 6,
+      "unknown_checks_count": 0,
+      "coverage_pct": 1.0
+    },
+    "dividend": {
+      "score_raw": 5,
+      "known_checks_count": 6,
+      "unknown_checks_count": 0,
+      "coverage_pct": 1.0
+    }
+  },
+  "checks": [
+    {
+      "axis": "value",
+      "id": 1,
+      "name": "trading_below_fair_value_20pct",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "price": 80.0,
+        "fair_value": 120.0,
+        "factor": 0.8
+      },
+      "threshold": "Price <= Fair_Value * 0.8",
+      "input_lineage": {
+        "price_as_of": "2026-07-03"
+      }
+    },
+    {
+      "axis": "value",
+      "id": 2,
+      "name": "trading_below_fair_value_40pct",
+      "result": "FAIL",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "price": 80.0,
+        "fair_value": 120.0,
+        "factor": 0.6
+      },
+      "threshold": "Price <= Fair_Value * 0.6",
+      "input_lineage": {
+        "price_as_of": "2026-07-03"
+      }
+    },
+    {
+      "axis": "value",
+      "id": 3,
+      "name": "pe_below_market",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "pe": 16.0,
+        "benchmark": 18.0
+      },
+      "threshold": "0 < PE < market_PE_median_profitable",
+      "input_lineage": {
+        "price_as_of": "2026-07-03",
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "value",
+      "id": 4,
+      "name": "pe_below_industry",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "pe": 16.0,
+        "benchmark": 20.0
+      },
+      "threshold": "0 < PE < industry_PE_median_profitable",
+      "input_lineage": {
+        "price_as_of": "2026-07-03",
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "value",
+      "id": 5,
+      "name": "peg_below_1",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "peg": 0.7272727272727273,
+        "earnings_growth": 0.22
+      },
+      "threshold": "0 < PEG < 1",
+      "input_lineage": {
+        "price_as_of": "2026-07-03",
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "value",
+      "id": 6,
+      "name": "pb_below_industry",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "pb_tangible": 4.0,
+        "industry_pb_average": 4.5
+      },
+      "threshold": "0 < PB(tangible) < industry_PB_average",
+      "input_lineage": {
+        "price_as_of": "2026-07-03",
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "future",
+      "id": 1,
+      "name": "earnings_growth_above_savings_cpi",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "earnings_growth": 0.22,
+        "savings_rate": 0.02,
+        "cpi": 0.03,
+        "becomes_profitable_in_5y": false
+      },
+      "threshold": "earnings_growth > savings_rate + CPI OR becomes profitable in 5y",
+      "input_lineage": {
+        "analyst_estimates_as_of": "2026-06-30"
+      }
+    },
+    {
+      "axis": "future",
+      "id": 2,
+      "name": "earnings_growth_above_market",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "earnings_growth": 0.22,
+        "market_net_income_growth": 0.09
+      },
+      "threshold": "earnings_growth > market weighted net income growth",
+      "input_lineage": {
+        "analyst_estimates_as_of": "2026-06-30",
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "future",
+      "id": 3,
+      "name": "revenue_growth_above_market",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "revenue_growth": 0.16,
+        "market_revenue_growth": 0.07
+      },
+      "threshold": "revenue_growth > market weighted revenue growth",
+      "input_lineage": {
+        "analyst_estimates_as_of": "2026-06-30",
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "future",
+      "id": 4,
+      "name": "earnings_growth_above_20pct",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "earnings_growth": 0.22
+      },
+      "threshold": "earnings_growth > 20%",
+      "input_lineage": {
+        "analyst_estimates_as_of": "2026-06-30"
+      }
+    },
+    {
+      "axis": "future",
+      "id": 5,
+      "name": "revenue_growth_above_20pct",
+      "result": "FAIL",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "revenue_growth": 0.16
+      },
+      "threshold": "revenue_growth > 20%",
+      "input_lineage": {
+        "analyst_estimates_as_of": "2026-06-30"
+      }
+    },
+    {
+      "axis": "future",
+      "id": 6,
+      "name": "roe_3y_above_20pct",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "roe_3y_estimate": 0.24
+      },
+      "threshold": "estimated ROE in 3 years > 20%",
+      "input_lineage": {
+        "analyst_estimates_as_of": "2026-06-30"
+      }
+    },
+    {
+      "axis": "past",
+      "id": 1,
+      "name": "eps_growth_1y_above_industry",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "eps_growth_1y": 0.18,
+        "industry_eps_growth": 0.1
+      },
+      "threshold": "1y EPS growth > industry average EPS growth",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31",
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "past",
+      "id": 2,
+      "name": "eps_above_5y_ago",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "current_eps": 5.0,
+        "eps_5y_ago": 2.8
+      },
+      "threshold": "current EPS > EPS 5 years ago",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "past",
+      "id": 3,
+      "name": "current_eps_growth_above_5y_average",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "eps_growth_1y": 0.18,
+        "eps_growth_5y_avg": 0.12
+      },
+      "threshold": "LTM YoY EPS growth > 5y avg annual EPS growth",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "past",
+      "id": 4,
+      "name": "roe_above_20pct",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "roe": 0.22,
+        "equity": 2400000000.0
+      },
+      "threshold": "ROE > 20%",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "past",
+      "id": 5,
+      "name": "roce_improved_3y",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "roce_current": 0.19,
+        "roce_3y_ago": 0.15
+      },
+      "threshold": "current ROCE > ROCE 3 years ago",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "past",
+      "id": 6,
+      "name": "roa_above_industry",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "roa": 0.11,
+        "industry_roa": 0.08
+      },
+      "threshold": "ROA > industry average ROA",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31",
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "health",
+      "id": 1,
+      "name": "st_assets_cover_st_liabilities",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "st_assets": 1500000000.0,
+        "st_liabilities": 900000000.0
+      },
+      "threshold": "ST assets > ST liabilities",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "health",
+      "id": 2,
+      "name": "st_assets_cover_lt_liabilities",
+      "result": "FAIL",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "st_assets": 1500000000.0,
+        "lt_liabilities": 1700000000.0
+      },
+      "threshold": "ST assets > LT liabilities",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "health",
+      "id": 3,
+      "name": "debt_to_equity_not_worse_5y",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "debt_current": 600000000.0,
+        "equity": 2400000000.0,
+        "debt_5y_ago": 700000000.0,
+        "equity_5y_ago": 1800000000.0
+      },
+      "threshold": "current D/E <= D/E 5 years ago",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "health",
+      "id": 4,
+      "name": "debt_to_equity_below_40pct",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "debt_current": 600000000.0,
+        "equity": 2400000000.0
+      },
+      "threshold": "D/E < 40%",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "health",
+      "id": 5,
+      "name": "ocf_covers_20pct_debt",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "operating_cash_flow": 450000000.0,
+        "total_debt": 600000000.0
+      },
+      "threshold": "OCF > 20% * total debt",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "health",
+      "id": 6,
+      "name": "interest_coverage_above_5x",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "ebit": 700000000.0,
+        "net_interest_expense": 60000000.0,
+        "total_debt": 600000000.0
+      },
+      "threshold": "EBIT > 5 * net interest expense",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "dividend",
+      "id": 1,
+      "name": "yield_above_market_p25",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "dividend_yield": 0.0219,
+        "market_p25": 0.015
+      },
+      "threshold": "yield > market P25",
+      "input_lineage": {
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "dividend",
+      "id": 2,
+      "name": "yield_above_market_p75",
+      "result": "FAIL",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "dividend_yield": 0.0219,
+        "market_p75": 0.035
+      },
+      "threshold": "yield > market P75",
+      "input_lineage": {
+        "industry_averages_as_of": "2026-07-01"
+      }
+    },
+    {
+      "axis": "dividend",
+      "id": 3,
+      "name": "stable_dividend_10y",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "dps_history_10y": [
+          1.0,
+          1.05,
+          1.1,
+          1.18,
+          1.25,
+          1.32,
+          1.4,
+          1.5,
+          1.62,
+          1.75
+        ],
+        "history_years": 10,
+        "max_annual_decline": -0.04761904761904766
+      },
+      "threshold": "no annual DPS decline > 10% over 10 years",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "dividend",
+      "id": 4,
+      "name": "dividend_higher_than_10y_ago",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "dps_history_10y": [
+          1.0,
+          1.05,
+          1.1,
+          1.18,
+          1.25,
+          1.32,
+          1.4,
+          1.5,
+          1.62,
+          1.75
+        ],
+        "history_years": 10,
+        "dps_current": 1.75,
+        "dps_10y_ago": 1.0
+      },
+      "threshold": "current annualized DPS > annualized DPS 10 years ago",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "dividend",
+      "id": 5,
+      "name": "current_payout_sustainable",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "payout_ratio": 0.35
+      },
+      "threshold": "0% < payout < 90%",
+      "input_lineage": {
+        "financials_as_of": "2026-03-31"
+      }
+    },
+    {
+      "axis": "dividend",
+      "id": 6,
+      "name": "future_payout_sustainable",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "exact",
+      "source_class": "E0",
+      "inputs": {
+        "estimated_payout_3y": 0.38
+      },
+      "threshold": "0% < estimated payout +3y < 90%",
+      "input_lineage": {
+        "analyst_estimates_as_of": "2026-06-30"
+      }
+    }
+  ],
+  "lineage": {
+    "price_as_of": "2026-07-03",
+    "financials_as_of": "2026-03-31",
+    "analyst_estimates_as_of": "2026-06-30",
+    "fx_as_of": "2026-07-03",
+    "industry_averages_as_of": "2026-07-01",
+    "assumptions_as_of": "2026-07-06",
+    "provider_versions": {
+      "manual_curated": "demo-v1"
+    }
+  },
+  "warnings": [
+    "NOT_INVESTMENT_ADVICE: quantitative exploratory analysis of a public historical methodology; not the live Simply Wall St model",
+    "DEMO_FIXTURE_ONLY: synthetic input data used for development/testing, not real company analysis"
+  ]
+}

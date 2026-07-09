@@ -1,0 +1,25 @@
+{
+  "test_id": "gold_amzn_dcf_2019",
+  "source": "Company-Analysis-Model/dcf-update-q1-2019.markdown (public example, 14/2/2019)",
+  "input_snapshot": {
+    "analyst_fcf_musd": [27209, 37268, 46213, 58129, 70986],
+    "analyst_counts": [12, 9, 4, 3, 3],
+    "documented_full_path_musd": [27209, 37268, 46213, 58129, 70986,
+                                  81470, 90560, 98374, 105122, 111030],
+    "discount_rate": 0.1199,
+    "long_run_growth": 0.0273,
+    "shares_outstanding_m": 488.96,
+    "price": 1670.43
+  },
+  "assumptions_snapshot": {"dcf_decay_factor": 0.7},
+  "expected_output": {
+    "fair_value_per_share": 1548.0,
+    "pv_stage1_musd": 359949,
+    "terminal_value_musd": 1231872,
+    "extrapolated_growth_2025_2028": [0.1116, 0.0863, 0.0686, 0.0562]
+  },
+  "tolerance": {"fair_value": "0.1%", "growth_path": "0.05pp",
+    "note": "public inputs rounded to USD millions and 2dp rates"},
+  "lineage": {"price_as_of": "2019-02-14", "analyst_estimates_as_of": "2019-02-14"},
+  "result": "NOT_RUN"
+}

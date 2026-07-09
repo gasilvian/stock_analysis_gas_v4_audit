@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "usage_scope": "internal_personal_educational",
+  "commercial_use_enabled": false,
+  "external_access_enabled": false,
+  "legal_review_completed": false,
+  "blocking_issues": [],
+  "warnings": [
+    "scope is internal/non-commercial; external or commercial deployment remains blocked without review"
+  ],
+  "path": "config/legal_scope.yaml",
+  "note": "This is an operational use-scope gate, not legal advice."
+}

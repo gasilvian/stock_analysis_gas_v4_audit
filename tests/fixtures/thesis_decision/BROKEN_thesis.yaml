@@ -1,0 +1,13 @@
+ticker: JPM
+created_at: 2026-07-09
+thesis_type: standard_equity_screen_candidate
+watch_metrics:
+  - id: provider_degradation_watch
+    source_field: audit.provider_degradation_visible
+    operator: eq
+    threshold: true
+invalidation_rules:
+  - id: rankable_required
+    source_field: model_applicability.allowed_score_usage
+    operator: neq
+    threshold: rankable

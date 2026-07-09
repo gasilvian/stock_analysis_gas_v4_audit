@@ -1,0 +1,6 @@
+ticker,kind,market,country,region,industry,provider_profile,price,eps,shares_outstanding,total_assets,intangible_assets,total_liabilities,market_cap,net_income_growth,revenue_growth,eps_growth,roa,dividend_yield
+AAPL,stock,US,United States,North America,Technology,yfinance_pragmatic,,,,,,,,,,,,
+MSFT,stock,US,United States,North America,Technology,yfinance_pragmatic,,,,,,,,,,,,
+GOOGL,stock,US,United States,North America,Communication Services,yfinance_pragmatic,,,,,,,,,,,,
+AMZN,stock,US,United States,North America,Consumer Discretionary,yfinance_pragmatic,,,,,,,,,,,,
+JPM,stock,US,United States,North America,Banks,yfinance_pragmatic,,,,,,,,,,,,

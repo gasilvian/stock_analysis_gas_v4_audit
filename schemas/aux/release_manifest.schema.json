@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/sws_engine/schemas/aux/release_manifest.schema.json",
+  "title": "v4.0 P0.14 Release Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sprint",
+    "release_id",
+    "status",
+    "reason_code",
+    "scope_guardrails",
+    "capabilities",
+    "capability_summary",
+    "validation_reports",
+    "artifact_index",
+    "known_limitations",
+    "manual_review_items",
+    "not_investment_advice"
+  ],
+  "properties": {
+    "schema_version": {"const": "release_manifest.v0.1"},
+    "sprint": {"const": "v4.0-p0.14"},
+    "release_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["MVP_COMPLETE", "MVP_COMPLETE_WITH_LIMITATIONS", "BLOCKED"]},
+    "reason_code": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string"},
+    "repository": {"type": "object"},
+    "scope_guardrails": {
+      "type": "object",
+      "required": [
+        "usage_scope",
+        "commercial_use_enabled",
+        "external_access_enabled",
+        "legal_review_completed",
+        "not_investment_advice",
+        "production_readiness",
+        "output_schema_unchanged_policy",
+        "unknown_policy_preserved",
+        "provider_degradation_visible_policy",
+        "recommendation_language_absent"
+      ],
+      "properties": {
+        "usage_scope": {"const": "internal_personal_educational"},
+        "commercial_use_enabled": {"const": false},
+        "external_access_enabled": {"const": false},
+        "legal_review_completed": {"const": false},
+        "not_investment_advice": {"const": true},
+        "production_readiness": {"type": "string"},
+        "output_schema_unchanged_policy": {"const": true},
+        "unknown_policy_preserved": {"const": true},
+        "provider_degradation_visible_policy": {"const": true},
+        "recommendation_language_absent": {"const": true}
+      },
+      "additionalProperties": true
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "status", "reason_code", "input_lineage"],
+        "properties": {
+          "id": {"type": "string"},
+          "label": {"type": "string"},
+          "status": {"enum": ["PASS", "UNKNOWN"]},
+          "reason_code": {"type": "string"},
+          "required_files_count": {"type": "integer"},
+          "missing_files_count": {"type": "integer"},
+          "missing_files": {"type": "array", "items": {"type": "string"}},
+          "input_lineage": {"type": "array"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "capability_summary": {
+      "type": "object",
+      "required": ["total", "pass", "unknown_or_missing"],
+      "properties": {
+        "total": {"type": "integer"},
+        "pass": {"type": "integer"},
+        "unknown_or_missing": {"type": "integer"}
+      }
+    },
+    "validation_reports": {"type": "array"},
+    "validation_summary": {"type": "object"},
+    "artifact_index": {"type": "array"},
+    "artifact_summary": {"type": "object"},
+    "gate_summary": {"type": "object"},
+    "known_limitations": {"type": "array", "items": {"type": "string"}},
+    "next_phase": {"type": "object"},
+    "manual_review_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reason_code", "message"],
+        "properties": {
+          "reason_code": {"type": "string"},
+          "message": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "not_investment_advice": {"const": true}
+  },
+  "additionalProperties": true
+}

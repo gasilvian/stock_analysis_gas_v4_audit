@@ -1,0 +1,15 @@
+{
+  "schema_version": "portfolio_audit.v0.1",
+  "portfolio_id": "core",
+  "status": "PASS_WITH_LIMITATIONS",
+  "reason_code": "PORTFOLIO_AUDIT_COMPUTED",
+  "unknown_exposure": {"weight_pct": 10.0},
+  "weighted_conclusion_risk": {"level": "MEDIUM"},
+  "holdings": [
+    {"ticker": "AAPL", "weight_pct": 40.0},
+    {"ticker": "MSFT", "weight_pct": 35.0}
+  ],
+  "source_quality": "MEDIUM",
+  "source_class": "operator_curated_portfolio_input",
+  "not_investment_advice": true
+}

@@ -1,0 +1,27 @@
+{
+  "template_type": "reit_input_template",
+  "description": "REIT manual input template. AFFO/FFO/NAV are usually not robustly available via yfinance.",
+  "ticker": "REIT",
+  "exchange": "EXCHANGE",
+  "valuation_date": "YYYY-MM-DD",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "company_type": "reit",
+  "price": null,
+  "shares_outstanding": null,
+  "affo_ffo_nav": {
+    "affo": null,
+    "ffo": null,
+    "nav": null,
+    "affo_forward": null,
+    "ffo_forward": null
+  },
+  "dividend": {
+    "dividend_yield": null,
+    "dps_history_10y": [],
+    "payout_ratio": null,
+    "estimated_payout_3y": null
+  },
+  "market_averages": null,
+  "industry_averages": null,
+  "source_quality_policy": "exact when sourced from filings/curated provider; missing otherwise"
+}

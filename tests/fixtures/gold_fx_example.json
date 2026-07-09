@@ -1,0 +1,14 @@
+{
+  "test_id": "gold_fx_example",
+  "source": "Portfolio-Analysis-Model/model.markdown (currency conversion example)",
+  "input_snapshot": {
+    "cost_usd": 1000.0, "value_usd": 1200.0,
+    "fx_at_buy_eur_per_usd": 1.4, "fx_current_eur_per_usd": 1.5
+  },
+  "assumptions_snapshot": {},
+  "expected_output": {"combined_gain_eur": 400.0, "price_gain_eur": 300.0,
+    "currency_gain_eur": 100.0},
+  "tolerance": {"all": 0.01},
+  "lineage": {"fx_as_of": "example"},
+  "result": "NOT_RUN"
+}

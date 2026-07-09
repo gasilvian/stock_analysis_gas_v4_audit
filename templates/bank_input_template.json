@@ -1,0 +1,27 @@
+{
+  "template_type": "bank_input_template",
+  "description": "Bank/insurance manual input template. yfinance usually lacks NPL/deposits/charge-off fields, so manual override is expected.",
+  "ticker": "BANK",
+  "exchange": "EXCHANGE",
+  "valuation_date": "YYYY-MM-DD",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "company_type": "bank",
+  "price": null,
+  "shares_outstanding": null,
+  "current_bve": null,
+  "stable_future_roe": null,
+  "stable_future_bve": null,
+  "risk_free_rate_10y_5y_avg": null,
+  "equity_risk_premium": null,
+  "financial_health_inputs": {
+    "total_assets": null,
+    "equity": null,
+    "allowance_for_npl": null,
+    "npl": null,
+    "deposits": null,
+    "total_liabilities": null,
+    "net_loans": null,
+    "net_charge_offs": null
+  },
+  "source_quality_policy": "exact for audited/manual sourced values; assumption for curated policy tables; missing if not available"
+}

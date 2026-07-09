@@ -1,0 +1,122 @@
+metadata:
+  version: "v3.1"
+  valuation_date: null
+  provider_profile: "sws_public_faithful_manual_inputs"
+  last_reviewed: "2026-07-06"
+  model_owner: "model_owner"
+  engineering_owner: "engineering_owner"
+  data_owner: "data_owner"
+
+source_classes:
+  E0: "explicit rule documented in public GitHub source"
+  E1: "numeric inference validated from public gold example"
+  E2: "own assumption/configurable policy"
+  E3: "pragmatic implementation decision"
+  E4: "unsupported/insufficiently supported claim"
+
+ddm_perpetual_growth:
+  value_source: "10y_government_bond_5y_average"
+  source_class: "E2"
+  confidence: "reasonable_consistency_with_two_stage_dcf"
+  configurable: true
+  owner: "model_owner"
+  impact: "DDM fair value sensitivity"
+  override_policy: "override allowed only with explicit report warning"
+
+excess_returns_expected_growth:
+  value_source: "10y_government_bond_5y_average"
+  source_class: "E2"
+  confidence: "not_explicit_in_public_doc"
+  configurable: true
+  owner: "model_owner"
+  impact: "bank/insurance terminal value sensitivity"
+  override_policy: "override allowed only with explicit report warning"
+
+dcf_decay_factor:
+  value: 0.7
+  source_class: "E1"
+  confidence: "single_gold_example_amzn"
+  source: "dcf_update_q1_2019_amzn"
+  configurable: true
+  owner: "model_owner"
+  impact: "extrapolated FCF years without analyst estimates"
+  override_policy: "override must be recorded in validation snapshot"
+
+beta_tax_rate:
+  default_value: 0.30
+  source_class: "E2"
+  preferred_value: "company_effective_tax_rate_or_country_table"
+  configurable: true
+  owner: "data_owner"
+  impact: "levered beta and cost of equity"
+
+health_no_interest_expense_policy:
+  default: "PASS_if_no_debt_and_no_interest_expense"
+  source_class: "E3"
+  configurable: true
+  owner: "model_owner"
+  impact: "Health check H6 for debt-free companies"
+
+loss_making_average_window_years:
+  value: 3
+  source_class: "E2"
+  configurable: true
+  owner: "model_owner"
+  impact: "switch to cash-runway health checks"
+
+outlier_caps:
+  pe_max: 200
+  pb_max: 50
+  peg_max: 20
+  source_class: "E3"
+  configurable: true
+  owner: "model_owner"
+  impact: "portfolio metric aggregation"
+
+unknown_scoring_policy:
+  score_raw_denominator: 6
+  normalize_by_known_checks: false
+  show_coverage_pct: true
+  source_class: "E3"
+  owner: "model_owner"
+  impact: "comparability across companies with missing data"
+
+portfolio_day_count:
+  convention: "ACT/365.25"
+  source_class: "E3"
+  configurable: true
+  owner: "model_owner"
+  impact: "AYI and CAGR"
+
+portfolio_buy_duration_policy:
+  default: "measure_buy_duration_to_valuation_date_even_if_later_sold"
+  source_class: "E1"
+  confidence: "inferred_from_public_amzn_portfolio_example"
+  configurable: true
+  owner: "model_owner"
+  impact: "AYI and CAGR"
+
+dividend_gate_policy:
+  default: "if_yield_in_bottom_10pct_market_then_checks_D3_to_D6_UNKNOWN"
+  source_class: "E0/E3"
+  configurable: true
+  owner: "model_owner"
+  impact: "Dividend score coverage"
+
+provider_profiles:
+  sws_public_faithful_manual_inputs:
+    description: "Manual/curated inputs to implement public SWS methodology as faithfully as possible."
+    source_class_default: "E0"
+  yfinance_pragmatic:
+    description: "Pragmatic provider profile with visible degradation for missing/approximate inputs."
+    source_class_default: "E3"
+
+dcf_extrapolation_seed_policy:
+  default: "double_decay_from_avg_yoy"
+  alternatives: ["single_decay_from_last_yoy"]
+  source_class: "E1"
+  confidence: "calibrated_on_amzn_public_example_reproduces_14_77_to_5_62_path"
+  configurable: true
+  owner: "model_owner"
+  impact: "first extrapolated FCF year when analyst estimates cover <10 years"
+  override_policy: "override must be recorded in validation snapshot"

@@ -1,0 +1,44 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "AAPL",
+  "exchange": "NasdaqGS",
+  "valuation_date": "2026-07-09",
+  "run_id": "run_aapl_p11",
+  "input_snapshot_id": "snap_aapl_p11",
+  "assumptions_hash": "abc123",
+  "provider_profile": "yfinance_pragmatic",
+  "score_summary": {
+    "value": {"score_raw": 4, "coverage_pct": 0.8, "known_checks_count": 5, "unknown_checks_count": 1},
+    "future": {"score_raw": 3, "coverage_pct": 0.5, "known_checks_count": 3, "unknown_checks_count": 3},
+    "past": {"score_raw": 5, "coverage_pct": 1.0, "known_checks_count": 6, "unknown_checks_count": 0}
+  },
+  "checks_summary": {"PASS": 17, "FAIL": 8, "UNKNOWN": 5, "total": 30},
+  "data_confidence": {
+    "status": "PASS_WITH_LIMITATIONS",
+    "reason_code": "YFINANCE_PRAGMATIC_DEGRADED",
+    "level": "MEDIUM",
+    "confidence_grade": "C",
+    "unknown_checks_count": 5,
+    "critical_missing_inputs": ["fcf_estimates", "analyst_estimates_weighted"],
+    "provider_degradation_visible": true
+  },
+  "model_applicability": {
+    "status": "STANDARD_OK",
+    "reason_code": "STANDARD_EQUITY_MODEL_APPLICABLE",
+    "allowed_score_usage": "rankable",
+    "recommended_model": "two_stage_fcf"
+  },
+  "conclusion_risk": {
+    "status": "PASS_WITH_LIMITATIONS",
+    "reason_code": "MANY_UNKNOWN_CHECKS",
+    "risk_level": "MEDIUM",
+    "drivers": ["UNKNOWN future checks", "provider degradation"]
+  },
+  "critical_missing_inputs": ["fcf_estimates", "analyst_estimates_weighted"],
+  "unknown_clusters": [{"reason_code": "PROVIDER_LIMITATION", "count": 3}],
+  "provider_degradation_visible": true,
+  "warnings": ["YFINANCE_PRAGMATIC_DEGRADED"],
+  "source_quality": "MEDIUM",
+  "source_class": "third_party_pragmatic",
+  "not_investment_advice": true
+}

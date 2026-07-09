@@ -1,0 +1,4 @@
+ticker,snapshot_path,industry,country,market
+SYN-ACME,data/recorded/SYN-ACME.json,Software,US,US-SYN
+SYN-BURN,data/recorded/SYN-BURN.json,Software,US,US-SYN
+SYN-GHOST,data/recorded/SYN-GHOST.json,Software,US,US-SYN

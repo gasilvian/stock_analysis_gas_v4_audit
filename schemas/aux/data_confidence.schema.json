@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Data Confidence v0.2",
+  "type": "object",
+  "required": ["status", "level", "confidence_grade", "unknown_checks_count", "source_quality_mix", "source_class_mix", "critical_missing_inputs", "provider_degradation_visible", "reason_codes"],
+  "properties": {
+    "status": {"enum": ["PASS", "UNKNOWN"]},
+    "level": {"enum": ["HIGH", "MEDIUM", "LOW", "UNKNOWN"]},
+    "confidence_grade": {"type": "string"},
+    "confidence_score": {"type": "number"},
+    "coverage_pct_overall": {"type": ["number", "null"]},
+    "unknown_checks_count": {"type": "integer", "minimum": 0},
+    "warnings_count": {"type": "integer", "minimum": 0},
+    "source_quality_mix": {"type": "object"},
+    "source_class_mix": {"type": "object"},
+    "critical_missing_inputs": {"type": "array"},
+    "unknown_clusters": {"type": "array"},
+    "provider_degradation_visible": {"type": "boolean"},
+    "reason_codes": {"type": "array", "items": {"type": "string"}},
+    "source_tier_mix": {"type": "object"},
+    "field_quality_details": {"type": "array"},
+    "stale_fields": {"type": "array"},
+    "field_lineage_score": {"type": "number"},
+    "policy_version": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

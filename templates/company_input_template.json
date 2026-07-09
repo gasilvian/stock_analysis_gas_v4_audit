@@ -1,0 +1,88 @@
+{
+  "template_type": "company_input_template",
+  "description": "Full company input template for internal/manual completion. Leave unknown fields null; the engine must return UNKNOWN rather than inventing values.",
+  "ticker": "AAPL",
+  "exchange": "NasdaqGS",
+  "valuation_date": "YYYY-MM-DD",
+  "provider_profile": "yfinance_pragmatic",
+  "company_type": "non_financial",
+  "market": "US",
+  "country": "United States",
+  "region": "North America",
+  "industry": "Technology",
+  "currency": "USD",
+  "price": null,
+  "shares_outstanding": null,
+  "fair_value": null,
+  "financial_statements": {
+    "latest_period": "YYYY-MM-DD",
+    "total_assets": null,
+    "intangible_assets": null,
+    "total_liabilities": null,
+    "st_assets": null,
+    "st_liabilities": null,
+    "lt_liabilities": null,
+    "equity": null,
+    "total_debt": null,
+    "operating_cash_flow": null,
+    "capex_history_3y": [],
+    "revenue": null,
+    "net_income": null,
+    "ebit": null,
+    "net_interest_expense": null
+  },
+  "market_averages": {
+    "pe_median_profitable": null,
+    "net_income_growth": null,
+    "revenue_growth": null,
+    "savings_rate": null,
+    "cpi": null,
+    "dividend_yield_p10": null,
+    "dividend_yield_p25": null,
+    "dividend_yield_p75": null
+  },
+  "industry_averages": {
+    "pe_median_profitable": null,
+    "pb_average": null,
+    "eps_growth": null,
+    "roa": null
+  },
+  "growth_and_history": {
+    "earnings_growth": null,
+    "revenue_growth": null,
+    "roe_3y_estimate": null,
+    "current_eps": null,
+    "eps_5y_ago": null,
+    "eps_growth_1y": null,
+    "eps_growth_5y_avg": null,
+    "roe": null,
+    "roa": null,
+    "roce_current": null,
+    "roce_3y_ago": null
+  },
+  "dividend": {
+    "dividend_yield": null,
+    "dps_history_10y": [],
+    "payout_ratio": null,
+    "estimated_payout_3y": null
+  },
+  "rates": {
+    "risk_free_rate_10y_5y_avg": null,
+    "equity_risk_premium": null
+  },
+  "lineage_required": [
+    "price_as_of",
+    "financials_as_of",
+    "analyst_estimates_as_of",
+    "fx_as_of",
+    "industry_averages_as_of",
+    "assumptions_as_of",
+    "provider_versions"
+  ],
+  "manual_override_files": [
+    "templates/manual_override_template.json",
+    "templates/bank_manual_override_template.json",
+    "templates/reit_manual_override_template.json"
+  ],
+  "warning": "Do not fill unknown values with estimates unless you can label source_quality/source_class and lineage."
+}

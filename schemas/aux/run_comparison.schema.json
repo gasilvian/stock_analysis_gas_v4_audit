@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.sws-engine/schemas/aux/run_comparison.schema.json",
+  "title": "SWS v4 P0.12 Run Comparison Package",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sprint",
+    "status",
+    "reason_code",
+    "comparison_id",
+    "artifact_type",
+    "ticker",
+    "previous",
+    "current",
+    "metadata_changes",
+    "score_changes",
+    "checks_changes",
+    "component_changes",
+    "unknown_changes",
+    "lineage_changes",
+    "warnings_changes",
+    "material_change_count",
+    "manual_review_items",
+    "recommendation_language_absent",
+    "not_investment_advice"
+  ],
+  "properties": {
+    "schema_version": {"const": "run_comparison.v0.1"},
+    "sprint": {"const": "v4.0-p0.12"},
+    "status": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL"]},
+    "reason_code": {"type": "string", "minLength": 1},
+    "comparison_id": {"type": "string", "minLength": 1},
+    "artifact_type": {"type": "string", "minLength": 1},
+    "ticker": {"type": "string", "minLength": 1},
+    "previous": {"type": "object"},
+    "current": {"type": "object"},
+    "metadata_changes": {"type": "object"},
+    "score_changes": {
+      "type": "object",
+      "required": ["axes", "changed_count"],
+      "properties": {
+        "axes": {"type": "array", "items": {"type": "object"}},
+        "changed_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "checks_changes": {
+      "type": "object",
+      "required": ["changed_checks", "result_changed_count", "new_unknown_count", "resolved_unknown_count"],
+      "properties": {
+        "changed_checks": {"type": "array", "items": {"type": "object"}},
+        "result_changed_count": {"type": "integer", "minimum": 0},
+        "new_unknown_count": {"type": "integer", "minimum": 0},
+        "resolved_unknown_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "component_changes": {"type": "object"},
+    "unknown_changes": {
+      "type": "object",
+      "required": ["critical_missing_inputs_added", "critical_missing_inputs_resolved"],
+      "properties": {
+        "previous_unknown_checks_count": {"type": ["integer", "null"], "minimum": 0},
+        "current_unknown_checks_count": {"type": ["integer", "null"], "minimum": 0},
+        "unknown_checks_delta": {"type": ["number", "string", "null"]},
+        "critical_missing_inputs_previous": {"type": "array", "items": {"type": "string"}},
+        "critical_missing_inputs_current": {"type": "array", "items": {"type": "string"}},
+        "critical_missing_inputs_added": {"type": "array", "items": {"type": "string"}},
+        "critical_missing_inputs_resolved": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "lineage_changes": {
+      "type": "object",
+      "required": ["changed_fields", "changed_count"],
+      "properties": {
+        "changed_fields": {"type": "array", "items": {"type": "object"}},
+        "changed_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "warnings_changes": {"type": "object"},
+    "material_change_count": {"type": "integer", "minimum": 0},
+    "manual_review_items": {"type": "array", "items": {"type": "string"}},
+    "recommendation_language_absent": {"type": "boolean"},
+    "recommendation_guardrail": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "not_investment_advice": {"const": true}
+  },
+  "additionalProperties": true
+}

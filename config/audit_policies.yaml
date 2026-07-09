@@ -1,0 +1,82 @@
+metadata:
+  version: "v4.0-p0.2"
+  purpose: "Auxiliary audit-layer policies for Data Confidence, source freshness, and Model Applicability. Does not modify model assumptions or output_schema.json."
+  source_class: "E2/E3"
+  owner: "model_owner"
+  last_reviewed: "2026-07-09"
+  note: "Audit policies are deliberately separate from config/assumptions.yaml. They govern confidence/visibility, not valuation/check formulas."
+
+data_confidence:
+  weights:
+    coverage_pct: 0.40
+    source_quality: 0.30
+    unknown_preservation: 0.20
+    field_lineage: 0.10
+  grade_thresholds:
+    A: 0.85
+    B: 0.70
+    C: 0.50
+    D: 0.30
+  level_map:
+    A: HIGH
+    B: HIGH
+    C: MEDIUM
+    D: LOW
+    E: LOW
+  source_quality_weights:
+    exact: 1.00
+    exact_or_approximation: 0.85
+    approximation: 0.60
+    approximation_or_missing: 0.40
+    assumption: 0.30
+    missing: 0.00
+  provider_caps:
+    yfinance_pragmatic:
+      max_grade: C
+      reason_code: YFINANCE_PRAGMATIC_CONFIDENCE_CAP
+  field_criticality_weights:
+    fcf_estimates: 1.00
+    risk_free_rate_10y_5y_avg: 1.00
+    equity_risk_premium: 1.00
+    analyst_estimates_weighted: 0.95
+    bank_deposits_npl_chargeoffs: 0.95
+    affo_ffo_nav: 0.95
+    market_averages: 0.80
+    industry_averages: 0.80
+    intangible_assets: 0.75
+    operating_cash_flow: 0.75
+    capex_history_3y: 0.75
+    unknown_input: 0.50
+  ttl_days_by_tier:
+    official_filing: 120
+    curated: 45
+    pragmatic: 7
+    manual: 30
+    synthetic: 0
+
+model_applicability:
+  default_unknown_usage: audit_only
+  allowed_score_usage:
+    standard_industrial: rankable
+    bank: do_not_compare
+    insurance: do_not_compare
+    reit: audit_only
+    fund_etf_excluded: do_not_compare
+    utility: display_only
+    commodity_cyclical: display_only
+    saas: rankable
+    pharma: display_only
+    adr_foreign: audit_only
+    loss_making: display_only
+  reason_codes:
+    standard_industrial: STANDARD_EQUITY_MODEL_APPLICABLE
+    bank: BANK_STANDARD_FCF_MODEL_LIMITED
+    insurance: INSURANCE_STANDARD_FCF_MODEL_LIMITED
+    reit: REIT_REQUIRES_AFFO_FFO_NAV
+    fund_etf_excluded: FUND_NOT_COMPANY_ANALYSIS_TARGET
+    utility: UTILITY_REQUIRES_CONTEXTUAL_INTERPRETATION
+    commodity_cyclical: COMMODITY_CYCLICAL_REQUIRES_CONTEXTUAL_INTERPRETATION
+    saas: SAAS_REQUIRES_SBC_AND_GROWTH_CONTEXT
+    pharma: PHARMA_REQUIRES_PIPELINE_AND_RND_CONTEXT
+    adr_foreign: ADR_FOREIGN_ISSUER_REQUIRES_CURRENCY_AND_FILING_REVIEW
+    loss_making: LOSS_MAKING_REQUIRES_CASH_RUNWAY_CONTEXT

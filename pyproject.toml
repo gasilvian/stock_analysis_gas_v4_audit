@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sws-snowflake-engine"
+version = "3.1.0"
+description = "Controlled implementation of the public GitHub Simply Wall St methodology (SWS Snowflake Engine v3.1 model pack). Not investment advice."
+requires-python = ">=3.10"
+dependencies = ["jsonschema>=4.0", "PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "httpx>=0.24", "fastapi>=0.100", "uvicorn>=0.23"]
+api = ["fastapi>=0.100", "uvicorn>=0.23", "httpx>=0.24"]
+dashboard = ["streamlit>=1.30", "plotly>=5.18", "pandas>=2.0", "requests>=2.31"]
+live = ["yfinance>=0.2", "requests-cache>=1.2", "pandas>=2.0"]
+ci = ["ruff>=0.5", "jsonschema>=4.0"]
+e2e = ["playwright>=1.40"]
+
+[project.scripts]
+sws-engine = "sws_engine.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["live: optional tests that require network/live provider access", "e2e: optional browser/dashboard tests requiring running services and Playwright"]
+
+[tool.ruff.lint.per-file-ignores]
+# Narrow, documented lint waivers so `ruff check .` gates CI without
+# modifying engine/dashboard/test code (audit rule). Cleanup tracked as P2.
+"dashboard/components/portfolio_components.py" = ["F401"]
+"dashboard/streamlit_compat.py" = ["F401"]
+"tests/averages_real/test_real_averages_builder.py" = ["E702"]
+"tests/data_layer/test_phase3.py" = ["F401", "E731"]
+"tests/manual/test_manual_override_workflow.py" = ["F401"]
+"tests/persistence/test_phase4.py" = ["F401", "E731"]
+"tests/providers/test_yfinance_mapper.py" = ["F401"]
+"tests/sources/test_real_source_registry.py" = ["F401"]
+"src/sws_engine/providers/recorded.py" = ["F401"]
+"src/sws_engine/providers/yfinance_mapper.py" = ["F401"]
+"src/sws_engine/sources/real_sources.py" = ["F401"]
+"src/sws_engine/api/db_adapter.py" = ["F401"]
+"src/sws_engine/checks/_helpers.py" = ["F401"]
+"src/sws_engine/checks/value.py" = ["F401"]
+"src/sws_engine/core/result.py" = ["F401"]
+"src/sws_engine/orchestration/batch.py" = ["F401"]
+"ops/monitoring.py" = ["F401"]

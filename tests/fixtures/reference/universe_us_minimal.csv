@@ -1,0 +1,5 @@
+ticker,exchange,country,currency,market,industry,sector,primary_listing
+AAPL,NasdaqGS,US,USD,US,Consumer Electronics,Technology,true
+JPM,NYSE,US,USD,US,Banks - Diversified,Financial Services,true
+O,NYSE,US,USD,US,REIT - Retail,Real Estate,true
+SPY,NYSEARCA,US,USD,US,ETF,Fund,true

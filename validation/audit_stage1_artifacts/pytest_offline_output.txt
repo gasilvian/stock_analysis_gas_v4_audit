@@ -1,0 +1,116 @@
+......................F.FF...........................F.F.s..........s... [ 60%]
+................................................                         [100%]
+=================================== FAILURES ===================================
+_________________________ test_github_workflows_exist __________________________
+
+    def test_github_workflows_exist():
+>       assert Path('.github/workflows/ci.yml').exists()
+E       AssertionError: assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('.github/workflows/ci.yml').exists
+E        +      where PosixPath('.github/workflows/ci.yml') = Path('.github/workflows/ci.yml')
+
+tests/ci/test_ci_governance_files.py:7: AssertionError
+_____________________ test_ci_workflow_has_required_gates ______________________
+
+    def test_ci_workflow_has_required_gates():
+>       text = Path('.github/workflows/ci.yml').read_text(encoding='utf-8')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/ci/test_ci_governance_files.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('.github/workflows/ci.yml'), mode = 'r', buffering = -1
+encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '.github/workflows/ci.yml'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+_______________ test_release_workflow_has_gold_gate_and_artifact _______________
+
+    def test_release_workflow_has_gold_gate_and_artifact():
+>       text = Path('.github/workflows/release.yml').read_text(encoding='utf-8')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/ci/test_ci_governance_files.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('.github/workflows/release.yml'), mode = 'r', buffering = -1
+encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '.github/workflows/release.yml'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+___________________________ test_docker_files_exist ____________________________
+
+    def test_docker_files_exist():
+        assert Path('Dockerfile').exists()
+        assert Path('dashboard.Dockerfile').exists()
+        assert Path('docker-compose.yml').exists()
+>       assert Path('.dockerignore').exists()
+E       AssertionError: assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('.dockerignore').exists
+E        +      where PosixPath('.dockerignore') = Path('.dockerignore')
+
+tests/deploy/test_deployment_scaffold.py:10: AssertionError
+_______________________ test_ops_scripts_and_docs_exist ________________________
+
+    def test_ops_scripts_and_docs_exist():
+        for path in [
+            'ops/backup.sh',
+            'ops/monitoring.sh',
+            'ops/monitoring.py',
+            'ops/security.md',
+            'deploy/README.md',
+            'deploy/production_checklist.md',
+            '.env.example',
+        ]:
+>           assert Path(path).exists()
+E           AssertionError: assert False
+E            +  where False = exists()
+E            +    where exists = PosixPath('.env.example').exists
+E            +      where PosixPath('.env.example') = Path('.env.example')
+
+tests/deploy/test_deployment_scaffold.py:29: AssertionError
+=============================== warnings summary ===============================
+../../../usr/local/lib/python3.12/dist-packages/fastapi/testclient.py:1
+  /usr/local/lib/python3.12/dist-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/ci/test_ci_governance_files.py::test_github_workflows_exist - As...
+FAILED tests/ci/test_ci_governance_files.py::test_ci_workflow_has_required_gates
+FAILED tests/ci/test_ci_governance_files.py::test_release_workflow_has_gold_gate_and_artifact
+FAILED tests/deploy/test_deployment_scaffold.py::test_docker_files_exist - As...
+FAILED tests/deploy/test_deployment_scaffold.py::test_ops_scripts_and_docs_exist
+5 failed, 113 passed, 2 skipped, 1 warning in 15.64s

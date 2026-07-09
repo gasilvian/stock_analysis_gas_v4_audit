@@ -1,0 +1,78 @@
+{
+  "ticker": "DEMO",
+  "exchange": "DemoEX",
+  "valuation_date": "2026-07-06",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "company_type": "non_financial",
+  "demo_fixture": true,
+
+  "price": 80.0,
+  "fair_value": 120.0,
+  "shares_outstanding": 100000000,
+
+  "total_assets": 5000000000,
+  "intangible_assets": 400000000,
+  "total_liabilities": 2600000000,
+
+  "eps": 5.0,
+  "current_eps": 5.0,
+  "eps_5y_ago": 2.8,
+  "eps_growth_1y": 0.18,
+  "eps_growth_5y_avg": 0.12,
+  "earnings_growth": 0.22,
+  "revenue_growth": 0.16,
+  "becomes_profitable_in_5y": false,
+  "roe_3y_estimate": 0.24,
+
+  "roe": 0.22,
+  "roce_current": 0.19,
+  "roce_3y_ago": 0.15,
+  "roa": 0.11,
+
+  "st_assets": 1500000000,
+  "st_liabilities": 900000000,
+  "lt_liabilities": 1700000000,
+  "debt_current": 600000000,
+  "debt_5y_ago": 700000000,
+  "equity": 2400000000,
+  "equity_5y_ago": 1800000000,
+  "operating_cash_flow": 450000000,
+  "total_debt": 600000000,
+  "ebit": 700000000,
+  "net_interest_expense": 60000000,
+
+  "dps_history_10y": [1.00, 1.05, 1.10, 1.18, 1.25, 1.32, 1.40, 1.50, 1.62, 1.75],
+  "dividend_yield": 0.0219,
+  "payout_ratio": 0.35,
+  "estimated_payout_3y": 0.38,
+
+  "market_averages": {
+    "pe_median_profitable": 18.0,
+    "net_income_growth": 0.09,
+    "revenue_growth": 0.07,
+    "savings_rate": 0.02,
+    "cpi": 0.03,
+    "dividend_yield_p10": 0.004,
+    "dividend_yield_p25": 0.015,
+    "dividend_yield_p75": 0.035
+  },
+  "industry_averages": {
+    "pe_median_profitable": 20.0,
+    "pb_average": 4.5,
+    "eps_growth": 0.10,
+    "roa": 0.08
+  },
+
+  "risk_free_rate_10y_5y_avg": 0.032,
+  "equity_risk_premium": 0.055,
+
+  "lineage": {
+    "price_as_of": "2026-07-03",
+    "financials_as_of": "2026-03-31",
+    "analyst_estimates_as_of": "2026-06-30",
+    "fx_as_of": "2026-07-03",
+    "industry_averages_as_of": "2026-07-01",
+    "assumptions_as_of": "2026-07-06",
+    "provider_versions": {"manual_curated": "demo-v1"}
+  }
+}

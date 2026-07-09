@@ -1,0 +1,23 @@
+{
+  "test_id": "gold_portfolio_amzn",
+  "source": "Portfolio-Analysis-Model/model.markdown (dollar-weighted example)",
+  "input_snapshot": {
+    "valuation_date": "2016-09-20",
+    "transactions": [
+      {"type": "buy", "date": "2013-05-01", "price": 248.23, "shares": 10},
+      {"type": "buy", "date": "2016-01-19", "price": 571.77, "shares": 5},
+      {"type": "sell", "date": "2016-05-09", "price": 679.75, "shares": 10}
+    ],
+    "current_price": 778.52
+  },
+  "assumptions_snapshot": {
+    "portfolio_day_count": "ACT/365.25",
+    "portfolio_buy_duration_policy": "measure_buy_duration_to_valuation_date_even_if_later_sold"
+  },
+  "expected_output": {"gain": 5348.95, "total_return": 1.0015,
+    "avg_years_invested": 1.93, "cagr": 0.4333},
+  "tolerance": {"gain": 0.01, "total_return": "0.1pp", "ayi": 0.01,
+    "cagr": "0.5pp (public example uses AYI rounded to 2dp)"},
+  "lineage": {"price_as_of": "2016-09-20", "fx_as_of": null},
+  "result": "NOT_RUN"
+}

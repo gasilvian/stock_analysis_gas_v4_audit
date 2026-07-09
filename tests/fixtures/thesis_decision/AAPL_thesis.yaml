@@ -1,0 +1,28 @@
+ticker: AAPL
+created_at: 2026-07-09
+thesis_type: quality_compounder
+review_cadence: quarterly
+next_review_date: 2026-10-09
+bull_case:
+  - High free cash flow conversion remains intact.
+  - Model applicability remains standard equity.
+bear_case:
+  - Data confidence deteriorates.
+  - Conclusion risk rises materially.
+watch_metrics:
+  - id: confidence_not_low
+    description: Data confidence should not fall below MEDIUM.
+    source_field: data_confidence.level
+    operator: in
+    threshold: [LOW, UNKNOWN]
+  - id: conclusion_risk_not_high
+    description: Conclusion risk should not be HIGH.
+    source_field: conclusion_risk.risk_level
+    operator: in
+    threshold: [HIGH, UNKNOWN]
+invalidation_rules:
+  - id: standard_model_required
+    description: Thesis invalidates if model is no longer standard/rankable.
+    source_field: model_applicability.allowed_score_usage
+    operator: neq
+    threshold: rankable

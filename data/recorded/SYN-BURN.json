@@ -1,0 +1,62 @@
+{
+  "source": "synthetic_curated",
+  "fetched_at": "2026-07-06",
+  "ticker": "SYN-BURN",
+  "exchange": "SynEx",
+  "currency": "USD",
+  "info": {
+    "price": 14.0,
+    "shares_outstanding": 250000000,
+    "company_type": "non_financial",
+    "dividend_yield": 0.0,
+    "levered_beta": 1.45
+  },
+  "balance_sheet": {
+    "as_of": "2026-03-31",
+    "total_assets": 1900000000,
+    "intangible_assets": 300000000,
+    "total_liabilities": 800000000,
+    "st_assets": 950000000,
+    "st_liabilities": 350000000,
+    "lt_liabilities": 450000000,
+    "equity": 1100000000,
+    "equity_5y_ago": 1500000000,
+    "debt_current": 200000000,
+    "debt_5y_ago": 150000000,
+    "total_debt": 200000000,
+    "cash_and_st_investments": 700000000
+  },
+  "income": {
+    "as_of": "2026-03-31",
+    "eps": -1.35,
+    "eps_5y_ago": -0.6,
+    "eps_history": [
+      -0.6,
+      -0.75,
+      -0.95,
+      -1.1,
+      -1.25,
+      -1.35
+    ],
+    "revenue_growth_trailing": 0.31,
+    "ebit": -310000000,
+    "net_interest_expense": 12000000,
+    "roe": -0.28,
+    "roa": -0.16,
+    "payout_ratio": 0.0
+  },
+  "cashflow": {
+    "operating_cash_flow": -260000000,
+    "capex_history_3y": [
+      90000000,
+      110000000,
+      130000000
+    ],
+    "fcf_history": [
+      -250000000,
+      -320000000,
+      -390000000
+    ]
+  },
+  "dividends_annual": {}
+}

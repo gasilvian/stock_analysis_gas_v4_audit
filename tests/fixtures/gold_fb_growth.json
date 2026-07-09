@@ -1,0 +1,19 @@
+{
+  "test_id": "gold_fb_growth",
+  "source": "Company-Analysis-Model/GROWTH.MARKDOWN (Facebook example)",
+  "input_snapshot": {
+    "actual_earnings_busd": 17.85,
+    "estimates": [
+      {"value": 22.32, "analysts": 39},
+      {"value": 26.93, "analysts": 36},
+      {"value": 33.10, "analysts": 27},
+      {"value": 39.62, "analysts": 12},
+      {"value": 46.52, "analysts": 12}
+    ]
+  },
+  "assumptions_snapshot": {"analyst_cap": 50, "first_point_weight": 1},
+  "expected_output": {"growth": 0.193},
+  "tolerance": {"growth": "0.5pp (rounded public inputs)"},
+  "lineage": {"analyst_estimates_as_of": "2018"},
+  "result": "NOT_RUN"
+}

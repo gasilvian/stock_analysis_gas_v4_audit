@@ -1,0 +1,12 @@
+{
+  "schema_version": "thesis_status.v0.1",
+  "ticker": "AAPL",
+  "status": "PASS_WITH_LIMITATIONS",
+  "reason_code": "THESIS_RULES_PARTIALLY_UNKNOWN",
+  "thesis_status": "WATCH",
+  "rules_summary": {"total": 3, "ok": 2, "triggered": 0, "unknown": 1},
+  "manual_review_items": ["One thesis rule is UNKNOWN."],
+  "source_quality": "MEDIUM",
+  "source_class": "operator_curated_thesis",
+  "not_investment_advice": true
+}

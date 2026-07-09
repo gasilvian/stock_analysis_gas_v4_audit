@@ -1,0 +1,16 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "AAPL",
+  "exchange": "NasdaqGS",
+  "valuation_date": "2026-07-09",
+  "run_id": "run-aapl",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "data_confidence": {"level": "HIGH", "confidence_grade": "A", "unknown_checks_count": 0, "critical_missing_inputs": [], "source_quality_mix": {"exact": 20}},
+  "model_applicability": {"status": "STANDARD_OK", "allowed_score_usage": "rankable", "company_type_detected": "standard_industrial", "reason_code": "STANDARD_EQUITY_MODEL_APPLICABLE"},
+  "conclusion_risk": {"risk_level": "LOW", "drivers": [], "manual_review_items": []},
+  "critical_missing_inputs": [],
+  "unknown_clusters": [],
+  "warnings": [],
+  "provider_degradation_visible": false,
+  "not_investment_advice": true
+}

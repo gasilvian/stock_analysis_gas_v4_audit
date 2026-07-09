@@ -1,0 +1,2 @@
+country,date,yield_10y,source,source_as_of,source_url_or_reference,curated_by,curated_at,source_marker
+US,YYYY-MM-DD,0.0000,sample_only,YYYY-MM-DD,replace-with-real-source,operator,YYYY-MM-DD,sample_only_not_real_data

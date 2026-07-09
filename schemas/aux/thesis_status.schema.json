@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Thesis Status Package v0.1",
+  "type": "object",
+  "required": ["schema_version", "sprint", "status", "reason_code", "ticker", "thesis_status", "watch_metrics", "invalidation_rules", "rules_summary", "manual_review_items", "not_investment_advice"],
+  "properties": {
+    "schema_version": {"const": "thesis_status.v0.1"},
+    "sprint": {"const": "v4.0-p0.9"},
+    "status": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL"]},
+    "reason_code": {"type": "string", "minLength": 1},
+    "ticker": {"type": "string", "minLength": 1},
+    "thesis_status": {"enum": ["ON_TRACK", "WATCH", "BROKEN", "UNKNOWN"]},
+    "thesis_type": {"type": ["string", "null"]},
+    "created_at": {"type": ["string", "null"]},
+    "review_cadence": {"type": ["string", "null"]},
+    "next_review_date": {"type": ["string", "null"]},
+    "bull_case": {"type": "array"},
+    "bear_case": {"type": "array"},
+    "watch_metrics": {"type": "array", "items": {"$ref": "#/$defs/rule"}},
+    "invalidation_rules": {"type": "array", "items": {"$ref": "#/$defs/rule"}},
+    "rules_summary": {
+      "type": "object",
+      "required": ["total", "ok", "triggered", "unknown"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "ok": {"type": "integer", "minimum": 0},
+        "triggered": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "manual_review_items": {"type": "array", "items": {"type": "string"}},
+    "source_quality": {"type": "string"},
+    "source_class": {"type": "string"},
+    "input_lineage": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "not_investment_advice": {"const": true}
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "required": ["id", "category", "result", "reason_code", "input_lineage"],
+      "properties": {
+        "id": {"type": "string"},
+        "category": {"type": "string"},
+        "description": {"type": "string"},
+        "source_field": {"type": ["string", "null"]},
+        "operator": {"type": ["string", "null"]},
+        "threshold": {},
+        "current_value": {},
+        "result": {"enum": ["OK", "TRIGGERED", "UNKNOWN"]},
+        "reason_code": {"type": "string"},
+        "source_quality": {"type": "string"},
+        "source_class": {"type": "string"},
+        "input_lineage": {"type": "object"}
+      },
+      "additionalProperties": true
+    }
+  }
+}

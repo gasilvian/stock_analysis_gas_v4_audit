@@ -1,0 +1,184 @@
+{
+  "status": "NOT_READY",
+  "legal_scope": {
+    "status": "PASS",
+    "usage_scope": "internal_personal_educational",
+    "commercial_use_enabled": false,
+    "external_access_enabled": false,
+    "legal_review_completed": false,
+    "blocking_issues": [],
+    "warnings": [
+      "scope is internal/non-commercial; external or commercial deployment remains blocked without review"
+    ],
+    "path": "config/legal_scope.yaml",
+    "note": "This is an operational use-scope gate, not legal advice."
+  },
+  "source_registry": {
+    "status": "NOT_READY",
+    "registry_path": "config/source_registry.yaml",
+    "checked_at": "2026-07-08T15:36:34Z",
+    "source_count": 7,
+    "ready_count": 1,
+    "blocking_issues": [
+      "universe_us_curated: required source is not production-ready",
+      "bond_10y_5y_avg_curated: required source is not production-ready",
+      "erp_curated: required source is not production-ready"
+    ],
+    "warnings": [
+      "universe_us_curated: template/synthetic marker detected; replace with real curated file before production use",
+      "universe_us_curated: expected file missing at data/real_sources/universe/universe_US_curated.csv",
+      "bond_10y_5y_avg_curated: template/synthetic marker detected; replace with real curated file before production use",
+      "bond_10y_5y_avg_curated: expected file missing at data/real_sources/rates/bond_yields_10y_curated.csv",
+      "erp_curated: template/synthetic marker detected; replace with real curated file before production use",
+      "erp_curated: expected file missing at data/real_sources/rates/erp_curated.json"
+    ],
+    "sources": [
+      {
+        "id": "yfinance_equity_live",
+        "category": "live_equity_provider",
+        "provider": "yfinance",
+        "source_type": "live_provider",
+        "path": null,
+        "status": "implemented_optional",
+        "required_for_internal_daily_run": true,
+        "required_for_production_real_data": true,
+        "source_quality_default": "approximation",
+        "provider_profile": "yfinance_pragmatic",
+        "command": "python -m sws_engine.cli build-payload-yfinance --ticker AAPL --market US --industry Technology --output data/real_sources/payloads/AAPL_yfinance_payload.json",
+        "limitations": [
+          "Not a faithful SWS institutional data source.",
+          "Analyst estimates with analyst_count are generally missing.",
+          "FCF forward estimates are missing.",
+          "AFFO/FFO/NAV and bank NPL/deposit/charge-off fields generally require manual override."
+        ],
+        "evaluated_required": true,
+        "evaluated_path": null,
+        "file_exists": null,
+        "looks_template_or_synthetic": false,
+        "ready": true
+      },
+      {
+        "id": "universe_us_curated",
+        "category": "market_universe",
+        "provider": "user_curated",
+        "source_type": "versioned_csv",
+        "path": "data/universe/universe_US_template.csv",
+        "status": "template_needs_population",
+        "required_for_internal_daily_run": true,
+        "required_for_production_real_data": true,
+        "source_quality_default": "exact",
+        "replacement_target_path": "data/real_sources/universe/universe_US_curated.csv",
+        "validation_command": "python -m sws_engine.cli validate-universe --universe data/real_sources/universe/universe_US_curated.csv --output out/universe_US_coverage.json",
+        "limitations": [
+          "Template universe is not production data. Populate with validated tickers, country, region, industry and exclusions."
+        ],
+        "evaluated_required": true,
+        "evaluated_path": "data/real_sources/universe/universe_US_curated.csv",
+        "file_exists": false,
+        "looks_template_or_synthetic": true,
+        "ready": false
+      },
+      {
+        "id": "universe_bvb_curated",
+        "category": "market_universe",
+        "provider": "user_curated",
+        "source_type": "versioned_csv",
+        "path": "data/universe/universe_BVB_template.csv",
+        "status": "template_needs_population",
+        "required_for_internal_daily_run": false,
+        "required_for_production_real_data": false,
+        "source_quality_default": "exact",
+        "replacement_target_path": "data/real_sources/universe/universe_BVB_curated.csv",
+        "validation_command": "python -m sws_engine.cli validate-universe --universe data/real_sources/universe/universe_BVB_curated.csv --output out/universe_BVB_coverage.json",
+        "limitations": [
+          "BVB coverage must be validated ticker by ticker because yfinance coverage is uneven."
+        ],
+        "evaluated_required": false,
+        "evaluated_path": "data/real_sources/universe/universe_BVB_curated.csv",
+        "file_exists": false,
+        "looks_template_or_synthetic": true,
+        "ready": false
+      },
+      {
+        "id": "bond_10y_5y_avg_curated",
+        "category": "rates",
+        "provider": "user_curated_export",
+        "source_type": "versioned_csv",
+        "path": "data/rates/bond_yields_10y_real_template.csv",
+        "status": "template_needs_population",
+        "required_for_internal_daily_run": true,
+        "required_for_production_real_data": true,
+        "source_quality_default": "exact",
+        "replacement_target_path": "data/real_sources/rates/bond_yields_10y_curated.csv",
+        "validation_command": "python -m sws_engine.cli rates-report --bond-csv data/real_sources/rates/bond_yields_10y_curated.csv --erp-json data/real_sources/rates/erp_curated.json --fx-csv data/real_sources/fx/fx_eod_curated.csv",
+        "limitations": [
+          "Requires versioned export, for example FRED/BNR/official source."
+        ],
+        "evaluated_required": true,
+        "evaluated_path": "data/real_sources/rates/bond_yields_10y_curated.csv",
+        "file_exists": false,
+        "looks_template_or_synthetic": true,
+        "ready": false
+      },
+      {
+        "id": "erp_curated",
+        "category": "rates",
+        "provider": "user_curated_export",
+        "source_type": "versioned_json",
+        "path": "data/rates/erp_real_template.json",
+        "status": "template_needs_population",
+        "required_for_internal_daily_run": true,
+        "required_for_production_real_data": true,
+        "source_quality_default": "assumption",
+        "replacement_target_path": "data/real_sources/rates/erp_curated.json",
+        "limitations": [
+          "ERP is a curated assumption table; source/date must be explicit."
+        ],
+        "evaluated_required": true,
+        "evaluated_path": "data/real_sources/rates/erp_curated.json",
+        "file_exists": false,
+        "looks_template_or_synthetic": true,
+        "ready": false
+      },
+      {
+        "id": "fx_eod_curated",
+        "category": "fx",
+        "provider": "user_curated_or_yfinance_fx",
+        "source_type": "versioned_csv",
+        "path": "data/fx/fx_eod_real_template.csv",
+        "status": "template_needs_population",
+        "required_for_internal_daily_run": false,
+        "required_for_production_real_data": true,
+        "source_quality_default": "exact",
+        "replacement_target_path": "data/real_sources/fx/fx_eod_curated.csv",
+        "limitations": [
+          "Required for multi-currency portfolios; use EOD rates and record source/as_of."
+        ],
+        "evaluated_required": false,
+        "evaluated_path": "data/real_sources/fx/fx_eod_curated.csv",
+        "file_exists": false,
+        "looks_template_or_synthetic": true,
+        "ready": false
+      },
+      {
+        "id": "manual_override_pack",
+        "category": "manual_overrides",
+        "provider": "user_curated",
+        "source_type": "json_templates",
+        "path": "templates/manual_override_template.json",
+        "status": "implemented_templates",
+        "required_for_internal_daily_run": false,
+        "required_for_production_real_data": false,
+        "source_quality_default": "exact_or_assumption_declared_by_user",
+        "limitations": [
+          "Required to reduce UNKNOWN for analyst estimates, AFFO/FFO/NAV and bank-specific fields."
+        ],
+        "evaluated_required": false,
+        "evaluated_path": "templates/manual_override_template.json",
+        "file_exists": true,
+        "looks_template_or_synthetic": true,
+        "ready": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "business_risk_package.v0.1",
+  "ticker": "JPM",
+  "status": "PASS_WITH_LIMITATIONS",
+  "reason_code": "BUSINESS_RISK_SIGNALS_COMPUTED",
+  "red_flags_summary": {"fail_count": 2, "unknown_count": 1, "pass_count": 5, "high_severity_fail_count": 1},
+  "source_quality": "approximation",
+  "source_class": "E3",
+  "not_investment_advice": true
+}

@@ -1,0 +1,831 @@
+metadata:
+  version: reason_code_dictionary.v0.9
+  scope: v4.0_p0.14_release_hardening_foundation
+  not_investment_advice: true
+  template_engine: deterministic_python_format
+  allowed_modes:
+  - analyst
+  - plain_english
+defaults:
+  analyst: 'Reason `{reason_code}` on `{check_name}` ({axis}/{check_id}) returned `{result}`. Inputs: {inputs_summary}. Threshold: {threshold}. Lineage: {lineage_summary}.'
+  plain_english: '`{check_name}` is `{result}` because of `{reason_code}`. Data used: {inputs_summary}.'
+  remediation_hint: Review the cited inputs and lineage before interpreting this result.
+  severity: INFO
+reason_codes:
+  OK:
+    severity: INFO
+    analyst: 'Check `{check_name}` returned PASS/OK. Inputs satisfied the configured threshold `{threshold}`. Inputs: {inputs_summary}. Lineage: {lineage_summary}.'
+    plain_english: This check passed. The available data met the rule used by the engine.
+    remediation_hint: No action required; still review source quality if this check is material.
+  MISSING_INPUT:
+    severity: WARN
+    analyst: 'Check `{check_name}` is UNKNOWN because at least one required input is missing. Inputs: {inputs_summary}. Threshold: {threshold}. Lineage: {lineage_summary}.'
+    plain_english: The engine could not evaluate this check because required data is missing.
+    remediation_hint: Populate the missing field from an official, curated or reviewed manual source; otherwise keep UNKNOWN.
+  NEGATIVE_DENOMINATOR:
+    severity: WARN
+    analyst: 'Check `{check_name}` could not be interpreted safely because the denominator is negative or invalid. Inputs: {inputs_summary}.'
+    plain_english: The formula would be misleading because the base number is negative or invalid.
+    remediation_hint: Do not force a ratio. Review whether a sector-specific or loss-making interpretation is required.
+  PROVIDER_LIMITATION:
+    severity: WARN
+    analyst: 'Check `{check_name}` is constrained by provider limitations. Source quality is `{source_quality}` and class `{source_class}`. Inputs: {inputs_summary}.'
+    plain_english: The data provider did not supply enough reliable data for this check.
+    remediation_hint: Use SEC/curated/manual reviewed data for critical fields; keep provider degradation visible.
+  ASSUMPTION_USED:
+    severity: INFO
+    analyst: 'Check `{check_name}` used a documented assumption. Inputs: {inputs_summary}. Threshold: {threshold}.'
+    plain_english: This result depends on a documented model assumption, not only on raw data.
+    remediation_hint: Verify the assumption in config/assumptions.yaml and consider sensitivity analysis when material.
+  FAIL_BY_DEFAULT:
+    severity: WARN
+    analyst: 'Check `{check_name}` failed by policy default. This is an explicit conservative rule, not an inferred business fact. Inputs: {inputs_summary}.'
+    plain_english: The engine marks this as a fail by rule because the required history or condition is not strong enough.
+    remediation_hint: Do not override unless a reviewed policy change is approved.
+  NOT_APPLICABLE:
+    severity: INFO
+    analyst: 'Check `{check_name}` is not applicable to this company/model context. Inputs: {inputs_summary}.'
+    plain_english: This rule does not apply to this case.
+    remediation_hint: Confirm model applicability before comparing scores.
+  DIVIDEND_GATE_LOW_YIELD:
+    severity: WARN
+    analyst: 'Dividend checks were gated because the dividend yield is below the configured market threshold. Inputs: {inputs_summary}.'
+    plain_english: The dividend section is not treated as strong because yield is too low for the dividend gate.
+    remediation_hint: Review dividend policy and market percentile inputs; do not pad dividend history.
+  MISSING_FCF_ESTIMATES:
+    severity: WARN
+    analyst: 'Forward FCF estimates are missing, so the check cannot support an analyst-estimate route. Inputs: {inputs_summary}.'
+    plain_english: Future cash-flow estimates are missing. The engine cannot make this part of the future view reliable.
+    remediation_hint: Provide reviewed manual estimates or accept UNKNOWN.
+  MISSING_RISK_FREE_RATE_AND_EQUITY_RISK_PREMIUM:
+    severity: CRITICAL
+    analyst: 'Discount-rate inputs are missing: risk-free rate and/or equity risk premium. Valuation conclusions may be unavailable or degraded.'
+    plain_english: The engine does not have the rate inputs needed for a reliable valuation.
+    remediation_hint: Populate reviewed rates and ERP files; do not infer them silently.
+  NO_CHECKS_AVAILABLE:
+    severity: CRITICAL
+    analyst: No checks are available for this output, so audit confidence cannot be computed.
+    plain_english: There are no check results to audit.
+    remediation_hint: Run the company engine first and ensure checks are persisted.
+  UNKNOWN_CHECKS_PRESENT:
+    severity: WARN
+    analyst: 'One or more checks are UNKNOWN and must remain visible. UNKNOWN count: {unknown_checks_count}.'
+    plain_english: Some checks could not be evaluated.
+    remediation_hint: Review the UNKNOWN cluster table and remediate critical missing inputs.
+  YFINANCE_PRAGMATIC_DEGRADED:
+    severity: WARN
+    analyst: The yfinance pragmatic provider profile caps confidence and must remain visibly degraded.
+    plain_english: Some data came from a pragmatic provider, so confidence is limited.
+    remediation_hint: Confirm critical fields against SEC/curated/manual reviewed sources.
+  YFINANCE_PRAGMATIC_CONFIDENCE_CAP:
+    severity: WARN
+    analyst: Data confidence was capped by provider policy for yfinance_pragmatic.
+    plain_english: The score confidence is capped because the source is pragmatic, not official.
+    remediation_hint: Use official or curated sources for critical fields.
+  LOW_SOURCE_QUALITY_MIX:
+    severity: WARN
+    analyst: The source-quality mix contains too much approximation, assumption or missing evidence.
+    plain_english: Too much of the analysis depends on weak or missing data.
+    remediation_hint: Improve field lineage and source quality for critical inputs.
+  LOW_COVERAGE:
+    severity: WARN
+    analyst: Coverage is too low for a robust interpretation.
+    plain_english: Too few checks are supported by known data.
+    remediation_hint: Resolve critical missing inputs before interpreting the score.
+  LOW_FIELD_LINEAGE_COVERAGE:
+    severity: WARN
+    analyst: Field-level lineage is insufficient for robust audit confidence.
+    plain_english: The engine cannot trace enough fields back to clear sources.
+    remediation_hint: Add field_lineage metadata to payloads and source snapshots.
+  STALE_FIELDS_PRESENT:
+    severity: WARN
+    analyst: One or more fields are stale versus TTL policy.
+    plain_english: Some data is too old for the configured freshness rule.
+    remediation_hint: Refresh stale fields or keep degraded confidence.
+  DATA_CONFIDENCE_SUFFICIENT:
+    severity: INFO
+    analyst: Data confidence met the current P0.6 audit policy threshold.
+    plain_english: The available data is good enough under current audit rules.
+    remediation_hint: Continue to review material assumptions and source quality.
+  DATA_CONFIDENCE_UNAVAILABLE:
+    severity: WARN
+    analyst: Conclusion risk could not use data confidence because the component was unavailable.
+    plain_english: The system could not calculate data confidence.
+    remediation_hint: Run the audit layer first.
+  LOW_DATA_CONFIDENCE:
+    severity: CRITICAL
+    analyst: Data confidence is LOW, so conclusion risk is HIGH.
+    plain_english: The conclusion is risky because the supporting data is weak.
+    remediation_hint: Do not rely on the score until critical missing inputs are resolved.
+  MEDIUM_DATA_CONFIDENCE:
+    severity: WARN
+    analyst: Data confidence is MEDIUM; conclusion interpretation requires manual review.
+    plain_english: The data is partly useful but not strong enough for blind reliance.
+    remediation_hint: Review warnings, source mix and UNKNOWN clusters.
+  DATA_CONFIDENCE_UNKNOWN:
+    severity: CRITICAL
+    analyst: Data confidence is UNKNOWN; conclusion risk must remain high.
+    plain_english: The engine cannot tell how trustworthy the data is.
+    remediation_hint: Fix audit inputs or keep conclusion risk high.
+  MANY_UNKNOWN_CHECKS:
+    severity: CRITICAL
+    analyst: 'Many checks are UNKNOWN, which materially weakens the conclusion. UNKNOWN count: {unknown_checks_count}.'
+    plain_english: Too many checks could not be evaluated.
+    remediation_hint: Resolve the highest-criticality missing inputs first.
+  PROVIDER_DEGRADATION_VISIBLE:
+    severity: WARN
+    analyst: Provider degradation is visible and limits interpretation.
+    plain_english: Some data comes from a weaker source and should be checked.
+    remediation_hint: Use official/curated data for critical fields.
+  MODEL_APPLICABILITY_UNAVAILABLE:
+    severity: WARN
+    analyst: Model applicability was unavailable; conclusion risk cannot be low.
+    plain_english: The engine does not know if the model fits the company.
+    remediation_hint: Populate company_type/security_type through Identifier Master or reviewed payload metadata.
+  MODEL_NOT_APPLICABLE:
+    severity: CRITICAL
+    analyst: The current model is not applicable to this instrument/company type.
+    plain_english: This model should not be used for this case.
+    remediation_hint: Use a different model or exclude from company ranking.
+  MODEL_APPLICABILITY_UNKNOWN:
+    severity: CRITICAL
+    analyst: Model applicability is UNKNOWN because company/security type metadata is insufficient.
+    plain_english: The system cannot tell if this model is suitable.
+    remediation_hint: Curate company_type/security_type before ranking.
+  SCORE_USAGE_RESTRICTED:
+    severity: CRITICAL
+    analyst: allowed_score_usage restricts score interpretation. Do not compare unless policy allows it.
+    plain_english: The score should not be compared normally.
+    remediation_hint: Follow allowed_score_usage and comparability warnings.
+  CONCLUSION_RISK_LOW_BY_AUDIT_RULES:
+    severity: INFO
+    analyst: No material audit drivers raised conclusion risk above LOW under current rules.
+    plain_english: The audit rules did not find a major reason to distrust the conclusion.
+    remediation_hint: Still review assumptions and source lineage for material decisions.
+  STANDARD_EQUITY_MODEL_APPLICABLE:
+    severity: INFO
+    analyst: The detected company type is compatible with standard equity interpretation.
+    plain_english: The standard equity model appears suitable.
+    remediation_hint: Continue with normal audit review.
+  BANK_STANDARD_FCF_MODEL_LIMITED:
+    severity: CRITICAL
+    analyst: Bank/financial companies require bank-specific interpretation; standard FCF ranking is limited.
+    plain_english: A bank should not be judged like a normal industrial company.
+    remediation_hint: Use bank-specific fields and model before ranking.
+  REIT_REQUIRES_AFFO_FFO_NAV:
+    severity: CRITICAL
+    analyst: REIT interpretation requires AFFO/FFO/NAV inputs; standard valuation is degraded.
+    plain_english: A REIT needs special real-estate metrics before the score is reliable.
+    remediation_hint: Provide reviewed AFFO/FFO/NAV data or keep audit_only.
+  FUND_NOT_COMPANY_ANALYSIS_TARGET:
+    severity: CRITICAL
+    analyst: Funds/ETFs are not company-analysis targets for Snowflake checks.
+    plain_english: This is not a company, so the company model does not apply.
+    remediation_hint: Exclude from company scoring and use portfolio/fund analysis instead.
+  INSURANCE_REQUIRES_CONTEXTUAL_INTERPRETATION:
+    severity: WARN
+    analyst: Insurance companies need insurance-specific interpretation.
+    plain_english: Insurance companies need a different analysis lens.
+    remediation_hint: Curate insurance-specific fields before ranking.
+  UTILITY_REQUIRES_CONTEXTUAL_INTERPRETATION:
+    severity: WARN
+    analyst: Utilities require regulated-sector context before ranking.
+    plain_english: Utilities need sector context.
+    remediation_hint: Review regulation, capital structure and dividend policy.
+  COMMODITY_CYCLICAL_REQUIRES_CONTEXTUAL_INTERPRETATION:
+    severity: WARN
+    analyst: Commodity cyclicals require cycle and commodity-price context.
+    plain_english: Commodity businesses can look misleading without cycle context.
+    remediation_hint: Review cycle-normalized earnings and commodity exposure.
+  PHARMA_REQUIRES_CONTEXTUAL_INTERPRETATION:
+    severity: WARN
+    analyst: Pharma/biotech companies require pipeline and R&D context.
+    plain_english: Pharma companies need pipeline context.
+    remediation_hint: Review pipeline, patent cliffs and R&D before ranking.
+  ADR_FOREIGN_REQUIRES_CONTEXTUAL_INTERPRETATION:
+    severity: WARN
+    analyst: ADR/foreign issuers require filing, currency and primary-listing review.
+    plain_english: Foreign listings need extra checks on currency and filing quality.
+    remediation_hint: Curate primary listing, currency and filing source metadata.
+  LOSS_MAKING_REQUIRES_CONTEXTUAL_INTERPRETATION:
+    severity: WARN
+    analyst: Loss-making companies require cash-runway and recovery context.
+    plain_english: Loss-making companies need different interpretation.
+    remediation_hint: Use cash runway and loss-making checks; avoid standard ranking.
+  XBRL_TAG_MISSING:
+    severity: WARN
+    analyst: A declared SEC/XBRL tag was missing; no undeclared substitute was inferred.
+    plain_english: The SEC filing did not contain the expected tag for this field.
+    remediation_hint: Extend the explicit tag map only after review; otherwise keep UNKNOWN.
+  CIK_NOT_FOUND:
+    severity: WARN
+    analyst: Ticker could not be resolved to a SEC CIK.
+    plain_english: The system could not find the SEC company identifier.
+    remediation_hint: Update the CIK map or Identifier Master.
+  INVALID_RATE_VALUE:
+    severity: WARN
+    analyst: A rate row had an invalid numeric value and was skipped.
+    plain_english: A rate value could not be used.
+    remediation_hint: Fix the source export and rerun the rate loader.
+  MISSING_DATE_OR_RATE:
+    severity: WARN
+    analyst: A rate row was missing date or rate and was skipped.
+    plain_english: A rate row was incomplete.
+    remediation_hint: Fix the source export and rerun the rate loader.
+  SENSITIVITY_COMPUTED:
+    severity: INFO
+    analyst: Sensitivity analysis completed using copied payloads and auxiliary policy.
+    plain_english: The sensitivity range was calculated.
+    remediation_hint: Interpret the range, not a single point estimate.
+  SENSITIVITY_UNAVAILABLE:
+    severity: WARN
+    analyst: Sensitivity could not run because base valuation inputs are unavailable.
+    plain_english: Sensitivity cannot be calculated from the available valuation.
+    remediation_hint: Resolve the base valuation input gaps first.
+  SENSITIVITY_UNAVAILABLE_FOR_MANUAL_FAIR_VALUE:
+    severity: WARN
+    analyst: Manual fair value input blocks sensitivity because no model-derived base case exists.
+    plain_english: The value was manually entered, so the engine cannot test its assumptions.
+    remediation_hint: Use a model-derived valuation payload before sensitivity.
+  VALUATION_DETAILS_UNAVAILABLE:
+    severity: WARN
+    analyst: Valuation detail fields required for sensitivity are unavailable.
+    plain_english: The valuation details needed for sensitivity are missing.
+    remediation_hint: Persist valuation details or use an input payload with required fields.
+  TERMINAL_VALUE_INPUTS_MISSING:
+    severity: WARN
+    analyst: Terminal value contribution cannot be computed because one or more inputs are missing.
+    plain_english: The engine cannot calculate how much value comes from the terminal period.
+    remediation_hint: Provide free cash flow, discount rate and terminal growth inputs.
+  TERMINAL_VALUE_COMPUTED:
+    severity: INFO
+    analyst: Terminal value contribution was computed.
+    plain_english: The terminal value share was calculated.
+    remediation_hint: Investigate if terminal value dominates the valuation.
+  INSUFFICIENT_SENSITIVITY_VALUES:
+    severity: WARN
+    analyst: Fragility cannot be computed because too few scenario values are available.
+    plain_english: There are not enough scenarios to judge fragility.
+    remediation_hint: Fix missing valuation scenario inputs.
+  FRAGILITY_COMPUTED:
+    severity: INFO
+    analyst: Valuation fragility was computed from the scenario distribution.
+    plain_english: The engine calculated how unstable the valuation is across scenarios.
+    remediation_hint: Treat high fragility as a manual review trigger.
+  REVERSE_DCF_ANALYST_FCF_NOT_IMPLEMENTED:
+    severity: WARN
+    analyst: Reverse DCF for analyst-FCF mode is not implemented in this slice.
+    plain_english: This type of reverse DCF is future work.
+    remediation_hint: Use adjusted-FCF reverse DCF or keep UNKNOWN.
+  REVERSE_DCF_INPUTS_MISSING:
+    severity: WARN
+    analyst: Reverse DCF inputs are missing.
+    plain_english: The engine lacks data to infer market-implied growth.
+    remediation_hint: Provide price, adjusted FCF and discount assumptions.
+  DISCOUNT_RATE_NOT_ABOVE_TERMINAL_GROWTH:
+    severity: WARN
+    analyst: Discount rate is not above terminal growth, so valuation math is invalid.
+    plain_english: The valuation formula would break because the discount rate is too low versus growth.
+    remediation_hint: Use reviewed assumptions where discount rate exceeds terminal growth.
+  REVERSE_DCF_PRICE_OUTSIDE_BRACKET:
+    severity: WARN
+    analyst: The current price is outside the reverse-DCF search bracket.
+    plain_english: The market price cannot be matched within the tested growth range.
+    remediation_hint: Extend the reviewed scenario range or treat as high fragility.
+  REVERSE_DCF_IMPLIED_GROWTH_COMPUTED:
+    severity: INFO
+    analyst: Reverse DCF implied growth was computed.
+    plain_english: The engine estimated what growth the market price implies.
+    remediation_hint: Compare implied growth with history and reviewed assumptions.
+  SCENARIO_COMPUTED:
+    severity: INFO
+    analyst: Sensitivity scenario value was computed.
+    plain_english: This scenario was calculated.
+    remediation_hint: Use scenario values as a range, not standalone advice.
+  SCENARIO_VALUATION_UNKNOWN:
+    severity: WARN
+    analyst: Sensitivity scenario valuation is UNKNOWN due to invalid/missing scenario inputs.
+    plain_english: This scenario could not be valued.
+    remediation_hint: Review scenario inputs and keep UNKNOWN if data is missing.
+  BUSINESS_RISK_SIGNALS_COMPUTED:
+    severity: INFO
+    analyst: 'Business-risk signals were computed from supplied payload/output fields only. Inputs: {inputs_summary}.'
+    plain_english: The business-risk report was generated from the data already supplied to the engine.
+    remediation_hint: Review red flags, accounting quality and capital allocation before relying on the analysis.
+  BUSINESS_RISK_INPUTS_MISSING:
+    severity: WARN
+    analyst: 'Business-risk signal generation could not evaluate one or more rules because required inputs are missing. Inputs: {inputs_summary}.'
+    plain_english: Some business-risk checks could not be evaluated because data is missing.
+    remediation_hint: Populate the cited fields from official, curated or reviewed manual sources; otherwise keep UNKNOWN.
+  RED_FLAG_NEGATIVE_OPERATING_CASH_FLOW:
+    severity: CRITICAL
+    analyst: 'Operating cash flow is negative, which is a high-severity business-risk signal. Inputs: {inputs_summary}.'
+    plain_english: The company is not generating positive operating cash flow from the supplied data.
+    remediation_hint: Review cash-flow statement lineage and whether this is temporary or structural.
+  RED_FLAG_NEGATIVE_FREE_CASH_FLOW:
+    severity: CRITICAL
+    analyst: 'Adjusted free cash flow is negative after operating cash flow minus average capital expenditure. Inputs: {inputs_summary}.'
+    plain_english: The supplied cash-flow data implies negative free cash flow.
+    remediation_hint: Confirm OCF and capex from SEC or curated sources before interpreting valuation.
+  RED_FLAG_EARNINGS_CASH_FLOW_DIVERGENCE:
+    severity: CRITICAL
+    analyst: 'Net income is positive while operating cash flow or adjusted FCF is negative. Inputs: {inputs_summary}.'
+    plain_english: Accounting profit and cash generation point in opposite directions.
+    remediation_hint: Review working capital, accruals and one-off items.
+  RED_FLAG_DIVIDEND_NOT_COVERED_BY_FCF:
+    severity: CRITICAL
+    analyst: 'Dividends paid exceed adjusted free cash flow. Inputs: {inputs_summary}.'
+    plain_english: The dividend does not appear covered by free cash flow from the supplied data.
+    remediation_hint: Review dividend sustainability before relying on dividend checks.
+  RED_FLAG_HIGH_INTANGIBLES_TO_ASSETS:
+    severity: WARN
+    analyst: 'Intangible assets are high relative to total assets. Inputs: {inputs_summary}.'
+    plain_english: A large part of assets is intangible, which may affect balance-sheet interpretation.
+    remediation_hint: Review goodwill/intangibles, acquisition history and impairment risk.
+  RED_FLAG_ELEVATED_NET_DEBT_TO_EQUITY:
+    severity: WARN
+    analyst: 'Net debt is elevated relative to equity. Inputs: {inputs_summary}.'
+    plain_english: Debt is high compared with equity after cash is considered.
+    remediation_hint: Review debt maturity, interest coverage and refinancing assumptions.
+  RED_FLAG_SHARE_DILUTION_ABOVE_10PCT:
+    severity: WARN
+    analyst: 'Share count increased by more than 10 percent over the supplied history. Inputs: {inputs_summary}.'
+    plain_english: Shareholders may have been diluted over the supplied period.
+    remediation_hint: Review issuance, stock-based compensation and buyback effectiveness.
+  RED_FLAG_ENGINE_UNKNOWN_CHECKS_PRESENT:
+    severity: WARN
+    analyst: 'The canonical engine output contains UNKNOWN checks, which is a business-risk review item. Inputs: {inputs_summary}.'
+    plain_english: Some core checks are still unknown and require review.
+    remediation_hint: Resolve or explicitly accept UNKNOWN before relying on conclusions.
+  ACCOUNTING_QUALITY_ACCRUALS_RATIO:
+    severity: WARN
+    analyst: 'Accounting quality accruals ratio was evaluated from net income, operating cash flow and assets. Inputs: {inputs_summary}.'
+    plain_english: The report compares profit to cash flow relative to assets.
+    remediation_hint: High positive accruals require review of earnings quality.
+  ACCOUNTING_QUALITY_FCF_CONVERSION:
+    severity: WARN
+    analyst: 'Free-cash-flow conversion was evaluated from adjusted FCF and net income. Inputs: {inputs_summary}.'
+    plain_english: The report checks how much accounting profit converts into free cash flow.
+    remediation_hint: Low conversion requires review of capex, working capital and one-offs.
+  ACCOUNTING_QUALITY_MARGIN_VARIABILITY:
+    severity: INFO
+    analyst: 'Gross-margin variability was evaluated where revenue and gross profit history were supplied. Inputs: {inputs_summary}.'
+    plain_english: The report checks whether margins are stable or volatile.
+    remediation_hint: Volatile margins should be reviewed in sector context.
+  ACCOUNTING_QUALITY_WEAK:
+    severity: WARN
+    analyst: 'Accounting quality is WEAK because one or more deterministic metrics failed. Inputs: {inputs_summary}.'
+    plain_english: Accounting quality needs manual review.
+    remediation_hint: Review the failed accounting quality metrics and their lineage.
+  ACCOUNTING_QUALITY_WATCH:
+    severity: WARN
+    analyst: 'Accounting quality is WATCH because one or more deterministic metrics are borderline. Inputs: {inputs_summary}.'
+    plain_english: Accounting quality is acceptable only with caution.
+    remediation_hint: Review WATCH metrics before relying on the analysis.
+  ACCOUNTING_QUALITY_NORMAL:
+    severity: INFO
+    analyst: 'Accounting quality metrics did not trigger P0.7 warning or fail thresholds. Inputs: {inputs_summary}.'
+    plain_english: The supplied accounting-quality metrics look normal under P0.7 rules.
+    remediation_hint: Continue to review source quality and missing metrics.
+  CAPITAL_ALLOCATION_DIVIDENDS_TO_FCF:
+    severity: WARN
+    analyst: 'Dividends-to-FCF was evaluated as an auxiliary capital-allocation metric. Inputs: {inputs_summary}.'
+    plain_english: The report checks whether dividends are covered by free cash flow.
+    remediation_hint: Review dividend coverage and sustainability.
+  CAPITAL_ALLOCATION_BUYBACKS_TO_FCF:
+    severity: WARN
+    analyst: 'Buybacks-to-FCF was evaluated as an auxiliary capital-allocation metric. Inputs: {inputs_summary}.'
+    plain_english: The report checks whether buybacks are supported by free cash flow.
+    remediation_hint: Review buyback funding and share-count outcomes.
+  CAPITAL_ALLOCATION_CAPEX_INTENSITY:
+    severity: INFO
+    analyst: 'Capex intensity was evaluated from average capex and revenue. Inputs: {inputs_summary}.'
+    plain_english: The report checks how capital-intensive the company appears from supplied data.
+    remediation_hint: Interpret capex intensity in sector context.
+  CAPITAL_ALLOCATION_SHARE_COUNT_GROWTH:
+    severity: WARN
+    analyst: 'Share-count growth was evaluated as a capital-allocation/dilution metric. Inputs: {inputs_summary}.'
+    plain_english: The report checks whether share count is increasing.
+    remediation_hint: Review issuance, SBC and buybacks.
+  CAPITAL_ALLOCATION_WATCH:
+    severity: WARN
+    analyst: 'Capital allocation is WATCH because at least one auxiliary metric is borderline or failed. Inputs: {inputs_summary}.'
+    plain_english: Capital allocation needs manual review.
+    remediation_hint: Review dividends, buybacks, capex and dilution metrics.
+  CAPITAL_ALLOCATION_BALANCED:
+    severity: INFO
+    analyst: 'Capital-allocation metrics did not trigger P0.7 warning or fail thresholds. Inputs: {inputs_summary}.'
+    plain_english: The supplied capital-allocation metrics look balanced under P0.7 rules.
+    remediation_hint: Continue to review management actions and source quality.
+  WATCHLIST_AUDIT_COMPUTED:
+    severity: INFO
+    analyst: 'Watchlist audit triage was computed from supplied audit artifacts only. Inputs: {inputs_summary}.'
+    plain_english: The watchlist was sorted into research buckets from existing audit data.
+    remediation_hint: Use the buckets to prioritize research, not as investment advice.
+  WATCHLIST_INPUTS_MISSING:
+    severity: WARN
+    analyst: 'Watchlist audit could not run because no watchlist rows were supplied. Inputs: {inputs_summary}.'
+    plain_english: There is no watchlist to audit.
+    remediation_hint: Provide a CSV or API payload with at least one ticker.
+  WATCHLIST_AUDIT_ARTIFACTS_MISSING:
+    severity: WARN
+    analyst: 'All watchlist tickers lack audit artifacts, so triage remains UNKNOWN. Inputs: {inputs_summary}.'
+    plain_english: The engine does not have audit results for the tickers.
+    remediation_hint: Run audit-company for each ticker before watchlist triage.
+  WATCHLIST_AUDIT_ARTIFACT_MISSING:
+    severity: WARN
+    analyst: 'A ticker lacks its audit_summary artifact and is classified as Data Limited. Inputs: {inputs_summary}.'
+    plain_english: This company needs an audit summary before it can be triaged.
+    remediation_hint: Run audit-company and re-run audit-watchlist.
+  WATCHLIST_TICKER_MISSING:
+    severity: WARN
+    analyst: 'A watchlist row has no ticker and cannot be audited. Inputs: {inputs_summary}.'
+    plain_english: One row is missing a ticker.
+    remediation_hint: Populate the ticker or remove the row.
+  WATCHLIST_RESEARCHABLE_NOW:
+    severity: INFO
+    analyst: 'Data confidence, model applicability and conclusion risk allow this ticker to enter the research queue. Inputs: {inputs_summary}.'
+    plain_english: This ticker is researchable under the current audit rules.
+    remediation_hint: Proceed with manual research and keep limitations visible.
+  WATCHLIST_DATA_LIMITED:
+    severity: WARN
+    analyst: 'Data confidence, UNKNOWN checks or critical missing inputs limit this ticker. Inputs: {inputs_summary}.'
+    plain_english: This company has too many missing or weak data points for clean interpretation.
+    remediation_hint: Resolve critical missing inputs or keep it in Data Limited.
+  WATCHLIST_NEEDS_DIFFERENT_MODEL:
+    severity: WARN
+    analyst: 'Model applicability indicates this ticker needs a different or sector-specific model. Inputs: {inputs_summary}.'
+    plain_english: The current model should not be compared directly for this company.
+    remediation_hint: Use a bank/REIT/sector-specific workflow or manual review.
+  WATCHLIST_NOT_APPLICABLE_IGNORED:
+    severity: INFO
+    analyst: 'The ticker is not a company-analysis target under current rules and is placed in Ignore for Now. Inputs: {inputs_summary}.'
+    plain_english: This item is not suitable for the current equity-company model.
+    remediation_hint: Exclude it from ranked company research unless scope changes.
+  WATCHLIST_MODEL_APPLICABILITY_UNKNOWN:
+    severity: WARN
+    analyst: 'Model applicability is UNKNOWN, so the watchlist bucket is degraded. Inputs: {inputs_summary}.'
+    plain_english: The engine cannot tell if the model fits this company.
+    remediation_hint: Curate company type/security type before comparing scores.
+  WATCHLIST_CONCLUSION_RISK_REVIEW_REQUIRED:
+    severity: WARN
+    analyst: 'Conclusion risk is HIGH or UNKNOWN and requires manual review. Inputs: {inputs_summary}.'
+    plain_english: The analysis conclusion is fragile or not fully supported.
+    remediation_hint: Review conclusion risk drivers before deep research.
+  WATCHLIST_RED_FLAGS_REVIEW_REQUIRED:
+    severity: WARN
+    analyst: 'Business-risk red flags are present and require manual review. Inputs: {inputs_summary}.'
+    plain_english: The company has red flags from the auxiliary business-risk module.
+    remediation_hint: Review red flags and underlying evidence before relying on analysis.
+  WATCHLIST_PROVIDER_DEGRADED:
+    severity: WARN
+    analyst: 'Provider degradation is visible in audit artifacts. Inputs: {inputs_summary}.'
+    plain_english: Some data comes from a pragmatic/degraded provider.
+    remediation_hint: Verify material fields from official or curated sources.
+  THESIS_INPUTS_MISSING:
+    severity: WARN
+    analyst: 'Thesis evaluation cannot run because the thesis input is missing. Inputs: {inputs_summary}.'
+    plain_english: The thesis file or payload is missing.
+    remediation_hint: Provide a thesis YAML with ticker, watch_metrics and invalidation_rules.
+  THESIS_NO_EVALUABLE_RULES:
+    severity: WARN
+    analyst: 'The thesis has no machine-readable watch metrics or invalidation rules. Inputs: {inputs_summary}.'
+    plain_english: There are no rules the engine can evaluate.
+    remediation_hint: Add source_field, operator and threshold to thesis rules.
+  THESIS_INVALIDATION_TRIGGERED:
+    severity: WARN
+    analyst: 'At least one invalidation rule is triggered. Inputs: {inputs_summary}.'
+    plain_english: A rule that breaks the thesis has been triggered.
+    remediation_hint: Review the thesis manually and decide whether it is broken.
+  THESIS_MAJORITY_RULES_UNKNOWN:
+    severity: WARN
+    analyst: 'Most thesis rules are UNKNOWN, so thesis status cannot be trusted. Inputs: {inputs_summary}.'
+    plain_english: Too many thesis rules cannot be evaluated.
+    remediation_hint: Provide missing audit/business-risk/sensitivity artifacts or revise rules.
+  THESIS_WATCH_METRIC_TRIGGERED:
+    severity: WARN
+    analyst: 'At least one watch metric is triggered. Inputs: {inputs_summary}.'
+    plain_english: A watch metric moved into review territory.
+    remediation_hint: Review the impacted metrics and supporting lineage.
+  THESIS_RULES_PARTIALLY_UNKNOWN:
+    severity: WARN
+    analyst: 'Some thesis rules are UNKNOWN and degrade the thesis to WATCH. Inputs: {inputs_summary}.'
+    plain_english: Some thesis rules could not be evaluated.
+    remediation_hint: Resolve missing fields or accept WATCH status until they are available.
+  THESIS_ON_TRACK:
+    severity: INFO
+    analyst: 'All supplied thesis rules are evaluable and none are triggered. Inputs: {inputs_summary}.'
+    plain_english: The thesis is on track under the supplied rules.
+    remediation_hint: Continue scheduled reviews; this is not an investment recommendation.
+  THESIS_RULE_INPUT_MISSING:
+    severity: WARN
+    analyst: 'A thesis rule is missing source_field/operator/threshold or the source field is unavailable. Inputs: {inputs_summary}.'
+    plain_english: One thesis rule cannot be checked because required data is missing.
+    remediation_hint: Fix the rule or supply the required artifact field.
+  THESIS_RULE_COMPARISON_FAILED:
+    severity: WARN
+    analyst: 'A thesis rule comparison failed due to incompatible values or unsupported operator. Inputs: {inputs_summary}.'
+    plain_english: One thesis rule could not be compared.
+    remediation_hint: Use a supported operator and comparable numeric/string values.
+  THESIS_RULE_TRIGGERED:
+    severity: WARN
+    analyst: 'A thesis rule condition is triggered. Inputs: {inputs_summary}.'
+    plain_english: This thesis rule needs manual review.
+    remediation_hint: Review the rule, source value and thesis implications.
+  THESIS_RULE_OK:
+    severity: INFO
+    analyst: 'A thesis rule condition is evaluable and not triggered. Inputs: {inputs_summary}.'
+    plain_english: This thesis rule is not triggered.
+    remediation_hint: Keep monitoring under the configured review cadence.
+  DECISION_RECORDED:
+    severity: INFO
+    analyst: 'A research-process decision was recorded with audit/thesis state captured. Inputs: {inputs_summary}.'
+    plain_english: The decision was saved in the research journal.
+    remediation_hint: Review it on the scheduled review date; this is not a trading instruction.
+  DECISION_INPUTS_MISSING:
+    severity: WARN
+    analyst: 'A decision journal record is missing ticker or decision_type. Inputs: {inputs_summary}.'
+    plain_english: The decision cannot be recorded because required fields are missing.
+    remediation_hint: Provide ticker and an allowed process decision_type.
+  DECISION_TYPE_NOT_ALLOWED:
+    severity: WARN
+    analyst: 'The submitted decision_type is not allowed in this product scope. Inputs: {inputs_summary}.'
+    plain_english: This product does not record buy/sell/hold instructions.
+    remediation_hint: Use process-oriented types such as research_deeper, pass, add_watch or review_thesis.
+  PORTFOLIO_INPUTS_MISSING:
+    severity: CRITICAL
+    analyst: Portfolio audit cannot run because no holdings input was supplied.
+    plain_english: The portfolio file or payload is missing.
+    remediation_hint: Provide a local holdings CSV or API holdings array.
+  PORTFOLIO_AUDIT_ARTIFACTS_MISSING:
+    severity: CRITICAL
+    analyst: Portfolio holdings exist, but all non-cash holdings lack audit artifacts.
+    plain_english: The portfolio exists, but the companies have not been audited yet.
+    remediation_hint: Run audit-company for holdings before interpreting portfolio exposure.
+  PORTFOLIO_AUDIT_COMPUTED:
+    severity: INFO
+    analyst: Minimal portfolio audit was computed from local holdings and existing audit artifacts.
+    plain_english: The portfolio audit was generated.
+    remediation_hint: Review unknown exposure and manual review items before using the report.
+  PORTFOLIO_WEIGHTED_DATA_CONFIDENCE_COMPUTED:
+    severity: INFO
+    analyst: Weighted data confidence was computed from per-holding audit artifacts.
+    plain_english: The report calculated how much of the portfolio is supported by stronger data.
+    remediation_hint: Improve audit artifacts for holdings with LOW or UNKNOWN confidence.
+  PORTFOLIO_WEIGHTED_CONCLUSION_RISK_COMPUTED:
+    severity: INFO
+    analyst: Weighted conclusion risk was computed from per-holding conclusion-risk artifacts.
+    plain_english: The report calculated how much of the portfolio depends on fragile conclusions.
+    remediation_hint: Review holdings contributing to MEDIUM/HIGH risk.
+  PORTFOLIO_UNKNOWN_EXPOSURE_PRESENT:
+    severity: WARN
+    analyst: One or more holdings have missing audit artifacts or UNKNOWN inputs.
+    plain_english: Part of the portfolio cannot be evaluated from available artifacts.
+    remediation_hint: Generate missing audit/business-risk/thesis/sensitivity artifacts or keep the exposure marked UNKNOWN.
+  PORTFOLIO_NO_UNKNOWN_EXPOSURE:
+    severity: INFO
+    analyst: No missing audit-artifact exposure was detected in this portfolio audit.
+    plain_english: All non-cash holdings had an audit artifact.
+    remediation_hint: Still review source quality and model applicability.
+  PORTFOLIO_PROVIDER_DEGRADATION_EXPOSURE:
+    severity: WARN
+    analyst: A portion of portfolio weight is supported by provider-degraded company artifacts.
+    plain_english: Some holdings rely on pragmatic or degraded providers.
+    remediation_hint: Confirm critical holdings with official/curated sources.
+  PORTFOLIO_NO_PROVIDER_DEGRADATION_EXPOSURE:
+    severity: INFO
+    analyst: No provider-degraded exposure was detected by the portfolio audit.
+    plain_english: The portfolio did not show provider degradation in supplied artifacts.
+    remediation_hint: Keep source registry and artifacts current.
+  PORTFOLIO_CONCENTRATION_COMPUTED:
+    severity: INFO
+    analyst: Portfolio concentration was computed from operator-supplied sector/factor/thesis labels.
+    plain_english: The report calculated concentration using your labels.
+    remediation_hint: Review labels and update missing UNKNOWN buckets.
+  PORTFOLIO_CONCENTRATION_HIGH:
+    severity: WARN
+    analyst: Portfolio concentration is high in at least one supplied bucket.
+    plain_english: A large part of the portfolio sits in one category.
+    remediation_hint: Review whether concentration is intentional and thesis-supported.
+  PORTFOLIO_MACRO_EXPOSURE_COMPUTED:
+    severity: INFO
+    analyst: Macro exposure map was computed from operator-supplied labels.
+    plain_english: The report mapped portfolio exposure to your macro labels.
+    remediation_hint: Keep macro labels explicit; do not infer them silently.
+  PORTFOLIO_MACRO_EXPOSURE_UNKNOWN:
+    severity: WARN
+    analyst: Macro exposure labels are missing or unavailable.
+    plain_english: The report cannot tell which macro assumptions affect the portfolio.
+    remediation_hint: Add macro_exposure labels to the holdings CSV where material.
+  PORTFOLIO_ATTRIBUTION_LITE_COMPUTED:
+    severity: INFO
+    analyst: Attribution-lite was computed using supplied current_value fields.
+    plain_english: The report summarized value weights from supplied portfolio values.
+    remediation_hint: This is not performance attribution; provide transaction data for richer attribution later.
+  PORTFOLIO_ATTRIBUTION_INPUTS_MISSING:
+    severity: WARN
+    analyst: Attribution-lite could not run because current_value fields are missing.
+    plain_english: The report cannot estimate value-based contribution without values.
+    remediation_hint: Provide current_value in the holdings CSV or accept UNKNOWN.
+  PORTFOLIO_COMPONENT_UNKNOWN:
+    severity: WARN
+    analyst: A portfolio-audit component could not be computed from supplied inputs.
+    plain_english: Part of the portfolio audit is unknown because inputs are missing.
+    remediation_hint: Populate missing artifacts or labels; do not infer values.
+  MEMO_INPUTS_MISSING:
+    severity: CRITICAL
+    analyst: Investment memo cannot be generated because the required audit summary artifact is missing.
+    plain_english: The memo cannot be created because the company audit is missing.
+    remediation_hint: Run audit-company or provide audit_summary before generating a memo.
+  MEMO_GENERATED:
+    severity: INFO
+    analyst: Investment research audit memo was generated from supplied artifacts with deterministic templates.
+    plain_english: The research memo was created from the available audit files.
+    remediation_hint: Review UNKNOWN sections and manual review items before using the memo.
+  MEMO_COMPONENT_UNKNOWN:
+    severity: WARN
+    analyst: One or more optional memo components were not supplied and remain UNKNOWN in the memo package.
+    plain_english: Some sections are unavailable because their input files were not provided.
+    remediation_hint: Provide sensitivity, business-risk, thesis, decision or portfolio artifacts if those sections are material.
+  MEMO_UNKNOWN_PRESERVED:
+    severity: WARN
+    analyst: UNKNOWN checks, critical missing inputs or missing components were preserved in the memo.
+    plain_english: The memo keeps missing or unevaluable items visible.
+    remediation_hint: Do not fill these gaps manually unless a reviewed source is available.
+  MEMO_FALSE_PRECISION_GUARDRAIL_APPLIED:
+    severity: INFO
+    analyst: Memo fair-value presentation uses range/fragility information when available and does not promote point-only fair value conclusions.
+    plain_english: The memo avoids false precision around valuation.
+    remediation_hint: Run sensitivity-company if a valuation range is required.
+  MEMO_RECOMMENDATION_LANGUAGE_REJECTED:
+    severity: CRITICAL
+    analyst: Memo generation detected forbidden recommendation-language and rejected the package.
+    plain_english: The memo contained wording that looks like an investment recommendation.
+    remediation_hint: Remove recommendation wording and keep the memo as research-process audit only.
+  MEMO_NO_RECOMMENDATION_LANGUAGE:
+    severity: INFO
+    analyst: No forbidden recommendation-language was detected in the memo sections/report.
+    plain_english: The memo stays within research-audit language.
+    remediation_hint: Keep outputs process-oriented and avoid investment recommendation terms.
+  MEMO_MANUAL_REVIEW_REQUIRED:
+    severity: WARN
+    analyst: Memo was generated but one or more sections require manual review due to UNKNOWNs, degraded sources, restricted model applicability or fragile conclusions.
+    plain_english: The memo is usable as an audit artifact, but it has review items.
+    remediation_hint: Review manual review items and remediate missing/degraded inputs where material.
+  RUN_COMPARISON_INPUTS_MISSING:
+    severity: CRITICAL
+    analyst: Run comparison cannot be computed because one or both required artifacts are missing.
+    plain_english: The comparison needs two JSON files and at least one is missing.
+    remediation_hint: Provide both previous and current artifacts before running compare-runs.
+  RUN_COMPARISON_COMPUTED:
+    severity: INFO
+    analyst: Run comparison was computed from supplied local artifacts.
+    plain_english: The report compared the two supplied runs.
+    remediation_hint: Review deltas and manual review items before interpreting score changes.
+  RUN_COMPARISON_CHANGES_DETECTED:
+    severity: WARN
+    analyst: Material changes were detected between the two supplied artifacts.
+    plain_english: Something changed between the previous and current run.
+    remediation_hint: Review score, check, assumption, source and lineage deltas.
+  RUN_COMPARISON_NO_MATERIAL_CHANGE:
+    severity: INFO
+    analyst: No material P0.12 change drivers were detected between the two supplied artifacts.
+    plain_english: The comparison did not find important changes.
+    remediation_hint: Still review source dates and UNKNOWNs before relying on stale artifacts.
+  RUN_COMPARISON_UNKNOWN_PRESERVED:
+    severity: WARN
+    analyst: UNKNOWN checks or critical missing inputs remain visible in the run comparison.
+    plain_english: The comparison keeps missing or unevaluable items visible.
+    remediation_hint: Do not interpret score deltas without reviewing unresolved UNKNOWNs.
+  RUN_COMPARISON_NO_UNKNOWN_DETECTED:
+    severity: INFO
+    analyst: No UNKNOWN checks or critical missing inputs were detected by the run comparison.
+    plain_english: The compared artifacts did not expose missing check data.
+    remediation_hint: Confirm lineage coverage before treating the comparison as complete.
+  RUN_COMPARISON_CHECKS_CHANGED:
+    severity: WARN
+    analyst: One or more Snowflake check results or reason codes changed between artifacts.
+    plain_english: At least one check changed.
+    remediation_hint: Review changed checks and their input lineage.
+  RUN_COMPARISON_CHECKS_UNCHANGED_OR_UNAVAILABLE:
+    severity: INFO
+    analyst: No check-level changes were detected, or check arrays were unavailable in the supplied artifacts.
+    plain_english: The comparison did not find check-level changes, or the files did not include check details.
+    remediation_hint: Provide full run outputs if check-level comparison is required.
+  RUN_COMPARISON_LINEAGE_CHANGED:
+    severity: WARN
+    analyst: One or more lineage fields changed between artifacts.
+    plain_english: The data sources behind at least one field changed.
+    remediation_hint: Review source precedence, source age and provider degradation.
+  RUN_COMPARISON_LINEAGE_UNCHANGED_OR_UNAVAILABLE:
+    severity: INFO
+    analyst: No lineage field changes were detected, or lineage objects were unavailable.
+    plain_english: The comparison did not find source-lineage changes.
+    remediation_hint: Provide field lineage if source-level comparison is required.
+  RUN_COMPARISON_NO_RECOMMENDATION_LANGUAGE:
+    severity: INFO
+    analyst: No forbidden recommendation-language was detected in the run comparison report.
+    plain_english: The comparison stays within research-audit language.
+    remediation_hint: Keep outputs process-oriented and avoid investment recommendation terms.
+  RUN_COMPARISON_RECOMMENDATION_LANGUAGE_REJECTED:
+    severity: CRITICAL
+    analyst: Run comparison output detected forbidden recommendation-language and rejected the package.
+    plain_english: The report contained wording that looks like an investment recommendation.
+    remediation_hint: Remove recommendation wording and keep the output as change detection only.
+
+  WORKFLOW_PACKAGE_INPUTS_MISSING:
+    severity: CRITICAL
+    analyst: Workflow package cannot be completed because a required audit artifact is missing.
+    plain_english: The workflow summary cannot be trusted until the audit result is available.
+    remediation_hint: Run audit-company or load a persisted company audit before building the workflow package.
+  WORKFLOW_PACKAGE_READY:
+    severity: INFO
+    analyst: Workflow package has the required audit component and no package-level manual review blockers.
+    plain_english: The workflow package is ready as a research-process summary.
+    remediation_hint: Continue to review source lineage and limitations before using downstream reports.
+  WORKFLOW_COMPONENT_READY:
+    severity: INFO
+    analyst: A workflow component is present and did not expose package-level UNKNOWN indicators.
+    plain_english: This component is available in the workflow summary.
+    remediation_hint: Review component-specific lineage and reason codes when material.
+  WORKFLOW_OPTIONAL_COMPONENT_MISSING:
+    severity: INFO
+    analyst: An optional workflow component is missing and remains visible as a missing optional artifact.
+    plain_english: This optional part has not been supplied yet.
+    remediation_hint: Supply the optional artifact only when that workflow step is needed.
+  WORKFLOW_PACKAGE_UNKNOWN_PRESERVED:
+    severity: WARN
+    analyst: UNKNOWN indicators from one or more workflow components remain visible in the package.
+    plain_english: Some parts of the workflow still contain missing or unevaluable data.
+    remediation_hint: Review components_with_unknown and critical_missing_inputs before relying on downstream memo/reporting.
+  WORKFLOW_PACKAGE_MANUAL_REVIEW_REQUIRED:
+    severity: WARN
+    analyst: Workflow package was built but one or more components require manual review.
+    plain_english: The workflow summary is usable, but some items need human review.
+    remediation_hint: Resolve required artifacts, critical missing inputs and provider-degradation items where material.
+  WORKFLOW_DASHBOARD_API_ONLY:
+    severity: INFO
+    analyst: Dashboard workflow surfaces are wired through FastAPI endpoints and the HTTP API client, not backend internals.
+    plain_english: The dashboard reads workflow data through the API.
+    remediation_hint: Keep dashboard pages API-only and do not import engine/database internals into Streamlit pages.
+  WORKFLOW_NO_RECOMMENDATION_LANGUAGE:
+    severity: INFO
+    analyst: No forbidden recommendation-language was detected in the workflow package/report.
+    plain_english: The workflow summary stays within research-audit language.
+    remediation_hint: Keep outputs process-oriented and avoid investment recommendation wording.
+  WORKFLOW_RECOMMENDATION_LANGUAGE_REJECTED:
+    severity: CRITICAL
+    analyst: Workflow package generation detected forbidden recommendation-language and rejected the package.
+    plain_english: The workflow output contained wording that looks like an investment recommendation.
+    remediation_hint: Remove recommendation wording and keep the output as decision-hygiene workflow state only.
+
+  RELEASE_MVP_COMPLETE:
+    severity: INFO
+    analyst: v4.0 MVP release closure completed with all required capability artifacts present and curated-source readiness passed.
+    plain_english: The MVP release is complete and all required release conditions passed.
+    remediation_hint: Continue normal local operation and keep source review evidence current.
+  RELEASE_MVP_COMPLETE_WITH_LIMITATIONS:
+    severity: WARN
+    analyst: v4.0 MVP release closure completed with required capability artifacts present, while production readiness remains limited by curated-source population.
+    plain_english: The MVP is closed, but it is not production-ready yet because source files still need review.
+    remediation_hint: Populate reviewed curated sources before treating the build as production-ready.
+  RELEASE_REQUIRED_ARTIFACT_MISSING:
+    severity: CRITICAL
+    analyst: Release manifest found a missing required capability file or release artifact.
+    plain_english: Something required for the release package is missing.
+    remediation_hint: Restore or generate the missing artifact and rerun release-package.
+  RELEASE_CAPABILITY_PRESENT:
+    severity: INFO
+    analyst: Required files for this capability group are present in the repository checkout.
+    plain_english: This release capability is present.
+    remediation_hint: Keep module tests and guardrails active for this capability.
+  RELEASE_CAPABILITY_ARTIFACT_MISSING:
+    severity: CRITICAL
+    analyst: A release capability group has one or more required files missing.
+    plain_english: A part of the release cannot be confirmed because a file is missing.
+    remediation_hint: Restore the missing files or mark the capability outside MVP scope explicitly.
+  RELEASE_PRODUCTION_NOT_READY:
+    severity: WARN
+    analyst: Production readiness remains NOT_READY because curated real-source files have not been populated and reviewed.
+    plain_english: The release is still limited by source review work.
+    remediation_hint: Populate reviewed universe, rates, ERP and Identifier Master files before changing production readiness.
+  RELEASE_OPTIONAL_ARTIFACT_MISSING:
+    severity: INFO
+    analyst: An indexed workflow artifact is absent and remains visible as absent rather than inferred.
+    plain_english: One optional artifact is missing and is not being guessed.
+    remediation_hint: Regenerate that workflow artifact only if it is needed for the local review pack.
+  RELEASE_GATES_NOT_RUN:
+    severity: WARN
+    analyst: Aggregated release gates were not all confirmed PASS in the embedded gate summary.
+    plain_english: The release package does not include a full passing gate report yet.
+    remediation_hint: Run scripts/ci/run_all_v4_gates.py after generating the release manifest and rerun release-package with --gates-report.
+  RELEASE_GUARDRAILS_PASS:
+    severity: INFO
+    analyst: Release guardrails passed for schema, limitation visibility, not-investment-advice footer and recommendation-language absence.
+    plain_english: The release report passed the safety checks.
+    remediation_hint: Keep the release report within decision-hygiene language.
+  RELEASE_LOCAL_SMOKE_COMPLETED:
+    severity: INFO
+    analyst: Local MVP smoke workflow completed using offline fixtures and release artifacts.
+    plain_english: The local smoke check completed.
+    remediation_hint: Review the generated release manifest and workflow package before archiving the release.

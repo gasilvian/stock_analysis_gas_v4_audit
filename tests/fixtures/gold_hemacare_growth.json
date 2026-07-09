@@ -1,0 +1,17 @@
+{
+  "test_id": "gold_hemacare_growth",
+  "source": "Company-Analysis-Model/GROWTH.MARKDOWN (HemaCare example)",
+  "input_snapshot": {
+    "current_earnings_musd": 4.43,
+    "current_equity_musd": 10.27,
+    "stable_roe": 0.302,
+    "industry_median_roe": 0.138,
+    "stable_payout_ratio": 0.0
+  },
+  "assumptions_snapshot": {"convergence_years": 5, "retention": 1.0},
+  "expected_output": {"growth": 0.0185, "documented_slope": 0.0821,
+    "documented_mean_earnings": 4.45},
+  "tolerance": {"growth": "0.1pp"},
+  "lineage": {"financials_as_of": "2017"},
+  "result": "NOT_RUN"
+}

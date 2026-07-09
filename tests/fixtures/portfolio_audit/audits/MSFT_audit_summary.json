@@ -1,0 +1,15 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "MSFT",
+  "run_id": "run_msft",
+  "score_raw": 78,
+  "coverage_pct": 0.80,
+  "provider_profile": "yfinance_pragmatic",
+  "data_confidence": {"level": "MEDIUM", "confidence_grade": "B", "unknown_checks_count": 2, "critical_missing_inputs": []},
+  "model_applicability": {"status": "STANDARD_OK", "allowed_score_usage": "rankable", "company_type_detected": "standard_industrial"},
+  "conclusion_risk": {"risk_level": "MEDIUM"},
+  "manual_review_items": ["Provider degradation visible; confirm critical fields."],
+  "provider_degradation_visible": true,
+  "source_quality": "MEDIUM",
+  "source_class": "third_party_pragmatic"
+}

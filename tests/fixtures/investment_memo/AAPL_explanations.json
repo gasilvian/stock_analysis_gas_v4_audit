@@ -1,0 +1,10 @@
+{
+  "schema_version": "explanation_package.v0.1",
+  "ticker": "AAPL",
+  "status": "PASS",
+  "checks_explained_count": 30,
+  "unknown_checks_count": 5,
+  "source_quality": "MEDIUM",
+  "source_class": "deterministic_reason_templates",
+  "not_investment_advice": true
+}

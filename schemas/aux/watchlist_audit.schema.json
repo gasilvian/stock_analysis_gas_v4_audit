@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Watchlist Audit v0.1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sprint",
+    "status",
+    "reason_code",
+    "watchlist_size",
+    "bucket_counts",
+    "items",
+    "research_queue",
+    "not_investment_advice"
+  ],
+  "properties": {
+    "schema_version": {"const": "watchlist_audit.v0.1"},
+    "sprint": {"const": "v4.0-p0.8"},
+    "status": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL"]},
+    "reason_code": {"type": "string"},
+    "watchlist_size": {"type": "integer", "minimum": 0},
+    "bucket_counts": {"type": "object"},
+    "manual_review_count": {"type": "integer", "minimum": 0},
+    "unknown_artifact_count": {"type": "integer", "minimum": 0},
+    "items": {"type": "array", "items": {"$ref": "#/$defs/item"}},
+    "research_queue": {"type": "array", "items": {"type": "object"}},
+    "source_quality": {"type": "string"},
+    "source_class": {"type": "string"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "not_investment_advice": {"const": true}
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "required": [
+        "ticker",
+        "bucket",
+        "artifact_status",
+        "reason_codes",
+        "manual_review_required",
+        "manual_review_items",
+        "research_queue_score",
+        "data_confidence_level",
+        "model_applicability_status",
+        "conclusion_risk_level",
+        "source_quality",
+        "source_class",
+        "input_lineage"
+      ],
+      "properties": {
+        "ticker": {"type": "string"},
+        "bucket": {"enum": ["Researchable Now", "Data Limited", "Needs Different Model", "Ignore For Now", "Ignore for Now", "Manual Review Required"]},
+        "artifact_status": {"enum": ["PASS", "UNKNOWN"]},
+        "reason_codes": {"type": "array", "items": {"type": "string"}},
+        "manual_review_required": {"type": "boolean"},
+        "manual_review_items": {"type": "array", "items": {"type": "string"}},
+        "research_queue_score": {"type": "integer", "minimum": 0},
+        "data_confidence_level": {"type": "string"},
+        "model_applicability_status": {"type": "string"},
+        "conclusion_risk_level": {"type": "string"},
+        "source_quality": {"type": "string"},
+        "source_class": {"type": "string"},
+        "input_lineage": {"type": "object"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

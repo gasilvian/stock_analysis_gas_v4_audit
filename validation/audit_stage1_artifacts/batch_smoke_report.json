@@ -1,0 +1,19 @@
+{
+  "PASS": [
+    {
+      "ticker": "SYN-ACME",
+      "error": null
+    },
+    {
+      "ticker": "SYN-BURN",
+      "error": null
+    }
+  ],
+  "FAIL": [],
+  "SKIPPED": [
+    {
+      "ticker": "SYN-GHOST",
+      "error": "snapshot not found: data/recorded/SYN-GHOST.json"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+ticker,exchange,company_name,country,region,market,industry,sector,currency,include,exclusion_reason,source,source_as_of,source_url_or_reference,curated_by,curated_at,source_marker
+AAPL,NasdaqGS,Sample Apple Inc,US,North America,US,Technology,Information Technology,USD,true,,sample_only,YYYY-MM-DD,replace-with-real-source,operator,YYYY-MM-DD,sample_only_not_real_data
+MSFT,NasdaqGS,Sample Microsoft Corp,US,North America,US,Technology,Information Technology,USD,true,,sample_only,YYYY-MM-DD,replace-with-real-source,operator,YYYY-MM-DD,sample_only_not_real_data

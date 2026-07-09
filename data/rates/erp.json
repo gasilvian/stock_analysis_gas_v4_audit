@@ -1,0 +1,10 @@
+{
+  "as_of": "2026-01-01",
+  "source": "synthetic_curated_construction_table (replace with curated Damodaran-style table before real use)",
+  "source_class": "E2",
+  "countries": {
+    "US": {"erp": 0.050},
+    "RO": {"erp": 0.078},
+    "DE": {"erp": 0.052}
+  }
+}

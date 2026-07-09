@@ -1,0 +1,15 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "AAPL",
+  "run_id": "run_aapl",
+  "score_raw": 74,
+  "coverage_pct": 0.86,
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "data_confidence": {"level": "HIGH", "confidence_grade": "A", "unknown_checks_count": 0, "critical_missing_inputs": []},
+  "model_applicability": {"status": "STANDARD_OK", "allowed_score_usage": "rankable", "company_type_detected": "standard_industrial"},
+  "conclusion_risk": {"risk_level": "LOW"},
+  "manual_review_items": [],
+  "provider_degradation_visible": false,
+  "source_quality": "HIGH",
+  "source_class": "official_filing,curated"
+}

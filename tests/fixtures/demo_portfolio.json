@@ -1,0 +1,21 @@
+{
+  "portfolio_type": "portfolio",
+  "valuation_date": "2016-09-20",
+  "positions": [
+    {
+      "ticker": "AMZN",
+      "current_price": 778.52,
+      "transactions": [
+        {"type": "buy", "date": "2013-05-01", "price": 248.23, "shares": 10},
+        {"type": "buy", "date": "2016-01-19", "price": 571.77, "shares": 5},
+        {"type": "sell", "date": "2016-05-09", "price": 679.75, "shares": 10}
+      ],
+      "scores": {
+        "value": {"score_raw": 2}, "future": {"score_raw": 5},
+        "past": {"score_raw": 4}, "health": {"score_raw": 6},
+        "dividend": {"score_raw": 0}
+      },
+      "metrics": {"pe": 190.0, "pb": 20.0, "peg": 3.2}
+    }
+  ]
+}

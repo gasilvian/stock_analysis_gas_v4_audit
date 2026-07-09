@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "source": "sample_only_not_real_data",
+    "source_as_of": "YYYY-MM-DD",
+    "curated_by": "operator",
+    "curated_at": "YYYY-MM-DD",
+    "unit": "decimal",
+    "notes": "Sample shape only. Replace with a real documented ERP source before production use."
+  },
+  "countries": {
+    "US": {
+      "equity_risk_premium": 0.0,
+      "source": "sample_only_not_real_data",
+      "source_as_of": "YYYY-MM-DD"
+    }
+  }
+}

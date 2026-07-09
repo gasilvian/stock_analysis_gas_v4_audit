@@ -1,0 +1,30 @@
+metadata:
+  version: "v3.1"
+  last_reviewed: "2026-07-08"
+  owner: "user"
+  purpose: "Govern use restrictions for the SWS Snowflake Engine v3.1 implementation."
+
+usage_scope: "internal_personal_educational"
+external_access_enabled: false
+commercial_use_enabled: false
+legal_review_completed: false
+legal_review_reference: null
+approved_by: null
+approved_at: null
+
+license_constraints_acknowledged:
+  attribution_required: true
+  non_commercial_required_without_separate_review: true
+  share_alike_notice_required_for_published_derivatives: true
+  not_investment_advice_required: true
+
+allowed_without_legal_review:
+  internal_personal_educational: true
+  internal_non_commercial_prototype: true
+
+blocked_without_legal_review:
+  external_access: true
+  commercial_use: true
+  paid_subscription: true
+  consulting_delivery: true
+  public_web_deployment: true

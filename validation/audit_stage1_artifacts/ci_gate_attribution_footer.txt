@@ -1,0 +1,1 @@
+OK: dashboard footer attribution and disclaimer present.

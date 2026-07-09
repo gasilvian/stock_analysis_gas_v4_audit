@@ -1,0 +1,35 @@
+{
+  "ticker": "RISK",
+  "exchange": "DemoEX",
+  "valuation_date": "2026-07-09",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "company_type": "non_financial",
+  "operating_cash_flow": 100.0,
+  "capex_history_3y": [30.0, 40.0, 50.0],
+  "net_income": 80.0,
+  "total_assets": 1000.0,
+  "intangible_assets": 600.0,
+  "total_debt": 500.0,
+  "cash_and_st_investments": 50.0,
+  "equity": 200.0,
+  "dividends_paid": 90.0,
+  "buybacks": 20.0,
+  "revenue": 500.0,
+  "shares_outstanding_history": [100.0, 110.0, 120.0],
+  "lineage": {
+    "field_lineage": {
+      "operating_cash_flow": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "capex_history_3y": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "net_income": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "total_assets": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "intangible_assets": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "total_debt": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "cash_and_st_investments": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "equity": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "dividends_paid": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "buybacks": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "revenue": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"},
+      "shares_outstanding_history": {"source_id": "sec_companyfacts", "source_quality": "exact", "source_class": "E0", "as_of": "2026-06-30"}
+    }
+  }
+}

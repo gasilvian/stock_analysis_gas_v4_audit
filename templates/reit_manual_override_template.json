@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "company_type": {"value": "reit", "source_quality": "exact", "source_class": "E3"},
+    "affo_ffo_nav": {
+      "value": {
+        "affo": null,
+        "ffo": null,
+        "nav": null
+      },
+      "source_quality": "exact",
+      "source_class": "E3"
+    },
+    "estimated_payout_3y": {"value": null, "source_quality": "exact", "source_class": "E3"}
+  }
+}

@@ -1,0 +1,6 @@
+ticker,kind,market,country,region,industry,provider_profile,price,eps,shares_outstanding,total_assets,intangible_assets,total_liabilities,market_cap,net_income_growth,revenue_growth,eps_growth,roa,dividend_yield
+TLV.RO,stock,BVB,Romania,Europe,Banks,yfinance_pragmatic,,,,,,,,,,,,
+SNP.RO,stock,BVB,Romania,Europe,Energy,yfinance_pragmatic,,,,,,,,,,,,
+SNG.RO,stock,BVB,Romania,Europe,Energy,yfinance_pragmatic,,,,,,,,,,,,
+TGN.RO,stock,BVB,Romania,Europe,Utilities,yfinance_pragmatic,,,,,,,,,,,,
+EL.RO,stock,BVB,Romania,Europe,Utilities,yfinance_pragmatic,,,,,,,,,,,,

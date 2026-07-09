@@ -1,0 +1,6 @@
+ticker,weight,sector,factor,thesis_id,macro_exposure,current_value,cost_basis
+AAPL,40,Technology,Quality,AI_device_ecosystem,"rates,usd",40000,30000
+MSFT,25,Technology,Quality,AI_cloud,"rates,ai_capex",25000,20000
+JPM,20,Financials,Value,credit_cycle,"rates,credit",20000,15000
+NOAUD,10,Industrials,Cyclical,unknown_thesis,"rates",10000,9500
+CASH,5,Cash,Cash,Cash,cash,5000,

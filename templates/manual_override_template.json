@@ -1,0 +1,32 @@
+{
+  "fields": {
+    "market_averages": {
+      "value": {
+        "pe_median_profitable": null,
+        "net_income_growth": null,
+        "revenue_growth": null,
+        "savings_rate": null,
+        "cpi": null,
+        "dividend_yield_p10": null,
+        "dividend_yield_p25": null,
+        "dividend_yield_p75": null
+      },
+      "source_quality": "exact",
+      "source_class": "E3"
+    },
+    "industry_averages": {
+      "value": {
+        "pe_median_profitable": null,
+        "pb_average": null,
+        "eps_growth": null,
+        "roa": null
+      },
+      "source_quality": "exact",
+      "source_class": "E3"
+    },
+    "risk_free_rate_10y_5y_avg": {"value": null, "source_quality": "assumption", "source_class": "E2"},
+    "equity_risk_premium": {"value": null, "source_quality": "assumption", "source_class": "E2"},
+    "analyst_estimates_weighted": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "fcf_estimates": {"value": null, "source_quality": "exact", "source_class": "E3"}
+  }
+}

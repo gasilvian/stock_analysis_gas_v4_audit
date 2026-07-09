@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/sws_engine/schemas/aux/sensitivity_summary.schema.json",
+  "title": "Sensitivity Summary v4.0 P0.5",
+  "type": "object",
+  "required": ["ticker", "status", "source_quality", "source_class", "input_lineage", "valuation_range", "scenario_matrix", "terminal_value_contribution", "reverse_dcf", "fragility"],
+  "properties": {
+    "ticker": {"type": "string"},
+    "valuation_date": {"type": ["string", "null"]},
+    "status": {"type": "string", "enum": ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN"]},
+    "reason_code": {"type": "string"},
+    "source_quality": {"type": "string"},
+    "source_class": {"type": "string"},
+    "input_lineage": {"type": "object"},
+    "base_case": {"type": "object"},
+    "valuation_range": {"type": "object"},
+    "scenario_matrix": {"type": "array"},
+    "terminal_value_contribution": {"type": "object"},
+    "reverse_dcf": {"type": "object"},
+    "fragility": {"type": "object"},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  }
+}

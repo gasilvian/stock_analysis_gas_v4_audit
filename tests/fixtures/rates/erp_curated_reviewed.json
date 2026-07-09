@@ -1,0 +1,13 @@
+{
+  "source": "damodaran_manual_curated_fixture",
+  "as_of": "2026-07-01",
+  "review_status": "reviewed",
+  "reviewed_by": "operator",
+  "review_date": "2026-07-09",
+  "expires_at": "2099-12-31",
+  "sensitivity_required": true,
+  "countries": {
+    "US": {"erp": 0.0433, "country_risk_premium": 0.0, "review_status": "reviewed"},
+    "RO": {"erp": 0.0650, "country_risk_premium": 0.0217, "review_status": "reviewed"}
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "fields": {
+    "company_type": {"value": "bank", "source_quality": "exact", "source_class": "E3"},
+    "current_bve": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "stable_future_roe": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "stable_future_bve": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "allowance_for_npl": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "npl": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "deposits": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "net_loans": {"value": null, "source_quality": "exact", "source_class": "E3"},
+    "net_charge_offs": {"value": null, "source_quality": "exact", "source_class": "E3"}
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "AAPL",
+  "exchange": "NasdaqGS",
+  "valuation_date": "2026-07-09",
+  "run_id": "run_aapl_curr",
+  "input_snapshot_id": "snap_aapl_curr",
+  "assumptions_hash": "hash_curr",
+  "provider_profile": "yfinance_pragmatic",
+  "score_summary": {
+    "value": {
+      "score_raw": 4,
+      "coverage_pct": 0.8,
+      "known_checks_count": 5,
+      "unknown_checks_count": 1
+    },
+    "future": {
+      "score_raw": 3,
+      "coverage_pct": 0.5,
+      "known_checks_count": 3,
+      "unknown_checks_count": 3
+    },
+    "past": {
+      "score_raw": 5,
+      "coverage_pct": 1.0,
+      "known_checks_count": 6,
+      "unknown_checks_count": 0
+    }
+  },
+  "checks_summary": {
+    "PASS": 17,
+    "FAIL": 8,
+    "UNKNOWN": 5,
+    "total": 30
+  },
+  "data_confidence": {
+    "status": "PASS_WITH_LIMITATIONS",
+    "reason_code": "YFINANCE_PRAGMATIC_DEGRADED",
+    "level": "MEDIUM",
+    "confidence_grade": "C",
+    "unknown_checks_count": 5,
+    "critical_missing_inputs": [
+      "analyst_estimates_weighted",
+      "fcf_estimates"
+    ],
+    "provider_degradation_visible": true
+  },
+  "model_applicability": {
+    "status": "STANDARD_OK",
+    "reason_code": "STANDARD_EQUITY_MODEL_APPLICABLE",
+    "allowed_score_usage": "rankable",
+    "recommended_model": "two_stage_fcf"
+  },
+  "conclusion_risk": {
+    "status": "PASS_WITH_LIMITATIONS",
+    "reason_code": "MANY_UNKNOWN_CHECKS",
+    "risk_level": "MEDIUM",
+    "drivers": [
+      "UNKNOWN future checks",
+      "provider degradation"
+    ]
+  },
+  "critical_missing_inputs": [
+    "analyst_estimates_weighted",
+    "fcf_estimates"
+  ],
+  "unknown_clusters": [
+    {
+      "reason_code": "PROVIDER_LIMITATION",
+      "count": 3
+    }
+  ],
+  "provider_degradation_visible": true,
+  "warnings": [
+    "YFINANCE_PRAGMATIC_DEGRADED"
+  ],
+  "source_quality": "MEDIUM",
+  "source_class": "third_party_pragmatic",
+  "not_investment_advice": true,
+  "checks": [
+    {
+      "id": "V1",
+      "name": "Value check 1",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "MEDIUM",
+      "source_class": "E2",
+      "input_lineage": {
+        "pe_ratio": "yfinance_pragmatic"
+      }
+    },
+    {
+      "id": "F1",
+      "name": "Future check 1",
+      "result": "UNKNOWN",
+      "reason_code": "MISSING_INPUT",
+      "source_quality": "LOW",
+      "source_class": "E4",
+      "input_lineage": {
+        "growth": "UNKNOWN"
+      }
+    },
+    {
+      "id": "F2",
+      "name": "Future check 2",
+      "result": "UNKNOWN",
+      "reason_code": "PROVIDER_LIMITATION",
+      "source_quality": "LOW",
+      "source_class": "E4",
+      "input_lineage": {
+        "analysts": "UNKNOWN"
+      }
+    }
+  ],
+  "lineage": {
+    "field_lineage": {
+      "revenue": {
+        "source_id": "yfinance_pragmatic",
+        "as_of": "2026-07-09"
+      },
+      "fcf_estimates": {
+        "source_id": "UNKNOWN",
+        "as_of": "UNKNOWN"
+      }
+    }
+  }
+}

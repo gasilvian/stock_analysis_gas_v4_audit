@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "industry_averages_as_of": "2026-07-06",
+    "source": "synthetic_curated",
+    "min_universe_count": 5,
+    "excluded_instruments": [
+      "SYN-ETF",
+      "SYN-DR"
+    ],
+    "metric_definitions": {
+      "pe_median_profitable": "median PE over companies with EPS>0",
+      "pb_average": "mean PB from tangible book value only",
+      "net_income_growth": "market-cap weighted mean",
+      "revenue_growth": "market-cap weighted mean",
+      "eps_growth": "median",
+      "roa": "median",
+      "dividend_yield_pXX": "linear-interpolated percentile"
+    }
+  },
+  "market": {
+    "pe_median_profitable": 24.451219512195124,
+    "pb_average": 9.394492641218386,
+    "pb_excluded_no_tangible_bv": 0,
+    "eps_growth": 0.05,
+    "roa": 0.08,
+    "net_income_growth": 0.07557362559660598,
+    "revenue_growth": 0.09442990984620823,
+    "dividend_yield_p10": 0.0,
+    "dividend_yield_p25": 0.011,
+    "dividend_yield_p75": 0.0365,
+    "universe_count": 11,
+    "savings_rate": 0.02,
+    "cpi": 0.028
+  },
+  "industries": {
+    "Software": {
+      "pe_median_profitable": 29.166666666666664,
+      "pb_average": 12.510866757425582,
+      "pb_excluded_no_tangible_bv": 0,
+      "eps_growth": 0.08499999999999999,
+      "roa": 0.0875,
+      "net_income_growth": 0.08177983125753314,
+      "revenue_growth": 0.10413017276014463,
+      "dividend_yield_p10": 0.0,
+      "dividend_yield_p25": 0.0075,
+      "dividend_yield_p75": 0.0185,
+      "universe_count": 8,
+      "fallback_level": "industry"
+    },
+    "Utilities": {
+      "pe_median_profitable": 24.451219512195124,
+      "pb_average": 9.394492641218386,
+      "pb_excluded_no_tangible_bv": 0,
+      "eps_growth": 0.05,
+      "roa": 0.08,
+      "net_income_growth": 0.07557362559660598,
+      "revenue_growth": 0.09442990984620823,
+      "dividend_yield_p10": 0.0,
+      "dividend_yield_p25": 0.011,
+      "dividend_yield_p75": 0.0365,
+      "universe_count": 11,
+      "savings_rate": 0.02,
+      "cpi": 0.028,
+      "fallback_level": "market",
+      "universe_count_industry": 3
+    }
+  },
+  "warnings": [
+    "FALLBACK: industry 'Utilities' has 3 instruments (< 5); market-level averages used"
+  ]
+}

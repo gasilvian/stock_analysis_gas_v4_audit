@@ -1,0 +1,18 @@
+{
+  "schema_version": "sensitivity_summary.v0.1",
+  "ticker": "AAPL",
+  "status": "PASS",
+  "reason_code": "SENSITIVITY_COMPUTED",
+  "valuation_date": "2026-07-09",
+  "fragility": {"fragility_level": "MEDIUM", "reason_code": "FRAGILITY_COMPUTED"},
+  "valuation_range": {
+    "bear": {"fair_value": 120.0, "discount_pct": -25.0, "status": "PASS"},
+    "base": {"fair_value": 160.0, "discount_pct": -5.0, "status": "PASS"},
+    "bull": {"fair_value": 220.0, "discount_pct": 12.0, "status": "PASS"}
+  },
+  "terminal_value_contribution": {"terminal_value_pct": 68.0},
+  "reverse_dcf": {"status": "PASS_WITH_LIMITATIONS"},
+  "source_quality": "MEDIUM",
+  "source_class": "curated_assumption_sensitivity",
+  "not_investment_advice": true
+}

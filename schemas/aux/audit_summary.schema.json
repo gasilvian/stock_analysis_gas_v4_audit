@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Audit Summary v0.2",
+  "type": "object",
+  "required": ["schema_version", "ticker", "valuation_date", "provider_profile", "score_summary", "checks_summary", "data_confidence", "model_applicability", "conclusion_risk", "unknown_clusters", "warnings", "not_investment_advice"],
+  "properties": {
+    "schema_version": {"enum": ["audit_summary.v0.1", "audit_summary.v0.2"]},
+    "engine_version": {"type": "string"},
+    "output_schema_version": {"type": "string"},
+    "run_id": {"type": ["string", "null"]},
+    "input_snapshot_id": {"type": ["string", "null"]},
+    "assumptions_hash": {"type": ["string", "null"]},
+    "ticker": {"type": "string"},
+    "exchange": {"type": ["string", "null"]},
+    "valuation_date": {"type": "string"},
+    "provider_profile": {"type": "string"},
+    "score_summary": {"type": "object"},
+    "checks_summary": {"type": "object"},
+    "data_confidence": {"type": "object"},
+    "model_applicability": {"type": "object"},
+    "conclusion_risk": {"type": "object"},
+    "critical_missing_inputs": {"type": "array"},
+    "unknown_clusters": {"type": "array"},
+    "warnings": {"type": "array"},
+    "provider_degradation_visible": {"type": "boolean"},
+    "not_investment_advice": {"const": true},
+    "policy_version": {"type": ["string", "null"]},
+    "lineage": {"type": "object"}
+  },
+  "additionalProperties": true
+}

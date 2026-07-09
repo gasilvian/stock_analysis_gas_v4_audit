@@ -1,0 +1,21 @@
+{
+  "ticker": "CLEAN",
+  "exchange": "DemoEX",
+  "valuation_date": "2026-07-09",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "company_type": "non_financial",
+  "operating_cash_flow": 180.0,
+  "capex_history_3y": [30.0, 30.0, 30.0],
+  "net_income": 100.0,
+  "total_assets": 1000.0,
+  "intangible_assets": 100.0,
+  "total_debt": 100.0,
+  "cash_and_st_investments": 200.0,
+  "equity": 600.0,
+  "dividends_paid": 40.0,
+  "buybacks": 20.0,
+  "revenue": 900.0,
+  "shares_outstanding_history": [100.0, 99.0, 98.0],
+  "gross_profit_history": [420.0, 440.0, 450.0],
+  "revenue_history": [840.0, 880.0, 900.0]
+}

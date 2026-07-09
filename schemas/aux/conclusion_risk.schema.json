@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conclusion Risk v0.1",
+  "type": "object",
+  "required": ["status", "risk_level", "drivers", "manual_review_required", "manual_review_items", "source_quality", "source_class", "input_lineage"],
+  "properties": {
+    "status": {"const": "PASS"},
+    "risk_level": {"enum": ["LOW", "MEDIUM", "HIGH", "UNKNOWN"]},
+    "drivers": {"type": "array"},
+    "manual_review_required": {"type": "boolean"},
+    "manual_review_items": {"type": "array", "items": {"type": "string"}},
+    "source_quality": {"type": "string"},
+    "source_class": {"type": "string"},
+    "input_lineage": {"type": "object"}
+  },
+  "additionalProperties": true
+}

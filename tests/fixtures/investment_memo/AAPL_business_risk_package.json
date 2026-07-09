@@ -1,0 +1,15 @@
+{
+  "schema_version": "business_risk_package.v0.1",
+  "ticker": "AAPL",
+  "status": "PASS_WITH_LIMITATIONS",
+  "reason_code": "BUSINESS_RISK_SIGNALS_COMPUTED",
+  "red_flags_summary": {"fail_count": 1},
+  "red_flags": [
+    {"flag": "ENGINE_UNKNOWN_CHECKS_PRESENT", "result": "FAIL", "reason_code": "RED_FLAG_ENGINE_UNKNOWN_CHECKS_PRESENT"}
+  ],
+  "accounting_quality": {"grade": "NORMAL"},
+  "capital_allocation": {"assessment": "BALANCED"},
+  "source_quality": "MEDIUM",
+  "source_class": "official_filing",
+  "not_investment_advice": true
+}

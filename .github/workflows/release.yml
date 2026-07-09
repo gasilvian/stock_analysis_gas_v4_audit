@@ -1,0 +1,42 @@
+name: Release Gate
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package
+        run: python -m pip install -U pip && python -m pip install -e ".[dev,api,dashboard,live,ci,e2e]"
+      - name: Gold tests
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+        run: python -m pytest -q tests/gold tests/portfolio tests/contract
+      - name: Schema validation gate
+        run: python scripts/ci/validate_demo_outputs.py
+      - name: Governance gates
+        run: |
+          python scripts/ci/check_no_score_normalized.py
+          python scripts/ci/check_attribution_footer.py
+          python scripts/ci/check_real_source_population_workflow.py
+      - name: Clean local artifacts
+        run: python scripts/ci/clean_artifacts.py
+      - name: Build source archive
+        run: |
+          mkdir -p dist
+          zip -r dist/sws-snowflake-engine-release.zip . \
+            -x "*.git*" "*.pytest_cache*" "*__pycache__*" "*.pyc" "*.pyo" "*.egg-info*"
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sws-snowflake-engine-release
+          path: dist/sws-snowflake-engine-release.zip

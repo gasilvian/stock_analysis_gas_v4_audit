@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SWS v4 Explanation Package v0.1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "ticker",
+    "mode",
+    "checks_explained_count",
+    "check_explanations",
+    "not_investment_advice"
+  ],
+  "properties": {
+    "schema_version": {"const": "explanation_package.v0.1"},
+    "ticker": {"type": "string"},
+    "exchange": {"type": "string"},
+    "valuation_date": {"type": "string"},
+    "provider_profile": {"type": "string"},
+    "mode": {"enum": ["analyst", "plain_english"]},
+    "include_pass": {"type": "boolean"},
+    "checks_explained_count": {"type": "integer", "minimum": 0},
+    "unknown_checks_count": {"type": "integer", "minimum": 0},
+    "fail_checks_count": {"type": "integer", "minimum": 0},
+    "dictionary_version": {"type": ["string", "null"]},
+    "known_reason_codes_complete_for_package": {"type": "boolean"},
+    "not_investment_advice": {"const": true},
+    "check_explanations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["result", "reason_code", "explanation", "remediation_hint", "known_reason_code"],
+        "properties": {
+          "axis": {"type": "string"},
+          "check_id": {},
+          "check_name": {"type": "string"},
+          "result": {"type": "string"},
+          "reason_code": {"type": "string"},
+          "severity": {"type": "string"},
+          "mode": {"type": "string"},
+          "explanation": {"type": "string", "minLength": 1},
+          "remediation_hint": {"type": "string", "minLength": 1},
+          "source_quality": {"type": "string"},
+          "source_class": {"type": "string"},
+          "input_lineage": {"type": "object"},
+          "known_reason_code": {"type": "boolean"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "audit_explanations": {"type": "object"}
+  },
+  "additionalProperties": true
+}

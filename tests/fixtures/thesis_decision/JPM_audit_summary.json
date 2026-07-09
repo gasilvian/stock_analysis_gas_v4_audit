@@ -1,0 +1,15 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "JPM",
+  "run_id": "run_jpm",
+  "score_raw": 55,
+  "coverage_pct": 0.58,
+  "provider_profile": "yfinance_pragmatic",
+  "data_confidence": {"level": "LOW", "confidence_grade": "D", "unknown_checks_count": 9, "critical_missing_inputs": ["bank_specific_fields"]},
+  "model_applicability": {"status": "DEGRADED", "allowed_score_usage": "do_not_compare", "company_type_detected": "bank"},
+  "conclusion_risk": {"risk_level": "HIGH"},
+  "manual_review_items": ["Bank-specific workflow required."],
+  "provider_degradation_visible": true,
+  "source_quality": "MIXED",
+  "source_class": "third_party_pragmatic"
+}

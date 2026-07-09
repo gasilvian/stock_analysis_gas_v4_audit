@@ -1,0 +1,9 @@
+{
+  "as_of": "YYYY-MM-DD",
+  "source": "curated_erp_table_replace_with_documented_source",
+  "note": "Use a versioned country ERP table. Do not silently change values between runs.",
+  "countries": {
+    "United States": {"erp": null, "source_quality": "exact_or_assumption", "source_class": "E2"},
+    "Romania": {"erp": null, "source_quality": "exact_or_assumption", "source_class": "E2"}
+  }
+}

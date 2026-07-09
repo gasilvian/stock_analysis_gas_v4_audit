@@ -1,0 +1,16 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "JPM",
+  "exchange": "NYSE",
+  "valuation_date": "2026-07-09",
+  "run_id": "run-jpm",
+  "provider_profile": "yfinance_pragmatic",
+  "data_confidence": {"level": "MEDIUM", "confidence_grade": "C", "unknown_checks_count": 4, "critical_missing_inputs": [], "source_quality_mix": {"approximation": 20}},
+  "model_applicability": {"status": "DEGRADED", "allowed_score_usage": "audit_only", "company_type_detected": "bank", "reason_code": "BANK_STANDARD_FCF_MODEL_LIMITED"},
+  "conclusion_risk": {"risk_level": "HIGH", "drivers": [{"reason_code": "BANK_STANDARD_FCF_MODEL_LIMITED", "risk_impact": "HIGH"}], "manual_review_items": ["Use bank-specific analysis."]},
+  "critical_missing_inputs": [],
+  "unknown_clusters": [{"reason_code": "PROVIDER_LIMITATION", "count": 4}],
+  "warnings": ["YFINANCE_PRAGMATIC_DEGRADED"],
+  "provider_degradation_visible": true,
+  "not_investment_advice": true
+}

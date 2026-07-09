@@ -1,0 +1,4 @@
+Name: sws-snowflake-engine
+Version: 3.1.0
+Summary: Controlled implementation of the public GitHub Simply Wall St methodology (SWS Snowflake Engine v3.1 model pack). Not investment advice.
+pip install -e '.[dev]' exit code: 0 (import verified from outside rootdir)

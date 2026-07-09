@@ -1,0 +1,4 @@
+{
+  "0": {"cik_str": 320193, "ticker": "AAPL", "title": "Apple Inc.", "exchange": "NasdaqGS", "sic": "3571"},
+  "1": {"cik_str": 19617, "ticker": "JPM", "title": "JPMorgan Chase & Co.", "exchange": "NYSE", "sic": "6021"}
+}

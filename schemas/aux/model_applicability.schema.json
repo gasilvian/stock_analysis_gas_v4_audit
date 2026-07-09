@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Model Applicability v0.2",
+  "type": "object",
+  "required": ["status", "company_type_detected", "reason_code", "recommended_model", "allowed_score_usage", "source_quality", "source_class", "input_lineage"],
+  "properties": {
+    "status": {"enum": ["STANDARD_OK", "DEGRADED", "NOT_APPLICABLE", "UNKNOWN"]},
+    "company_type_detected": {"type": "string"},
+    "reason_code": {"type": "string"},
+    "recommended_model": {"type": "string"},
+    "allowed_score_usage": {"enum": ["rankable", "display_only", "audit_only", "do_not_compare"]},
+    "comparability_warning": {"type": ["string", "null"]},
+    "source_quality": {"type": "string"},
+    "source_class": {"type": "string"},
+    "input_lineage": {"type": "object"},
+    "identifier_master_used": {"type": "boolean"},
+    "identifier_record": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}

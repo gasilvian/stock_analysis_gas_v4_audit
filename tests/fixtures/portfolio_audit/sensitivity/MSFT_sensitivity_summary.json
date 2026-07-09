@@ -1,0 +1,1 @@
+{"schema_version":"sensitivity_summary.v0.1","ticker":"MSFT","status":"PASS","fragility":{"fragility_level":"MEDIUM"},"source_quality":"MEDIUM","source_class":"curated_assumption_sensitivity","not_investment_advice":true}

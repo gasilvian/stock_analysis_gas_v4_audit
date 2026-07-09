@@ -1,0 +1,20 @@
+[
+  {
+    "ticker": "SYN-ACME",
+    "valuation_date": "2026-07-06",
+    "score_raw": 5,
+    "coverage_pct": 1.0,
+    "fair_value": 111.98859487958714,
+    "price": 92.0,
+    "discount_pct": 0.1784877728047161
+  },
+  {
+    "ticker": "SYN-BURN",
+    "valuation_date": "2026-07-06",
+    "score_raw": 5,
+    "coverage_pct": 1.0,
+    "fair_value": null,
+    "price": 14.0,
+    "discount_pct": null
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "source": "synthetic_curated",
+  "fetched_at": "2026-07-06",
+  "ticker": "SYN-ACME",
+  "exchange": "SynEx",
+  "currency": "USD",
+  "info": {
+    "price": 92.0,
+    "shares_outstanding": 110000000,
+    "company_type": "non_financial",
+    "dividend_yield": 0.0217,
+    "levered_beta": 1.05
+  },
+  "balance_sheet": {
+    "as_of": "2026-03-31",
+    "total_assets": 8200000000,
+    "intangible_assets": 900000000,
+    "total_liabilities": 4100000000,
+    "st_assets": 2100000000,
+    "st_liabilities": 1300000000,
+    "lt_liabilities": 2800000000,
+    "equity": 4100000000,
+    "equity_5y_ago": 2900000000,
+    "debt_current": 950000000,
+    "debt_5y_ago": 1100000000,
+    "total_debt": 950000000,
+    "cash_and_st_investments": 1200000000
+  },
+  "income": {
+    "as_of": "2026-03-31",
+    "eps": 5.1,
+    "eps_5y_ago": 3.1,
+    "eps_history": [
+      3.1,
+      3.5,
+      3.9,
+      4.4,
+      4.7,
+      5.1
+    ],
+    "earnings_history": [
+      341000000,
+      385000000,
+      429000000,
+      484000000,
+      517000000,
+      561000000
+    ],
+    "eps_growth_1y": 0.085,
+    "eps_growth_5y_avg": 0.105,
+    "earnings_growth_trailing": 0.085,
+    "revenue_growth_trailing": 0.071,
+    "ebit": 810000000,
+    "net_interest_expense": 52000000,
+    "roe": 0.137,
+    "roa": 0.068,
+    "roce_current": 0.155,
+    "roce_3y_ago": 0.128,
+    "payout_ratio": 0.39
+  },
+  "cashflow": {
+    "operating_cash_flow": 760000000,
+    "capex_history_3y": [
+      210000000,
+      260000000,
+      235000000
+    ]
+  },
+  "dividends_annual": {
+    "2017": 1.1,
+    "2018": 1.18,
+    "2019": 1.26,
+    "2020": 1.3,
+    "2021": 1.42,
+    "2022": 1.55,
+    "2023": 1.64,
+    "2024": 1.76,
+    "2025": 1.9,
+    "2026": 2.0
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Risk Package v0.1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sprint",
+    "status",
+    "reason_code",
+    "ticker",
+    "red_flags_summary",
+    "red_flags",
+    "red_flag_checks",
+    "accounting_quality",
+    "capital_allocation",
+    "manual_review_items",
+    "not_investment_advice"
+  ],
+  "properties": {
+    "schema_version": {"const": "business_risk_package.v0.1"},
+    "sprint": {"const": "v4.0-p0.7"},
+    "status": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL"]},
+    "reason_code": {"type": "string"},
+    "ticker": {"type": "string"},
+    "valuation_date": {"type": "string"},
+    "run_id": {"type": ["string", "null"]},
+    "provider_profile": {"type": "string"},
+    "red_flags_summary": {
+      "type": "object",
+      "required": ["fail_count", "unknown_count", "pass_count", "high_severity_fail_count"],
+      "properties": {
+        "fail_count": {"type": "integer", "minimum": 0},
+        "unknown_count": {"type": "integer", "minimum": 0},
+        "pass_count": {"type": "integer", "minimum": 0},
+        "high_severity_fail_count": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "red_flags": {"type": "array", "items": {"$ref": "#/$defs/signal"}},
+    "red_flag_checks": {"type": "array", "items": {"$ref": "#/$defs/signal"}},
+    "accounting_quality": {"$ref": "#/$defs/component"},
+    "capital_allocation": {"$ref": "#/$defs/component"},
+    "manual_review_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reason_code", "message"],
+        "properties": {
+          "reason_code": {"type": "string"},
+          "message": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "source_quality": {"type": "string"},
+    "source_class": {"type": "string"},
+    "input_lineage_summary": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "not_investment_advice": {"const": true}
+  },
+  "$defs": {
+    "signal": {
+      "type": "object",
+      "required": ["flag_id", "status", "severity", "reason_code", "evidence", "source_quality", "source_class", "input_lineage"],
+      "properties": {
+        "flag_id": {"type": "string"},
+        "status": {"enum": ["PASS", "FAIL", "UNKNOWN", "WATCH"]},
+        "severity": {"enum": ["INFO", "WARN", "MEDIUM", "HIGH", "CRITICAL"]},
+        "reason_code": {"type": "string"},
+        "fields": {"type": "array", "items": {"type": "string"}},
+        "evidence": {"type": "object"},
+        "source_quality": {"type": "string"},
+        "source_class": {"type": "string"},
+        "input_lineage": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "component": {
+      "type": "object",
+      "required": ["status", "reason_code", "metrics", "source_quality", "source_class", "input_lineage_summary"],
+      "properties": {
+        "status": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL"]},
+        "grade": {"type": "string"},
+        "assessment": {"type": "string"},
+        "reason_code": {"type": "string"},
+        "metrics": {"type": "array", "items": {"type": "object"}},
+        "source_quality": {"type": "string"},
+        "source_class": {"type": "string"},
+        "input_lineage_summary": {"type": "object"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

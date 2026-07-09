@@ -1,0 +1,120 @@
+{
+  "schema_version": "audit_summary.v0.2",
+  "ticker": "AAPL",
+  "exchange": "NasdaqGS",
+  "valuation_date": "2026-06-30",
+  "run_id": "run_aapl_prev",
+  "input_snapshot_id": "snap_aapl_prev",
+  "assumptions_hash": "hash_prev",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "score_summary": {
+    "value": {
+      "score_raw": 5,
+      "coverage_pct": 0.9,
+      "known_checks_count": 5,
+      "unknown_checks_count": 1
+    },
+    "future": {
+      "score_raw": 4,
+      "coverage_pct": 0.7,
+      "known_checks_count": 3,
+      "unknown_checks_count": 3
+    },
+    "past": {
+      "score_raw": 5,
+      "coverage_pct": 1.0,
+      "known_checks_count": 6,
+      "unknown_checks_count": 0
+    }
+  },
+  "checks_summary": {
+    "PASS": 19,
+    "FAIL": 8,
+    "UNKNOWN": 3,
+    "total": 30
+  },
+  "data_confidence": {
+    "status": "PASS",
+    "reason_code": "DATA_CONFIDENCE_SUFFICIENT",
+    "level": "HIGH",
+    "confidence_grade": "B",
+    "unknown_checks_count": 3,
+    "critical_missing_inputs": [
+      "analyst_estimates_weighted"
+    ],
+    "provider_degradation_visible": false
+  },
+  "model_applicability": {
+    "status": "STANDARD_OK",
+    "reason_code": "STANDARD_EQUITY_MODEL_APPLICABLE",
+    "allowed_score_usage": "rankable",
+    "recommended_model": "two_stage_fcf"
+  },
+  "conclusion_risk": {
+    "status": "PASS",
+    "reason_code": "CONCLUSION_RISK_LOW_BY_AUDIT_RULES",
+    "risk_level": "LOW",
+    "drivers": []
+  },
+  "critical_missing_inputs": [
+    "analyst_estimates_weighted"
+  ],
+  "unknown_clusters": [
+    {
+      "reason_code": "PROVIDER_LIMITATION",
+      "count": 3
+    }
+  ],
+  "provider_degradation_visible": false,
+  "warnings": [],
+  "source_quality": "HIGH",
+  "source_class": "official_filing_curated",
+  "not_investment_advice": true,
+  "checks": [
+    {
+      "id": "V1",
+      "name": "Value check 1",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "HIGH",
+      "source_class": "E0",
+      "input_lineage": {
+        "pe_ratio": "sec_companyfacts"
+      }
+    },
+    {
+      "id": "F1",
+      "name": "Future check 1",
+      "result": "FAIL",
+      "reason_code": "LOW_GROWTH",
+      "source_quality": "MEDIUM",
+      "source_class": "E2",
+      "input_lineage": {
+        "growth": "historical_regression"
+      }
+    },
+    {
+      "id": "F2",
+      "name": "Future check 2",
+      "result": "PASS",
+      "reason_code": "OK",
+      "source_quality": "MEDIUM",
+      "source_class": "E2",
+      "input_lineage": {
+        "analysts": "manual_curated"
+      }
+    }
+  ],
+  "lineage": {
+    "field_lineage": {
+      "revenue": {
+        "source_id": "sec_companyfacts",
+        "as_of": "2026-06-30"
+      },
+      "fcf_estimates": {
+        "source_id": "manual_curated",
+        "as_of": "2026-06-30"
+      }
+    }
+  }
+}

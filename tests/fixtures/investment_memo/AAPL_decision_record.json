@@ -1,0 +1,10 @@
+{
+  "schema_version": "decision_journal.v0.1",
+  "ticker": "AAPL",
+  "status": "PASS",
+  "reason_code": "DECISION_RECORDED",
+  "decision_id": "decision_aapl_p11",
+  "decision_type": "research_deeper",
+  "review_date": "2026-10-09",
+  "not_investment_advice": true
+}

@@ -1,0 +1,483 @@
+metadata:
+  version: v4.0-p0.4
+  last_reviewed: '2026-07-08'
+  purpose: Production data-source registry for SWS Snowflake Engine v3.1.
+  note: 'Backward-compatible v4.0 P0.2 registry: existing readiness behavior is preserved;
+    tier/license/ttl/field caps support audit-layer governance.'
+sources:
+- id: yfinance_equity_live
+  category: live_equity_provider
+  provider: yfinance
+  source_type: live_provider
+  path: null
+  status: implemented_optional
+  required_for_internal_daily_run: true
+  required_for_production_real_data: true
+  source_quality_default: approximation
+  provider_profile: yfinance_pragmatic
+  command: python -m sws_engine.cli build-payload-yfinance --ticker AAPL --market
+    US --industry Technology --output data/real_sources/payloads/AAPL_yfinance_payload.json
+  limitations:
+  - Not a faithful SWS institutional data source.
+  - Analyst estimates with analyst_count are generally missing.
+  - FCF forward estimates are missing.
+  - AFFO/FFO/NAV and bank NPL/deposit/charge-off fields generally require manual override.
+  tier: pragmatic
+  license_status: unreviewed
+  ttl_days: 7
+  allowed_fields:
+  - prices
+  - dividends
+  - splits
+  - company_profile
+  - pragmatic_payload_fields
+  field_quality_caps:
+    '*': approximation
+- id: universe_us_curated
+  category: market_universe
+  provider: user_curated
+  source_type: versioned_csv
+  path: data/universe/universe_US_template.csv
+  status: template_needs_population
+  required_for_internal_daily_run: true
+  required_for_production_real_data: true
+  source_quality_default: exact
+  replacement_target_path: data/real_sources/universe/universe_US_curated.csv
+  validation_command: python -m sws_engine.cli validate-universe --universe data/real_sources/universe/universe_US_curated.csv
+    --output out/universe_US_coverage.json
+  limitations:
+  - Template universe is not production data. Populate with validated tickers, country,
+    region, industry and exclusions.
+  tier: curated
+  license_status: na
+  ttl_days: 180
+  allowed_fields:
+  - ticker
+  - exchange
+  - market
+  - industry
+  - country
+  - region
+  - exclusions
+  field_quality_caps:
+    '*': exact
+- id: universe_bvb_curated
+  category: market_universe
+  provider: user_curated
+  source_type: versioned_csv
+  path: data/universe/universe_BVB_template.csv
+  status: template_needs_population
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact
+  replacement_target_path: data/real_sources/universe/universe_BVB_curated.csv
+  validation_command: python -m sws_engine.cli validate-universe --universe data/real_sources/universe/universe_BVB_curated.csv
+    --output out/universe_BVB_coverage.json
+  limitations:
+  - BVB coverage must be validated ticker by ticker because yfinance coverage is uneven.
+  tier: curated
+  license_status: na
+  ttl_days: 180
+  allowed_fields:
+  - ticker
+  - exchange
+  - market
+  - industry
+  - country
+  - region
+  - exclusions
+  field_quality_caps:
+    '*': exact
+- id: bond_10y_5y_avg_curated
+  category: rates
+  provider: user_curated_export
+  source_type: versioned_csv
+  path: data/rates/bond_yields_10y_real_template.csv
+  status: template_needs_population
+  required_for_internal_daily_run: true
+  required_for_production_real_data: true
+  source_quality_default: exact
+  replacement_target_path: data/real_sources/rates/bond_yields_10y_curated.csv
+  validation_command: python -m sws_engine.cli rates-report --bond-csv data/real_sources/rates/bond_yields_10y_curated.csv
+    --erp-json data/real_sources/rates/erp_curated.json --fx-csv data/real_sources/fx/fx_eod_curated.csv
+  limitations:
+  - Requires versioned export, for example FRED/BNR/official source.
+  tier: curated
+  license_status: na
+  ttl_days: 45
+  allowed_fields:
+  - risk_free_rate_10y_5y_avg
+  - bond_yield_10y
+  field_quality_caps:
+    '*': exact
+- id: erp_curated
+  category: rates
+  provider: user_curated_export
+  source_type: versioned_json
+  path: data/rates/erp_real_template.json
+  status: template_needs_population
+  required_for_internal_daily_run: true
+  required_for_production_real_data: true
+  source_quality_default: assumption
+  replacement_target_path: data/real_sources/rates/erp_curated.json
+  limitations:
+  - ERP is a curated assumption table; source/date must be explicit.
+  tier: manual
+  license_status: reviewed_required
+  ttl_days: 183
+  allowed_fields:
+  - equity_risk_premium
+  - country_risk_premium
+  field_quality_caps:
+    '*': assumption
+- id: fx_eod_curated
+  category: fx
+  provider: user_curated_or_yfinance_fx
+  source_type: versioned_csv
+  path: data/fx/fx_eod_real_template.csv
+  status: template_needs_population
+  required_for_internal_daily_run: false
+  required_for_production_real_data: true
+  source_quality_default: exact
+  replacement_target_path: data/real_sources/fx/fx_eod_curated.csv
+  limitations:
+  - Required for multi-currency portfolios; use EOD rates and record source/as_of.
+  tier: curated
+  license_status: na
+  ttl_days: 7
+  allowed_fields:
+  - fx_rate
+  - currency_pair
+  field_quality_caps:
+    '*': exact
+- id: manual_override_pack
+  category: manual_overrides
+  provider: user_curated
+  source_type: json_templates
+  path: templates/manual_override_template.json
+  status: implemented_templates
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact_or_assumption_declared_by_user
+  limitations:
+  - Required to reduce UNKNOWN for analyst estimates, AFFO/FFO/NAV and bank-specific
+    fields.
+  tier: manual
+  license_status: na
+  ttl_days: 30
+  allowed_fields:
+  - analyst_estimates_weighted
+  - fcf_estimates
+  - affo_ffo_nav
+  - bank_deposits_npl_chargeoffs
+  - manual_research_fields
+  field_quality_caps:
+    '*': assumption
+- id: sec_companyfacts
+  category: official_filing
+  provider: SEC EDGAR CompanyFacts
+  source_type: official_api_or_recorded_fixture
+  path: data/real_sources/sec/raw/companyfacts
+  status: implemented_offline_fixture_live_optional
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact
+  provider_profile: sws_public_faithful_manual_inputs
+  command: python -m sws_engine.cli refresh-sec-financials --tickers AAPL --output
+    data/real_sources/sec --cik-map data/real_sources/reference/sec_company_tickers.json
+    --live
+  limitations:
+  - US SEC filers only; XBRL tag drift requires explicit resolver candidate lists.
+  tier: official_filing
+  license_status: na
+  ttl_days: 120
+  allowed_fields:
+  - revenue
+  - gross_profit
+  - operating_income
+  - ebit
+  - net_income
+  - total_assets
+  - total_liabilities
+  - equity
+  - cash
+  - cash_and_st_investments
+  - total_debt
+  - intangible_assets
+  - operating_cash_flow
+  - capex_history_3y
+  - dividends_paid
+  - shares_outstanding
+  - eps
+  - net_interest_expense
+  field_quality_caps:
+    '*': exact
+- id: sec_companyfacts_bank_tags
+  category: official_filing
+  provider: SEC EDGAR CompanyFacts bank tags
+  source_type: official_api_or_recorded_fixture
+  path: data/real_sources/sec/raw/companyfacts
+  status: implemented_partial
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact
+  provider_profile: sws_public_faithful_manual_inputs
+  limitations:
+  - Only bank fields present in SEC XBRL are mapped; granular NPL/charge-off data
+    remains P2/FFIEC or manual.
+  tier: official_filing
+  license_status: na
+  ttl_days: 120
+  allowed_fields:
+  - bank_deposits
+  - allowance_for_credit_losses
+  - bank_deposits_npl_chargeoffs
+  field_quality_caps:
+    '*': exact
+- id: fred_dgs10_curated_export
+  category: rates
+  provider: FRED local export
+  source_type: versioned_csv
+  path: data/real_sources/rates/bond_yields_10y_curated.csv
+  status: implemented_operator_review_required
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact
+  command: python -m sws_engine.cli refresh-rates-fred --input-csv data/operator_exports/fred_DGS10.csv
+    --output data/real_sources/rates/bond_yields_10y_curated.csv
+  limitations:
+  - P0.4 foundation converts local exports; live download is not a CI requirement.
+  - review_status must be reviewed before production readiness.
+  tier: curated
+  license_status: na
+  ttl_days: 45
+  allowed_fields:
+  - risk_free_rate_10y_5y_avg
+  - bond_yield_10y
+  field_quality_caps:
+    '*': exact
+- id: treasury_fiscaldata_rates
+  category: rates
+  provider: US Treasury Fiscal Data
+  source_type: official_api_or_manual_export
+  path: data/real_sources/rates/bond_yields_10y_curated.csv
+  status: planned_alternative
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact
+  limitations:
+  - Alternative official source to FRED for US Treasury yields; not implemented as
+    live fetch in P0.4.
+  tier: curated
+  license_status: na
+  ttl_days: 45
+  allowed_fields:
+  - risk_free_rate_10y_5y_avg
+  - bond_yield_10y
+  field_quality_caps:
+    '*': exact
+- id: damodaran_erp_manual_curated
+  category: rates
+  provider: Damodaran manual curated ERP
+  source_type: versioned_json
+  path: data/real_sources/rates/erp_curated.json
+  status: implemented_operator_review_required
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: assumption
+  command: python -m sws_engine.cli validate-erp-curated --input data/real_sources/rates/erp_curated.json
+    --require-reviewed
+  limitations:
+  - ERP remains a curated assumption, not objective market data.
+  - Manual review and expiry are mandatory before production readiness.
+  tier: manual
+  license_status: na
+  ttl_days: 183
+  allowed_fields:
+  - equity_risk_premium
+  - country_risk_premium
+  field_quality_caps:
+    '*': assumption
+- id: identifier_master_curated
+  category: reference
+  provider: user_curated_with_sec_cik
+  source_type: versioned_csv
+  path: data/real_sources/reference/identifier_master.csv
+  status: implemented_operator_review_required
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact_or_approximation
+  command: python -m sws_engine.cli enrich-identifiers --input data/real_sources/universe/universe_US_curated.csv
+    --cik-map data/real_sources/reference/sec_company_tickers.json --output data/real_sources/reference/identifier_master.csv
+  limitations:
+  - CUSIP/ISIN/FIGI/LEI are optional and must not be inferred without legitimate source.
+  - CIK enrichment is available when SEC company_tickers map is supplied.
+  tier: curated
+  license_status: na
+  ttl_days: 180
+  allowed_fields:
+  - ticker
+  - exchange
+  - country
+  - currency
+  - CIK
+  - SIC
+  - security_type
+  - company_type
+  - is_adr
+  - is_foreign_issuer
+  field_quality_caps:
+    '*': exact_or_approximation
+- id: ecb_fx_reference_rates
+  category: fx
+  provider: ECB reference rates
+  source_type: versioned_csv
+  path: data/real_sources/fx/fx_eod_curated.csv
+  status: planned_primary_fx
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact
+  limitations:
+  - P0.4 only registers ECB/BNR as preferred curated FX sources; loader remains future
+    work.
+  tier: curated
+  license_status: na
+  ttl_days: 7
+  allowed_fields:
+  - fx_rate
+  - currency_pair
+  field_quality_caps:
+    '*': exact
+- id: bnr_fx_reference_rates
+  category: fx
+  provider: BNR reference rates
+  source_type: versioned_csv
+  path: data/real_sources/fx/fx_eod_curated.csv
+  status: planned_primary_fx_ron
+  required_for_internal_daily_run: false
+  required_for_production_real_data: false
+  source_quality_default: exact
+  limitations:
+  - P0.4 only registers ECB/BNR as preferred curated FX sources; loader remains future
+    work.
+  tier: curated
+  license_status: na
+  ttl_days: 7
+  allowed_fields:
+  - fx_rate
+  - currency_pair
+  field_quality_caps:
+    '*': exact
+field_rules:
+  intangible_assets:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    disallowed_as_official:
+    - yfinance_equity_live
+    conflict_policy: report_and_unknown
+  risk_free_rate_10y_5y_avg:
+    allowed_sources:
+    - treasury_fiscaldata_rates
+    - fred_dgs10_curated_export
+    - bond_10y_5y_avg_curated
+    conflict_policy: report_and_unknown
+  equity_risk_premium:
+    allowed_sources:
+    - damodaran_erp_manual_curated
+    - erp_curated
+    conflict_policy: report_and_unknown
+  fcf_estimates:
+    allowed_sources:
+    - manual_override_pack
+    conflict_policy: report_and_unknown
+  affo_ffo_nav:
+    allowed_sources:
+    - manual_override_pack
+    conflict_policy: report_and_unknown
+  bank_deposits_npl_chargeoffs:
+    allowed_sources:
+    - manual_override_pack
+    - sec_companyfacts_bank_tags
+    conflict_policy: report_and_unknown
+  revenue:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  net_income:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  total_assets:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  total_liabilities:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  equity:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  cash_and_st_investments:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  total_debt:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  operating_cash_flow:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  capex_history_3y:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  shares_outstanding:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  eps:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  net_interest_expense:
+    allowed_sources:
+    - sec_companyfacts
+    - manual_override_pack
+    conflict_policy: report_and_prefer_first
+  CIK:
+    allowed_sources:
+    - identifier_master_curated
+    - sec_companyfacts
+    conflict_policy: report_and_prefer_first
+  security_type:
+    allowed_sources:
+    - identifier_master_curated
+    conflict_policy: report_and_prefer_first
+  company_type:
+    allowed_sources:
+    - identifier_master_curated
+    - sec_companyfacts
+    conflict_policy: report_and_prefer_first
+  fx_rate:
+    allowed_sources:
+    - ecb_fx_reference_rates
+    - bnr_fx_reference_rates
+    - fx_eod_curated
+    - yfinance_equity_live
+    conflict_policy: report_and_prefer_first

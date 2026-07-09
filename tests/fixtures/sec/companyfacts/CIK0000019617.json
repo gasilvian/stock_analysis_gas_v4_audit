@@ -1,0 +1,10 @@
+{
+  "cik": 19617,
+  "entityName": "JPMorgan Chase & Co.",
+  "facts": {"us-gaap": {
+    "Assets": {"units": {"USD": [{"fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14", "end": "2024-12-31", "val": 4000000000000}]}},
+    "Liabilities": {"units": {"USD": [{"fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14", "end": "2024-12-31", "val": 3600000000000}]}},
+    "StockholdersEquity": {"units": {"USD": [{"fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14", "end": "2024-12-31", "val": 400000000000}]}},
+    "Deposits": {"units": {"USD": [{"fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14", "end": "2024-12-31", "val": 2400000000000}]}}
+  }}
+}

@@ -1,0 +1,19 @@
+{
+  "ticker": "SENS",
+  "exchange": "DemoEX",
+  "valuation_date": "2026-07-09",
+  "provider_profile": "sws_public_faithful_manual_inputs",
+  "company_type": "non_financial",
+  "price": 90.0,
+  "shares_outstanding": 100000000,
+  "operating_cash_flow": 1000000000,
+  "capex_history_3y": [-180000000, -200000000, -220000000],
+  "earnings_history": [450000000, 500000000, 560000000, 620000000],
+  "discount_rate": 0.09,
+  "long_run_growth": 0.03,
+  "risk_free_rate_10y_5y_avg": 0.03,
+  "lineage": {
+    "financials_as_of": "2025-12-31",
+    "provider_versions": {"manual_curated": "fixture"}
+  }
+}
