@@ -1,5 +1,5 @@
 metadata:
-  version: reason_code_dictionary.v0.9
+  version: reason_code_dictionary.v0.10
   scope: v4.0_p0.14_release_hardening_foundation
   not_investment_advice: true
   template_engine: deterministic_python_format
@@ -647,6 +647,11 @@ reason_codes:
     analyst: One or more optional memo components were not supplied and remain UNKNOWN in the memo package.
     plain_english: Some sections are unavailable because their input files were not provided.
     remediation_hint: Provide sensitivity, business-risk, thesis, decision or portfolio artifacts if those sections are material.
+  MEMO_COMPONENT_PRESENT:
+    severity: INFO
+    analyst: The memo component was supplied and rendered, but the source artifact does not carry a single primary reason code of its own (it may expose a reason_codes list or none).
+    plain_english: This section is based on a provided artifact; see its own reason codes or details for specifics.
+    remediation_hint: Inspect the underlying audit artifact for its full reason_codes list when more detail is needed.
   MEMO_UNKNOWN_PRESERVED:
     severity: WARN
     analyst: UNKNOWN checks, critical missing inputs or missing components were preserved in the memo.

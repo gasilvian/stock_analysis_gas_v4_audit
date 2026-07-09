@@ -53,3 +53,25 @@ def test_investment_memo_missing_audit_summary_unknown():
     assert package["status"] == "UNKNOWN"
     assert package["reason_code"] == "MEMO_INPUTS_MISSING"
     assert package["not_investment_advice"] is True
+
+
+def test_memo_component_reason_code_not_falsely_unknown_for_plural_codes():
+    """P1.0 regression: real audit summaries emit reason_codes (plural) for
+    data_confidence and no top-level reason code for conclusion_risk. The memo
+    must not mislabel these fully present components as MEMO_COMPONENT_UNKNOWN."""
+    audit_summary = json.loads((FIX / "AAPL_audit_summary.json").read_text(encoding="utf-8"))
+    # Reshape to the real audit-summary shape: plural list, no singular code.
+    dc = audit_summary["data_confidence"]
+    dc.pop("reason_code", None)
+    dc["reason_codes"] = ["LOW_FIELD_LINEAGE_COVERAGE"]
+    audit_summary.get("conclusion_risk", {}).pop("reason_code", None)
+    audit_summary.get("conclusion_risk", {}).pop("reason_codes", None)
+
+    package = build_investment_memo_package(audit_summary=audit_summary)
+    dc_section = package["sections"]["data_confidence"]
+    cr_section = package["sections"]["conclusion_risk"]
+    assert dc_section["reason_code"] == "LOW_FIELD_LINEAGE_COVERAGE"
+    assert dc_section["reason_codes"] == ["LOW_FIELD_LINEAGE_COVERAGE"]
+    assert dc_section["reason_code"] != "MEMO_COMPONENT_UNKNOWN"
+    # Component present but without its own code: truthful PRESENT, not UNKNOWN.
+    assert cr_section["reason_code"] == "MEMO_COMPONENT_PRESENT"
