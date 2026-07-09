@@ -284,7 +284,11 @@ def main(argv=None):
     pa.add_argument("--output", required=True, help="output directory for portfolio_audit JSON and markdown report")
 
     gm = sub.add_parser("generate-memo", help="run v4.0 P0.11 deterministic investment research audit memo")
-    gm.add_argument("--audit-summary", required=True, help="required audit_summary JSON artifact")
+    gm.add_argument("--audit-summary", default=None, help="audit_summary JSON artifact (required unless --auto)")
+    gm.add_argument("--auto", action="store_true",
+                    help="P1.8: resolve unset artifact paths from the SQLite artifact index (latest per kind for --ticker); missing kinds stay UNKNOWN")
+    gm.add_argument("--ticker", default=None, help="ticker for --auto artifact resolution")
+    gm.add_argument("--db", default="data/sws.db", help="SQLite DB with the artifact index (used by --auto and for registering memo outputs)")
     gm.add_argument("--explanations", default=None, help="optional explanation_package JSON artifact")
     gm.add_argument("--sensitivity", default=None, help="optional sensitivity_summary JSON artifact")
     gm.add_argument("--business-risk", default=None, help="optional business_risk_package JSON artifact")
@@ -303,7 +307,8 @@ def main(argv=None):
     cr.add_argument("--artifact-type", default="audit_summary")
 
     wf = sub.add_parser("workflow-package", help="run v4.0 P0.13 API/dashboard workflow package from existing artifacts")
-    wf.add_argument("--audit-summary", required=True, help="required audit_summary JSON artifact")
+    wf.add_argument("--audit-summary", default=None, help="audit_summary JSON artifact (required unless --auto)")
+    wf.add_argument("--ticker", default=None, help="ticker for --auto artifact resolution")
     wf.add_argument("--explanations", default=None, help="optional explanation_package JSON artifact")
     wf.add_argument("--sensitivity", default=None, help="optional sensitivity_summary JSON artifact")
     wf.add_argument("--business-risk", default=None, help="optional business_risk_package JSON artifact")
@@ -315,6 +320,9 @@ def main(argv=None):
     wf.add_argument("--workflow-id", default=None)
     wf.add_argument("--mode", choices=["analyst", "plain_english"], default="analyst")
     wf.add_argument("--output", required=True, help="output directory for workflow package JSON and Markdown")
+    wf.add_argument("--auto", action="store_true",
+                    help="P1.8: resolve unset artifact paths from the SQLite artifact index (latest per kind for --ticker); missing kinds stay UNKNOWN")
+    wf.add_argument("--db", default="data/sws.db", help="SQLite DB with the artifact index (used by --auto and for registering outputs)")
 
     rel = sub.add_parser("release-package", help="run v4.0 P0.14 MVP release closure manifest")
     rel.add_argument("--repo-root", default=".", help="repository root to inspect")
@@ -495,6 +503,10 @@ def main(argv=None):
                 sensitivity_config_path=args.sensitivity_config,
             )
             summary = rep["summary"]
+            if args.db and not args.input:
+                from sws_engine.db.artifacts import register_paths
+                register_paths(args.db, ticker=str(summary.get("ticker")), paths=rep["paths"],
+                               run_id=summary.get("run_id"))
             print(json.dumps({
                 "status": summary.get("status"),
                 "ticker": summary.get("ticker"),
@@ -548,6 +560,10 @@ def main(argv=None):
                 dictionary_path=args.dictionary,
             )
             paths = write_explanation_artifacts(package, args.output)
+            if args.db and not args.input:
+                from sws_engine.db.artifacts import register_paths
+                register_paths(args.db, ticker=str(package.get("ticker")), paths=paths,
+                               run_id=package.get("run_id"))
             print(json.dumps({
                 "status": "PASS",
                 "ticker": package.get("ticker"),
@@ -576,6 +592,10 @@ def main(argv=None):
                 run_id=args.run_id,
             )
             package = rep["package"]
+            if args.db and not args.input:
+                from sws_engine.db.artifacts import register_paths
+                register_paths(args.db, ticker=str(package.get("ticker")), paths=rep["paths"],
+                               run_id=package.get("run_id"))
             print(json.dumps({
                 "status": package.get("status"),
                 "ticker": package.get("ticker"),
@@ -707,8 +727,45 @@ def main(argv=None):
             print(f"portfolio-audit failed: {exc.__class__.__name__}: {exc}", file=sys.stderr)
             return 1
 
+    def _resolve_auto_artifacts(db_path, ticker, wanted):
+        """P1.8: fill unset artifact paths from the SQLite artifact index.
+
+        ``wanted`` maps argparse attribute -> artifact kind (verbatim path
+        key registered by the producer). Explicit CLI paths always win;
+        kinds with no registered artifact stay None (UNKNOWN downstream).
+        Returns {attr: resolution_note} for transparency in stdout.
+        """
+        from sws_engine.db.artifacts import latest_artifact
+        notes = {}
+        for attr, kind in wanted.items():
+            if getattr(args, attr, None):
+                notes[attr] = "explicit"
+                continue
+            found = latest_artifact(db_path, ticker, kind)
+            if found:
+                setattr(args, attr, found["path"])
+                notes[attr] = f"auto:{found['artifact_id'][:8]}"
+            else:
+                notes[attr] = "UNKNOWN"
+        return notes
+
     if args.cmd == "generate-memo":
         try:
+            auto_notes = None
+            if args.auto:
+                if not args.ticker:
+                    raise ValueError("--ticker is required with --auto")
+                auto_notes = _resolve_auto_artifacts(args.db, args.ticker, {
+                    "audit_summary": "audit_summary_json",
+                    "explanations": "explanations_json",
+                    "sensitivity": "sensitivity_summary_json",
+                    "business_risk": "business_risk_package_json",
+                    "thesis_status": "thesis_status_json",
+                    "decision_record": "decision_record_json",
+                    "portfolio_audit": "portfolio_audit_json",
+                })
+            if not args.audit_summary:
+                raise ValueError("--audit-summary is required (no registered audit_summary found for --auto)")
             from sws_engine.reporting.investment_memo import investment_memo_to_files
             rep = investment_memo_to_files(
                 args.output,
@@ -723,11 +780,17 @@ def main(argv=None):
                 mode=args.mode,
             )
             package = rep["package"]
+            import os as _os
+            if args.db and (args.auto or _os.path.exists(str(args.db))):
+                from sws_engine.db.artifacts import register_paths
+                register_paths(args.db, ticker=str(package.get("ticker")), paths=rep["paths"],
+                               run_id=package.get("run_id"))
             print(json.dumps({
                 "status": package.get("status"),
                 "reason_code": package.get("reason_code"),
                 "ticker": package.get("ticker"),
                 "memo_type": package.get("memo_type"),
+                **({"auto_resolution": auto_notes} if auto_notes else {}),
                 "manual_review_items_count": len(package.get("manual_review_items") or []),
                 "recommendation_language_absent": package.get("recommendation_language_absent"),
                 **rep["paths"],
@@ -772,6 +835,23 @@ def main(argv=None):
 
     if args.cmd == "workflow-package":
         try:
+            auto_notes = None
+            if args.auto:
+                if not args.ticker:
+                    raise ValueError("--ticker is required with --auto")
+                auto_notes = _resolve_auto_artifacts(args.db, args.ticker, {
+                    "audit_summary": "audit_summary_json",
+                    "explanations": "explanations_json",
+                    "sensitivity": "sensitivity_summary_json",
+                    "business_risk": "business_risk_package_json",
+                    "thesis_status": "thesis_status_json",
+                    "decision_record": "decision_record_json",
+                    "portfolio_audit": "portfolio_audit_json",
+                    "investment_memo": "investment_memo_json",
+                    "run_comparison": "comparison_json",
+                })
+            if not args.audit_summary:
+                raise ValueError("--audit-summary is required (no registered audit_summary found for --auto)")
             from sws_engine.research.workflow_package import workflow_package_to_files
             rep = workflow_package_to_files(
                 args.output,
@@ -788,11 +868,16 @@ def main(argv=None):
                 mode=args.mode,
             )
             package = rep["package"]
+            import os as _os
+            if args.db and (args.auto or _os.path.exists(str(args.db))):
+                from sws_engine.db.artifacts import register_paths
+                register_paths(args.db, ticker=str(package.get("ticker")), paths=rep["paths"])
             print(json.dumps({
                 "status": package.get("status"),
                 "reason_code": package.get("reason_code"),
                 "ticker": package.get("ticker"),
                 "workflow_id": package.get("workflow_id"),
+                **({"auto_resolution": auto_notes} if auto_notes else {}),
                 "ready_count": (package.get("readiness_summary") or {}).get("ready_count"),
                 "manual_review_count": (package.get("readiness_summary") or {}).get("manual_review_count"),
                 "total_unknown_indicators": (package.get("readiness_summary") or {}).get("total_unknown_indicators"),
@@ -879,6 +964,9 @@ def main(argv=None):
             )
             summary = rep["summary"]
             paths = rep["paths"]
+            from sws_engine.db.artifacts import register_paths
+            register_paths(args.db, ticker=str(summary.get("ticker")), paths=paths,
+                           run_id=summary.get("run_id"))
             print(json.dumps({
                 "status": "PASS_WITH_LIMITATIONS",
                 "ticker": summary.get("ticker"),

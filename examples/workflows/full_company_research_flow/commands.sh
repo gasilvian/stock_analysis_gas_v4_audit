@@ -25,11 +25,9 @@ PYTHONPATH=src python -m sws_engine.cli explain-company \
 PYTHONPATH=src python -m sws_engine.cli business-risk-company \
   --ticker DEMO --db "$FLOW_OUT/research.db" --output "$FLOW_OUT/business_risk"
 
+# P1.8: --auto resolves the latest artifacts from the SQLite index.
 PYTHONPATH=src python -m sws_engine.cli generate-memo \
-  --audit-summary  "$(ls "$FLOW_OUT"/audit/DEMO_audit_summary_*.json | tail -1)" \
-  --explanations   "$(ls "$FLOW_OUT"/explain/DEMO_explanations_*.json | tail -1)" \
-  --sensitivity    "$(ls "$FLOW_OUT"/sensitivity/DEMO_sensitivity_summary_*.json | tail -1)" \
-  --business-risk  "$(ls "$FLOW_OUT"/business_risk/DEMO_business_risk_*.json | tail -1)" \
+  --auto --ticker DEMO --db "$FLOW_OUT/research.db" \
   --output "$FLOW_OUT/memo"
 
 # Optional release closure

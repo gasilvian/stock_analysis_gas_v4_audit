@@ -85,13 +85,12 @@ def test_full_research_chain_cli_offline(workdir, capsys):
     assert risk_files
     business_risk = json.loads(risk_files[-1].read_text(encoding="utf-8"))
 
-    # 6. Memo generated from the real artifacts produced above (not fixtures).
+    # 6. Memo generated via the P1.8 artifact index (--auto): steps 2-5
+    #    registered their outputs in the DB; no explicit paths are wired.
     _run([
-        "generate-memo",
-        "--audit-summary", str(audit_files[-1]),
-        "--explanations", str(explain_files[-1]),
-        "--sensitivity", str(sens_files[-1]),
-        "--business-risk", str(risk_files[-1]),
+        "generate-memo", "--auto",
+        "--ticker", ticker,
+        "--db", str(db),
         "--output", str(memo_dir),
     ])
     memo_json = memo_dir / f"{ticker}_investment_audit_memo.json"
@@ -113,3 +112,14 @@ def test_full_research_chain_cli_offline(workdir, capsys):
     assert memo["sections"]["sensitivity_and_valuation_range"]["fragility_level"] == "UNKNOWN"
     # Business risk artifact fed in and referenced without fabrication.
     assert business_risk.get("ticker") == ticker
+    # P1.8: the artifact index resolved the four produced artifacts and
+    # honestly reported the unproduced ones as UNKNOWN, and the memo's own
+    # outputs were registered back into the index.
+    from sws_engine.db.artifacts import latest_artifact, list_artifacts
+    assert latest_artifact(db, ticker, "audit_summary_json")["path"] == str(audit_files[-1])
+    assert latest_artifact(db, ticker, "sensitivity_summary_json")["path"] == str(sens_files[-1])
+    assert latest_artifact(db, ticker, "thesis_status_json") is None
+    assert latest_artifact(db, ticker, "investment_memo_json")["path"] == str(memo_json)
+    kinds = {a["kind"] for a in list_artifacts(db, ticker=ticker)}
+    assert {"audit_summary_json", "explanations_json", "sensitivity_summary_json",
+            "business_risk_package_json", "investment_memo_json"} <= kinds
