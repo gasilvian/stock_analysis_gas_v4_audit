@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 GATES: list[list[str]] = [
+    ["scripts/ci/check_lint_clean.py"],
     ["scripts/ci/validate_demo_outputs.py"],
     ["scripts/ci/check_no_score_normalized.py"],
     ["scripts/ci/check_attribution_footer.py"],
