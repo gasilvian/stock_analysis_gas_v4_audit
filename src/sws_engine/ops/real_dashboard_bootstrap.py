@@ -115,6 +115,18 @@ def run_real_dashboard_bootstrap(
 
     vdate = None if (valuation_date or "auto") == "auto" else valuation_date
     global_warnings = _curated_source_warnings(bond_csv, erp_json)
+    # P1.2-cal (B1): the curated rates were previously used only for warnings
+    # and never reached the live payload, leaving risk_free_rate_10y_5y_avg a
+    # critical_missing_input even with a valid --bond-csv. Build mapper-format
+    # override specs once per run and inject them into every payload with
+    # honest curated_rates/assumption/E2 lineage.
+    from sws_engine.rates.injection import build_curated_rates_overrides
+    from datetime import date as _date
+    rates_injection = build_curated_rates_overrides(
+        bond_csv, erp_json, country=market or "US",
+        valuation_date=vdate or _date.today().isoformat())
+    rates_overrides = rates_injection["overrides"]
+    global_warnings.extend(rates_injection["warnings"])
 
     provider = None
     provider_error: Optional[str] = None
@@ -143,7 +155,8 @@ def run_real_dashboard_bootstrap(
                 if provider is None:
                     raise RuntimeError(provider_error or "live provider unavailable")
                 payload = provider.build_payload(
-                    ticker, valuation_date=vdate, market=market, industry=None)
+                    ticker, valuation_date=vdate, market=market, industry=None,
+                    overrides=rates_overrides or None)
                 output = run_company_analysis(payload, assumptions_path, schema_path)
 
                 # persist artifacts to disk (audit trail)

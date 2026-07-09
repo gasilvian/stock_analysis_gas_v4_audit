@@ -188,22 +188,34 @@ def _apply_overrides(payload: dict, overrides: dict | None) -> None:
     if not overrides:
         return
     ov = overrides.get("fields", overrides) if isinstance(overrides, dict) else {}
+    manual_used = False
     for field, spec in ov.items():
         if isinstance(spec, dict) and "value" in spec:
             value = spec.get("value")
             quality = spec.get("source_quality", SourceQuality.EXACT.value)
             source_class = spec.get("source_class", SourceClass.E3.value)
+            # P1.2-cal(B1): overrides may declare their true provenance (e.g.
+            # curated rates injection) instead of being mislabeled as manual.
+            provider = spec.get("provider", "manual_override")
+            transform = spec.get("transform", "manual_override")
+            as_of = spec.get("as_of")
         else:
             value = spec
             quality = SourceQuality.EXACT.value
             source_class = SourceClass.E3.value
+            provider = "manual_override"
+            transform = "manual_override"
+            as_of = None
         payload[field] = value
         attach_field_lineage(payload, field, field_meta(
-            provider="manual_override", source_field=field,
+            provider=provider, source_field=field,
             source_quality=quality, source_class=source_class,
-            transform="manual_override"))
-    payload.setdefault("builder_warnings", []).append(
-        "MANUAL_OVERRIDE_USED: manual override fields applied over yfinance_pragmatic payload")
+            as_of=as_of, transform=transform))
+        if provider == "manual_override":
+            manual_used = True
+    if manual_used:
+        payload.setdefault("builder_warnings", []).append(
+            "MANUAL_OVERRIDE_USED: manual override fields applied over yfinance_pragmatic payload")
 
 
 def map_yfinance_snapshot_to_input_payload(raw_snapshot: dict, valuation_date: str | None = None,
