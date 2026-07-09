@@ -1,14 +1,11 @@
 {
-  "status": "NOT_READY",
+  "status": "PASS",
   "registry_path": "/home/claude/repo/config/source_registry.yaml",
-  "checked_at": "2026-07-09T18:20:24Z",
+  "checked_at": "2026-07-09T18:26:08Z",
   "source_count": 15,
-  "ready_count": 10,
-  "blocking_issues": [
-    "fx_eod_curated: required source is not production-ready"
-  ],
+  "ready_count": 11,
+  "blocking_issues": [],
   "warnings": [
-    "fx_eod_curated: template/synthetic marker detected; replace with real curated file before production use",
     "treasury_fiscaldata_rates: file exists and is non-template but status='planned_alternative'; consider setting status=real_curated",
     "ecb_fx_reference_rates: file exists and is non-template but status='planned_primary_fx'; consider setting status=real_curated",
     "bnr_fx_reference_rates: file exists and is non-template but status='planned_primary_fx_ron'; consider setting status=real_curated"
@@ -195,7 +192,7 @@
       "provider": "user_curated_or_yfinance_fx",
       "source_type": "versioned_csv",
       "path": "data/fx/fx_eod_real_template.csv",
-      "status": "template_needs_population",
+      "status": "real_curated",
       "required_for_internal_daily_run": false,
       "required_for_production_real_data": true,
       "source_quality_default": "exact",
@@ -217,8 +214,8 @@
       "evaluated_path": "data/real_sources/fx/fx_eod_curated.csv",
       "file_exists": true,
       "file_contains_template_marker": false,
-      "looks_template_or_synthetic": true,
-      "ready": false
+      "looks_template_or_synthetic": false,
+      "ready": true
     },
     {
       "id": "manual_override_pack",

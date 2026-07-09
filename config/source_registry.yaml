@@ -135,7 +135,7 @@ sources:
   provider: user_curated_or_yfinance_fx
   source_type: versioned_csv
   path: data/fx/fx_eod_real_template.csv
-  status: template_needs_population
+  status: real_curated
   required_for_internal_daily_run: false
   required_for_production_real_data: true
   source_quality_default: exact

@@ -4,11 +4,23 @@ import json
 from sws_engine.sources.real_sources import validate_source_registry, populate_real_sources
 
 
-def test_source_registry_reports_not_ready_for_template_sources():
+def test_source_registry_live_state_is_self_consistent_and_p11_sources_ready():
+    """P1.1 update: this test previously pinned the live registry to
+    NOT_READY, which was true while universe/bond/ERP were templates. Those
+    sources are now genuinely populated and operator-approved (2026-07-09),
+    so the pinned assertion became obsolete. The template-marker mechanism
+    itself remains covered by the tmp_path tests below. Here we assert
+    (a) self-consistency: status is NOT_READY iff blocking issues exist, and
+    (b) the three historical blockers are ready and marker-free."""
     rep = validate_source_registry("config/source_registry.yaml", require_production=True).as_dict()
-    assert rep["status"] == "NOT_READY"
-    assert any("required source" in issue for issue in rep["blocking_issues"])
-    assert any(src["looks_template_or_synthetic"] for src in rep["sources"])
+    if rep["blocking_issues"]:
+        assert rep["status"] == "NOT_READY"
+    else:
+        assert rep["status"] == "PASS"
+    by_id = {src["id"]: src for src in rep["sources"]}
+    for sid in ("universe_us_curated", "bond_10y_5y_avg_curated", "erp_curated"):
+        assert by_id[sid]["ready"] is True, sid
+        assert by_id[sid]["looks_template_or_synthetic"] is False, sid
 
 
 def test_populate_real_sources_handles_missing_live_dependency(monkeypatch, tmp_path):
