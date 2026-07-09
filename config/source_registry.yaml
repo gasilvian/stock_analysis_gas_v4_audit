@@ -38,7 +38,7 @@ sources:
   provider: user_curated
   source_type: versioned_csv
   path: data/universe/universe_US_template.csv
-  status: template_needs_population
+  status: real_curated
   required_for_internal_daily_run: true
   required_for_production_real_data: true
   source_quality_default: exact
@@ -93,7 +93,7 @@ sources:
   provider: user_curated_export
   source_type: versioned_csv
   path: data/rates/bond_yields_10y_real_template.csv
-  status: template_needs_population
+  status: real_curated
   required_for_internal_daily_run: true
   required_for_production_real_data: true
   source_quality_default: exact
@@ -115,7 +115,7 @@ sources:
   provider: user_curated_export
   source_type: versioned_json
   path: data/rates/erp_real_template.json
-  status: template_needs_population
+  status: real_curated
   required_for_internal_daily_run: true
   required_for_production_real_data: true
   source_quality_default: assumption
@@ -239,7 +239,7 @@ sources:
   provider: FRED local export
   source_type: versioned_csv
   path: data/real_sources/rates/bond_yields_10y_curated.csv
-  status: implemented_operator_review_required
+  status: real_curated
   required_for_internal_daily_run: false
   required_for_production_real_data: false
   source_quality_default: exact
@@ -281,7 +281,7 @@ sources:
   provider: Damodaran manual curated ERP
   source_type: versioned_json
   path: data/real_sources/rates/erp_curated.json
-  status: implemented_operator_review_required
+  status: real_curated
   required_for_internal_daily_run: false
   required_for_production_real_data: false
   source_quality_default: assumption
@@ -303,7 +303,7 @@ sources:
   provider: user_curated_with_sec_cik
   source_type: versioned_csv
   path: data/real_sources/reference/identifier_master.csv
-  status: implemented_operator_review_required
+  status: real_curated
   required_for_internal_daily_run: false
   required_for_production_real_data: false
   source_quality_default: exact_or_approximation

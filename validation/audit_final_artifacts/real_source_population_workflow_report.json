@@ -1,24 +1,17 @@
 {
   "status": "NOT_READY",
-  "registry_path": "/home/gas/stock_analysis_gas/config/source_registry.yaml",
-  "checked_at": "2026-07-08T18:11:00Z",
-  "source_count": 7,
-  "ready_count": 1,
+  "registry_path": "/home/claude/repo/config/source_registry.yaml",
+  "checked_at": "2026-07-09T18:20:24Z",
+  "source_count": 15,
+  "ready_count": 10,
   "blocking_issues": [
-    "universe_us_curated: required source is not production-ready",
-    "bond_10y_5y_avg_curated: required source is not production-ready",
-    "erp_curated: required source is not production-ready",
     "fx_eod_curated: required source is not production-ready"
   ],
   "warnings": [
-    "universe_us_curated: template/synthetic marker detected; replace with real curated file before production use",
-    "universe_us_curated: expected file missing at data/real_sources/universe/universe_US_curated.csv",
-    "bond_10y_5y_avg_curated: template/synthetic marker detected; replace with real curated file before production use",
-    "bond_10y_5y_avg_curated: expected file missing at data/real_sources/rates/bond_yields_10y_curated.csv",
-    "erp_curated: template/synthetic marker detected; replace with real curated file before production use",
-    "erp_curated: expected file missing at data/real_sources/rates/erp_curated.json",
     "fx_eod_curated: template/synthetic marker detected; replace with real curated file before production use",
-    "fx_eod_curated: expected file missing at data/real_sources/fx/fx_eod_curated.csv"
+    "treasury_fiscaldata_rates: file exists and is non-template but status='planned_alternative'; consider setting status=real_curated",
+    "ecb_fx_reference_rates: file exists and is non-template but status='planned_primary_fx'; consider setting status=real_curated",
+    "bnr_fx_reference_rates: file exists and is non-template but status='planned_primary_fx_ron'; consider setting status=real_curated"
   ],
   "sources": [
     {
@@ -39,6 +32,19 @@
         "FCF forward estimates are missing.",
         "AFFO/FFO/NAV and bank NPL/deposit/charge-off fields generally require manual override."
       ],
+      "tier": "pragmatic",
+      "license_status": "unreviewed",
+      "ttl_days": 7,
+      "allowed_fields": [
+        "prices",
+        "dividends",
+        "splits",
+        "company_profile",
+        "pragmatic_payload_fields"
+      ],
+      "field_quality_caps": {
+        "*": "approximation"
+      },
       "evaluated_required": true,
       "evaluated_path": null,
       "file_exists": null,
@@ -52,7 +58,7 @@
       "provider": "user_curated",
       "source_type": "versioned_csv",
       "path": "data/universe/universe_US_template.csv",
-      "status": "template_needs_population",
+      "status": "real_curated",
       "required_for_internal_daily_run": true,
       "required_for_production_real_data": true,
       "source_quality_default": "exact",
@@ -61,12 +67,27 @@
       "limitations": [
         "Template universe is not production data. Populate with validated tickers, country, region, industry and exclusions."
       ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 180,
+      "allowed_fields": [
+        "ticker",
+        "exchange",
+        "market",
+        "industry",
+        "country",
+        "region",
+        "exclusions"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
       "evaluated_required": true,
       "evaluated_path": "data/real_sources/universe/universe_US_curated.csv",
-      "file_exists": false,
-      "file_contains_template_marker": null,
-      "looks_template_or_synthetic": true,
-      "ready": false
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
     },
     {
       "id": "universe_bvb_curated",
@@ -83,6 +104,21 @@
       "limitations": [
         "BVB coverage must be validated ticker by ticker because yfinance coverage is uneven."
       ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 180,
+      "allowed_fields": [
+        "ticker",
+        "exchange",
+        "market",
+        "industry",
+        "country",
+        "region",
+        "exclusions"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
       "evaluated_required": false,
       "evaluated_path": "data/real_sources/universe/universe_BVB_curated.csv",
       "file_exists": false,
@@ -96,7 +132,7 @@
       "provider": "user_curated_export",
       "source_type": "versioned_csv",
       "path": "data/rates/bond_yields_10y_real_template.csv",
-      "status": "template_needs_population",
+      "status": "real_curated",
       "required_for_internal_daily_run": true,
       "required_for_production_real_data": true,
       "source_quality_default": "exact",
@@ -105,12 +141,22 @@
       "limitations": [
         "Requires versioned export, for example FRED/BNR/official source."
       ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 45,
+      "allowed_fields": [
+        "risk_free_rate_10y_5y_avg",
+        "bond_yield_10y"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
       "evaluated_required": true,
       "evaluated_path": "data/real_sources/rates/bond_yields_10y_curated.csv",
-      "file_exists": false,
-      "file_contains_template_marker": null,
-      "looks_template_or_synthetic": true,
-      "ready": false
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
     },
     {
       "id": "erp_curated",
@@ -118,7 +164,7 @@
       "provider": "user_curated_export",
       "source_type": "versioned_json",
       "path": "data/rates/erp_real_template.json",
-      "status": "template_needs_population",
+      "status": "real_curated",
       "required_for_internal_daily_run": true,
       "required_for_production_real_data": true,
       "source_quality_default": "assumption",
@@ -126,12 +172,22 @@
       "limitations": [
         "ERP is a curated assumption table; source/date must be explicit."
       ],
+      "tier": "manual",
+      "license_status": "reviewed_required",
+      "ttl_days": 183,
+      "allowed_fields": [
+        "equity_risk_premium",
+        "country_risk_premium"
+      ],
+      "field_quality_caps": {
+        "*": "assumption"
+      },
       "evaluated_required": true,
       "evaluated_path": "data/real_sources/rates/erp_curated.json",
-      "file_exists": false,
-      "file_contains_template_marker": null,
-      "looks_template_or_synthetic": true,
-      "ready": false
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
     },
     {
       "id": "fx_eod_curated",
@@ -147,10 +203,20 @@
       "limitations": [
         "Required for multi-currency portfolios; use EOD rates and record source/as_of."
       ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 7,
+      "allowed_fields": [
+        "fx_rate",
+        "currency_pair"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
       "evaluated_required": true,
       "evaluated_path": "data/real_sources/fx/fx_eod_curated.csv",
-      "file_exists": false,
-      "file_contains_template_marker": null,
+      "file_exists": true,
+      "file_contains_template_marker": false,
       "looks_template_or_synthetic": true,
       "ready": false
     },
@@ -167,12 +233,299 @@
       "limitations": [
         "Required to reduce UNKNOWN for analyst estimates, AFFO/FFO/NAV and bank-specific fields."
       ],
+      "tier": "manual",
+      "license_status": "na",
+      "ttl_days": 30,
+      "allowed_fields": [
+        "analyst_estimates_weighted",
+        "fcf_estimates",
+        "affo_ffo_nav",
+        "bank_deposits_npl_chargeoffs",
+        "manual_research_fields"
+      ],
+      "field_quality_caps": {
+        "*": "assumption"
+      },
       "evaluated_required": false,
       "evaluated_path": "templates/manual_override_template.json",
       "file_exists": true,
       "file_contains_template_marker": false,
       "looks_template_or_synthetic": true,
       "ready": false
+    },
+    {
+      "id": "sec_companyfacts",
+      "category": "official_filing",
+      "provider": "SEC EDGAR CompanyFacts",
+      "source_type": "official_api_or_recorded_fixture",
+      "path": "data/real_sources/sec/raw/companyfacts",
+      "status": "implemented_offline_fixture_live_optional",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "exact",
+      "provider_profile": "sws_public_faithful_manual_inputs",
+      "command": "python -m sws_engine.cli refresh-sec-financials --tickers AAPL --output data/real_sources/sec --cik-map data/real_sources/reference/sec_company_tickers.json --live",
+      "limitations": [
+        "US SEC filers only; XBRL tag drift requires explicit resolver candidate lists."
+      ],
+      "tier": "official_filing",
+      "license_status": "na",
+      "ttl_days": 120,
+      "allowed_fields": [
+        "revenue",
+        "gross_profit",
+        "operating_income",
+        "ebit",
+        "net_income",
+        "total_assets",
+        "total_liabilities",
+        "equity",
+        "cash",
+        "cash_and_st_investments",
+        "total_debt",
+        "intangible_assets",
+        "operating_cash_flow",
+        "capex_history_3y",
+        "dividends_paid",
+        "shares_outstanding",
+        "eps",
+        "net_interest_expense"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/sec/raw/companyfacts",
+      "file_exists": false,
+      "file_contains_template_marker": null,
+      "looks_template_or_synthetic": false,
+      "ready": false
+    },
+    {
+      "id": "sec_companyfacts_bank_tags",
+      "category": "official_filing",
+      "provider": "SEC EDGAR CompanyFacts bank tags",
+      "source_type": "official_api_or_recorded_fixture",
+      "path": "data/real_sources/sec/raw/companyfacts",
+      "status": "implemented_partial",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "exact",
+      "provider_profile": "sws_public_faithful_manual_inputs",
+      "limitations": [
+        "Only bank fields present in SEC XBRL are mapped; granular NPL/charge-off data remains P2/FFIEC or manual."
+      ],
+      "tier": "official_filing",
+      "license_status": "na",
+      "ttl_days": 120,
+      "allowed_fields": [
+        "bank_deposits",
+        "allowance_for_credit_losses",
+        "bank_deposits_npl_chargeoffs"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/sec/raw/companyfacts",
+      "file_exists": false,
+      "file_contains_template_marker": null,
+      "looks_template_or_synthetic": false,
+      "ready": false
+    },
+    {
+      "id": "fred_dgs10_curated_export",
+      "category": "rates",
+      "provider": "FRED local export",
+      "source_type": "versioned_csv",
+      "path": "data/real_sources/rates/bond_yields_10y_curated.csv",
+      "status": "real_curated",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "exact",
+      "command": "python -m sws_engine.cli refresh-rates-fred --input-csv data/operator_exports/fred_DGS10.csv --output data/real_sources/rates/bond_yields_10y_curated.csv",
+      "limitations": [
+        "P0.4 foundation converts local exports; live download is not a CI requirement.",
+        "review_status must be reviewed before production readiness."
+      ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 45,
+      "allowed_fields": [
+        "risk_free_rate_10y_5y_avg",
+        "bond_yield_10y"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/rates/bond_yields_10y_curated.csv",
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
+    },
+    {
+      "id": "treasury_fiscaldata_rates",
+      "category": "rates",
+      "provider": "US Treasury Fiscal Data",
+      "source_type": "official_api_or_manual_export",
+      "path": "data/real_sources/rates/bond_yields_10y_curated.csv",
+      "status": "planned_alternative",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "exact",
+      "limitations": [
+        "Alternative official source to FRED for US Treasury yields; not implemented as live fetch in P0.4."
+      ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 45,
+      "allowed_fields": [
+        "risk_free_rate_10y_5y_avg",
+        "bond_yield_10y"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/rates/bond_yields_10y_curated.csv",
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
+    },
+    {
+      "id": "damodaran_erp_manual_curated",
+      "category": "rates",
+      "provider": "Damodaran manual curated ERP",
+      "source_type": "versioned_json",
+      "path": "data/real_sources/rates/erp_curated.json",
+      "status": "real_curated",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "assumption",
+      "command": "python -m sws_engine.cli validate-erp-curated --input data/real_sources/rates/erp_curated.json --require-reviewed",
+      "limitations": [
+        "ERP remains a curated assumption, not objective market data.",
+        "Manual review and expiry are mandatory before production readiness."
+      ],
+      "tier": "manual",
+      "license_status": "na",
+      "ttl_days": 183,
+      "allowed_fields": [
+        "equity_risk_premium",
+        "country_risk_premium"
+      ],
+      "field_quality_caps": {
+        "*": "assumption"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/rates/erp_curated.json",
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
+    },
+    {
+      "id": "identifier_master_curated",
+      "category": "reference",
+      "provider": "user_curated_with_sec_cik",
+      "source_type": "versioned_csv",
+      "path": "data/real_sources/reference/identifier_master.csv",
+      "status": "real_curated",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "exact_or_approximation",
+      "command": "python -m sws_engine.cli enrich-identifiers --input data/real_sources/universe/universe_US_curated.csv --cik-map data/real_sources/reference/sec_company_tickers.json --output data/real_sources/reference/identifier_master.csv",
+      "limitations": [
+        "CUSIP/ISIN/FIGI/LEI are optional and must not be inferred without legitimate source.",
+        "CIK enrichment is available when SEC company_tickers map is supplied."
+      ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 180,
+      "allowed_fields": [
+        "ticker",
+        "exchange",
+        "country",
+        "currency",
+        "CIK",
+        "SIC",
+        "security_type",
+        "company_type",
+        "is_adr",
+        "is_foreign_issuer"
+      ],
+      "field_quality_caps": {
+        "*": "exact_or_approximation"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/reference/identifier_master.csv",
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
+    },
+    {
+      "id": "ecb_fx_reference_rates",
+      "category": "fx",
+      "provider": "ECB reference rates",
+      "source_type": "versioned_csv",
+      "path": "data/real_sources/fx/fx_eod_curated.csv",
+      "status": "planned_primary_fx",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "exact",
+      "limitations": [
+        "P0.4 only registers ECB/BNR as preferred curated FX sources; loader remains future work."
+      ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 7,
+      "allowed_fields": [
+        "fx_rate",
+        "currency_pair"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/fx/fx_eod_curated.csv",
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
+    },
+    {
+      "id": "bnr_fx_reference_rates",
+      "category": "fx",
+      "provider": "BNR reference rates",
+      "source_type": "versioned_csv",
+      "path": "data/real_sources/fx/fx_eod_curated.csv",
+      "status": "planned_primary_fx_ron",
+      "required_for_internal_daily_run": false,
+      "required_for_production_real_data": false,
+      "source_quality_default": "exact",
+      "limitations": [
+        "P0.4 only registers ECB/BNR as preferred curated FX sources; loader remains future work."
+      ],
+      "tier": "curated",
+      "license_status": "na",
+      "ttl_days": 7,
+      "allowed_fields": [
+        "fx_rate",
+        "currency_pair"
+      ],
+      "field_quality_caps": {
+        "*": "exact"
+      },
+      "evaluated_required": false,
+      "evaluated_path": "data/real_sources/fx/fx_eod_curated.csv",
+      "file_exists": true,
+      "file_contains_template_marker": false,
+      "looks_template_or_synthetic": false,
+      "ready": true
     }
   ]
 }
