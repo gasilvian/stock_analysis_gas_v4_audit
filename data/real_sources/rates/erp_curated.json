@@ -1,0 +1,24 @@
+{
+  "source": "damodaran_country_erp_workbook",
+  "source_id": "damodaran_erp_july_2026",
+  "source_url_reference": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html (July 2026 semiannual country ERP update; US ERP 4.45%, mature market ERP 4.17% per workbook)",
+  "as_of": "2026-07-01",
+  "source_as_of": "2026-07-01",
+  "review_status": "reviewed",
+  "reviewed_by": "operator",
+  "review_date": "2026-07-09",
+  "expires_at": "2027-01-15",
+  "sensitivity_required": true,
+  "assumption_type": "market_assumption",
+  "source_quality": "assumption",
+  "source_class": "E2",
+  "notes": "ERP is a curated assumption, not objective market data. US value from Damodaran July 2026 country risk premium update (implied ERP methodology). Operator verified and approved on 2026-07-09 (chat approval) against Damodaran July 2026 update. Romania intentionally omitted until the operator transcribes the RO entry from the same July 2026 workbook; do not estimate it. Expiry aligned with the next semiannual Damodaran update (January 2027). Not investment advice.",
+  "countries": {
+    "US": {
+      "erp": 0.0445,
+      "country_risk_premium": 0.0,
+      "review_status": "reviewed",
+      "source_note": "Damodaran July 2026 workbook: US equity risk premium 4.45%; mature market ERP 4.17%"
+    }
+  }
+}
