@@ -26,3 +26,19 @@ python -m sws_engine.cli refresh-sec-financials \
 
 Use `--live` only for controlled personal/internal refreshes with a valid SEC
 User-Agent. Do not use live access in CI.
+
+## User-Agent requirement (P1.3a hardening)
+
+SEC fair-access policy requires an identifiable User-Agent with a real
+contact email. Live fetches now enforce this before any network activity:
+
+- Provide it via `--user-agent "your-name your-app contact@your-domain"` or
+  the `SWS_SEC_USER_AGENT` environment variable.
+- There is no built-in default; a missing, contactless, or placeholder
+  (`example.invalid`) User-Agent raises a clear error instead of silently
+  violating the policy.
+- Offline/cache/fixture reads never require a User-Agent.
+- Transient SEC responses (429/5xx) are retried up to 3 times with
+  exponential backoff (1s/2s/4s) on top of the polite pre-request sleep.
+- Successful live fetches are cached on disk (`raw/companyfacts/`), so
+  repeat runs read the cache unless `--refresh` is passed.

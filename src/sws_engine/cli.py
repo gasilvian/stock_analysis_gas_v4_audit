@@ -196,7 +196,9 @@ def main(argv=None):
     sec.add_argument("--live", action="store_true", help="allow live SEC API fetch when cache/fixture is missing")
     sec.add_argument("--refresh", action="store_true", help="refresh live SEC API data instead of using cache when --live is set")
     sec.add_argument("--continue-on-error", action=argparse.BooleanOptionalAction, default=True)
-    sec.add_argument("--user-agent", default=None, help="SEC User-Agent; required for responsible live use")
+    sec.add_argument("--user-agent", default=None,
+                     help="SEC User-Agent with real contact email (SEC fair-access policy); "
+                          "REQUIRED for --live (or set SWS_SEC_USER_AGENT). Offline/cache reads do not need it.")
 
     fr = sub.add_parser("refresh-rates-fred", help="convert a local FRED/Treasury 10Y export into reviewed-aware curated bond CSV")
     fr.add_argument("--input-csv", required=True, help="local FRED/Treasury export CSV; e.g. DATE,DGS10")
