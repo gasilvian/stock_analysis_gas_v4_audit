@@ -178,7 +178,7 @@ def assess_data_confidence(
         "source_quality_mix": source_quality_mix,
         "source_class_mix": source_class_mix,
         "source_tier_mix": field_quality["source_tier_mix"],
-        "critical_missing_inputs": classify_missing_inputs(checks),
+        "critical_missing_inputs": classify_missing_inputs(checks, input_payload=input_payload),
         "unknown_clusters": unknown_clusters(checks),
         "provider_degradation_visible": provider_degradation,
         "reason_codes": reason_codes,

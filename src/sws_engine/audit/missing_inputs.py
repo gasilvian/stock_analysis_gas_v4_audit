@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterable
 
 CRITICAL_FIELD_KEYWORDS: dict[str, list[str]] = {
     "fcf_estimates": ["fcf", "free_cash_flow", "free cash flow"],
-    "risk_free_rate_10y_5y_avg": ["risk_free", "discount_rate", "risk free", "rate"],
+    "risk_free_rate_10y_5y_avg": ["risk_free", "risk-free", "risk free", "discount_rate"],
     "equity_risk_premium": ["equity_risk_premium", "erp"],
     "analyst_estimates_weighted": ["analyst", "estimate", "forecast"],
     "bank_deposits_npl_chargeoffs": ["deposit", "npl", "chargeoff", "charge_off", "financial_h"],
@@ -65,21 +65,85 @@ def infer_impacted_fields(check: Dict[str, Any]) -> list[str]:
     return sorted(set(fields))
 
 
-def classify_missing_inputs(checks: Iterable[Dict[str, Any]]) -> list[dict[str, Any]]:
+# P1.2-cal (B1): fields whose absence surfaces indirectly — a missing
+# discount-rate input never appears by name in check text; it manifests as
+# fair_value=None and value-axis UNKNOWN checks. When the payload proves the
+# field is absent, these downstream keywords locate the affected checks so
+# the ROOT CAUSE is reported instead of a coincidental keyword match.
+DOWNSTREAM_KEYWORDS: dict[str, list[str]] = {
+    "risk_free_rate_10y_5y_avg": ["fair_value"],
+    "equity_risk_premium": ["fair_value"],
+}
+
+
+def _field_actually_present(field: str, input_payload: Dict[str, Any] | None) -> bool:
+    """True when the payload demonstrably carries a non-null value for field.
+
+    P1.2-cal (B1, second layer): missing-input classification is keyword
+    inference over UNKNOWN checks and previously never consulted the payload,
+    so a field could be reported as a critical missing input even when a
+    curated value was present (observed in real calibration for
+    risk_free_rate_10y_5y_avg). A field whose value exists and whose lineage
+    is not marked missing must not be classified as missing. Payload absence
+    of the key keeps the inference untouched — this only ever REMOVES false
+    positives, never hides real gaps.
+    """
+    if not input_payload or field not in input_payload:
+        return False
+    if input_payload.get(field) is None:
+        return False
+    lineage = ((input_payload.get("lineage") or {}).get("field_lineage") or {})
+    field_lineage = lineage.get(field) or {}
+    if str(field_lineage.get("source_quality", "")).lower() == "missing":
+        return False
+    return True
+
+
+def classify_missing_inputs(
+    checks: Iterable[Dict[str, Any]],
+    input_payload: Dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     """Return deterministic critical-missing-input records for UNKNOWN checks."""
     by_field: dict[str, dict[str, Any]] = {}
     affected: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for check in checks:
+    checks_list = list(checks)
+    for check in checks_list:
         if check.get("result") != "UNKNOWN" and check.get("source_quality") != "missing":
             continue
         fields = infer_impacted_fields(check)
         for field in fields:
+            if field != "unknown_input" and _field_actually_present(field, input_payload):
+                continue
             affected[field].append({
                 "axis": str(check.get("axis", "UNKNOWN")),
                 "check_id": str(check.get("id", "UNKNOWN")),
                 "name": str(check.get("name", "UNKNOWN")),
                 "reason_code": str(check.get("reason_code", "UNKNOWN")),
             })
+    # Payload-driven root-cause detection (P1.2-cal B1): when the payload
+    # proves a critical rate field is genuinely absent, attribute the
+    # downstream fair-value UNKNOWN checks to it explicitly.
+    if input_payload:
+        for field, downstream in DOWNSTREAM_KEYWORDS.items():
+            if field in affected or _field_actually_present(field, input_payload):
+                continue
+            hits = []
+            for check in checks_list:
+                if check.get("result") != "UNKNOWN":
+                    continue
+                haystack = " ".join([
+                    str(check.get("reason_code", "")), str(check.get("name", "")),
+                    _flatten_text(check.get("inputs", {})),
+                ]).lower()
+                if any(k in haystack for k in downstream):
+                    hits.append({
+                        "axis": str(check.get("axis", "UNKNOWN")),
+                        "check_id": str(check.get("id", "UNKNOWN")),
+                        "name": str(check.get("name", "UNKNOWN")),
+                        "reason_code": str(check.get("reason_code", "UNKNOWN")),
+                    })
+            if hits:
+                affected[field].extend(hits)
     for field, checks_for_field in sorted(affected.items()):
         by_field[field] = {
             "field": field,
