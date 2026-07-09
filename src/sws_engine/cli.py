@@ -28,6 +28,10 @@ def main(argv=None):
     c.add_argument("-o", "--output")
     c.add_argument("--report")
     c.add_argument("--snapshot-dir", default=None)
+    c.add_argument("--db", default=None,
+                   help="optional SQLite DB path; when set, persist this single "
+                        "run (input snapshot + run + output) so audit-company "
+                        "and the v4 audit chain can consume it")
 
     p = sub.add_parser("portfolio", help="run portfolio analysis")
     p.add_argument("-i", "--input", required=True)
@@ -1114,6 +1118,27 @@ def main(argv=None):
         out = run_company_analysis(payload, args.assumptions, args.schema,
                                    snapshot_dir=args.snapshot_dir)
         report_fn = "company"
+        if getattr(args, "db", None):
+            # P1.0 additive: optional single-run persistence so the v4 audit
+            # chain (audit-company, sensitivity-company, explain-company, ...)
+            # can consume a real run without requiring the batch command.
+            # Mirrors the batch persistence path; engine behavior unchanged.
+            import sws_engine as _pkg
+            from sws_engine.db.store import Store, assumptions_hash
+            store = Store(args.db)
+            store.init_schema()
+            store.upsert_instrument(ticker=out["ticker"])
+            snapshot_id = store.save_input_snapshot(out["ticker"], payload)
+            run_id = store.create_run(
+                ticker=out["ticker"], valuation_date=out.get("valuation_date"),
+                snapshot_id=snapshot_id,
+                assumptions_hash=assumptions_hash(args.assumptions),
+                engine_version=getattr(_pkg, "__version__", "unknown"),
+                status="PASS")
+            store.save_output(run_id, out)
+            store.close()
+            print(json.dumps({"persisted_run_id": run_id, "db": args.db,
+                              "ticker": out["ticker"]}, indent=2))
     else:
         from sws_engine.config.assumptions_loader import load_assumptions
         from sws_engine.portfolio.portfolio_run import run_portfolio_analysis
