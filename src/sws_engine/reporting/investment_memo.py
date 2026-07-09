@@ -8,9 +8,9 @@ keeps UNKNOWN / limitations visible instead of filling gaps.
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Any, Mapping
+from sws_engine.governance.guardrail_tokens import FORBIDDEN_RECOMMENDATION_TOKENS
 
 FOOTER = (
     "\n---\n"
@@ -19,21 +19,7 @@ FOOTER = (
     "Acest raport este pentru uz intern/personal/educațional. Not investment advice.\n"
 )
 
-FORBIDDEN_RECOMMENDATION_TOKENS = [
-    " BUY ",
-    " SELL ",
-    " HOLD ",
-    "BUY/SELL/HOLD",
-    "Buy rating",
-    "Sell rating",
-    "Hold rating",
-    "price target",
-    "target price",
-    "recommendation to",
-    "overweight recommendation",
-    "underweight recommendation",
-    "rebalance into",
-]
+# P1.0: FORBIDDEN_RECOMMENDATION_TOKENS moved to sws_engine.governance.guardrail_tokens
 
 
 def load_json_artifact(path: str | Path | None, *, required: bool = False) -> dict[str, Any] | None:
@@ -408,23 +394,48 @@ def _score_and_coverage_section(audit: Mapping[str, Any]) -> dict[str, Any]:
     return {"status": "PASS" if rows else "UNKNOWN", "reason_code": "MEMO_COMPONENT_UNKNOWN" if not rows else "MEMO_GENERATED", "rows": rows}
 
 
+def _component_reason_code(component: Mapping[str, Any]) -> str:
+    """Resolve a component's primary reason code without false UNKNOWN.
+
+    P1.0 fix: real audit summaries emit ``reason_codes`` (plural list) for
+    data_confidence and no top-level code for conclusion_risk, while the memo
+    previously read only the singular ``reason_code`` key and mislabeled fully
+    present components as MEMO_COMPONENT_UNKNOWN. Resolution order:
+    singular ``reason_code`` -> first of ``reason_codes`` -> if the component
+    dict is non-empty, MEMO_COMPONENT_PRESENT -> MEMO_COMPONENT_UNKNOWN.
+    """
+    singular = component.get("reason_code")
+    if singular:
+        return str(singular)
+    plural = component.get("reason_codes")
+    if isinstance(plural, (list, tuple)) and plural:
+        return str(plural[0])
+    if component:
+        return "MEMO_COMPONENT_PRESENT"
+    return "MEMO_COMPONENT_UNKNOWN"
+
+
 def _data_confidence_section(audit: Mapping[str, Any]) -> dict[str, Any]:
     data = dict(audit.get("data_confidence") or {})
-    return {
+    section = {
         "status": data.get("status") or "PASS_WITH_LIMITATIONS",
-        "reason_code": data.get("reason_code") or "MEMO_COMPONENT_UNKNOWN",
+        "reason_code": _component_reason_code(data),
         "level": data.get("level") or data.get("confidence_grade") or "UNKNOWN",
         "unknown_checks_count": data.get("unknown_checks_count") or (audit.get("checks_summary") or {}).get("UNKNOWN", 0),
         "provider_degradation_visible": bool(audit.get("provider_degradation_visible") or data.get("provider_degradation_visible")),
         "critical_missing_inputs": list(audit.get("critical_missing_inputs") or data.get("critical_missing_inputs") or []),
     }
+    plural = data.get("reason_codes")
+    if isinstance(plural, (list, tuple)) and plural:
+        section["reason_codes"] = [str(code) for code in plural]
+    return section
 
 
 def _model_applicability_section(audit: Mapping[str, Any]) -> dict[str, Any]:
     app = audit.get("model_applicability") or {}
     return {
         "status": app.get("status") or "UNKNOWN",
-        "reason_code": app.get("reason_code") or "MEMO_COMPONENT_UNKNOWN",
+        "reason_code": _component_reason_code(app),
         "allowed_score_usage": app.get("allowed_score_usage") or "UNKNOWN",
         "recommended_model": app.get("recommended_model") or "UNKNOWN",
         "classification": app.get("classification") or app.get("company_classification") or "UNKNOWN",
@@ -435,7 +446,7 @@ def _conclusion_risk_section(audit: Mapping[str, Any]) -> dict[str, Any]:
     risk = audit.get("conclusion_risk") or {}
     return {
         "status": risk.get("status") or "PASS_WITH_LIMITATIONS",
-        "reason_code": risk.get("reason_code") or "MEMO_COMPONENT_UNKNOWN",
+        "reason_code": _component_reason_code(risk),
         "risk_level": risk.get("risk_level") or "UNKNOWN",
         "drivers": list(risk.get("drivers") or []),
         "manual_review_items": list(risk.get("manual_review_items") or []),

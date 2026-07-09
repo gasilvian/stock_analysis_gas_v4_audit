@@ -11,6 +11,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping
+from sws_engine.governance.guardrail_tokens import FORBIDDEN_RECOMMENDATION_TOKENS
 
 FOOTER = (
     "\n---\n"
@@ -19,21 +20,7 @@ FOOTER = (
     "Acest raport este pentru uz intern/personal/educațional. Not investment advice.\n"
 )
 
-FORBIDDEN_RECOMMENDATION_TOKENS = [
-    " BUY ",
-    " SELL ",
-    " HOLD ",
-    "BUY/SELL/HOLD",
-    "Buy rating",
-    "Sell rating",
-    "Hold rating",
-    "price target",
-    "target price",
-    "recommendation to",
-    "overweight recommendation",
-    "underweight recommendation",
-    "rebalance into",
-]
+# P1.0: FORBIDDEN_RECOMMENDATION_TOKENS moved to sws_engine.governance.guardrail_tokens
 
 REQUIRED_CAPABILITY_GROUPS = [
     {
