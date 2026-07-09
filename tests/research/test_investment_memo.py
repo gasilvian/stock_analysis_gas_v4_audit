@@ -75,3 +75,31 @@ def test_memo_component_reason_code_not_falsely_unknown_for_plural_codes():
     assert dc_section["reason_code"] != "MEMO_COMPONENT_UNKNOWN"
     # Component present but without its own code: truthful PRESENT, not UNKNOWN.
     assert cr_section["reason_code"] == "MEMO_COMPONENT_PRESENT"
+
+
+def test_memo_source_quality_inherits_from_data_confidence_mix():
+    """P1.2-cal (B2) regression: real calibration showed 'Source quality:
+    UNKNOWN' in every memo because the audit summary carries its quality
+    signal in data_confidence.source_quality_mix, not in a top-level key.
+    The memo must inherit the dominant non-missing quality, let declared
+    component qualities act as weakest link, and never let silent
+    components drag the aggregate to UNKNOWN."""
+    audit_summary = json.loads((FIX / "AAPL_audit_summary.json").read_text(encoding="utf-8"))
+    audit_summary.pop("source_quality", None)
+    audit_summary.setdefault("data_confidence", {})["source_quality_mix"] = {
+        "approximation": 12, "missing": 18}
+
+    package = build_investment_memo_package(audit_summary=audit_summary)
+    assert package["source_quality"] == "approximation"
+
+    # A component that declares a weaker quality wins (weakest link).
+    package2 = build_investment_memo_package(
+        audit_summary=audit_summary,
+        sensitivity_summary={"ticker": package["ticker"], "status": "UNKNOWN",
+                             "source_quality": "assumption"})
+    assert package2["source_quality"] == "assumption"
+
+    # Nothing known anywhere -> honest UNKNOWN, never invented.
+    bare = {k: v for k, v in audit_summary.items() if k != "data_confidence"}
+    package3 = build_investment_memo_package(audit_summary=bare)
+    assert package3["source_quality"] == "UNKNOWN"

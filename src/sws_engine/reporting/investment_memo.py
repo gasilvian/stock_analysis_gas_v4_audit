@@ -610,12 +610,45 @@ def _assert_no_recommendation_language(text: str) -> None:
         raise ValueError(f"Memo contains forbidden recommendation-language tokens: {found}")
 
 
-def _aggregate_source_quality(*artifacts: Mapping[str, Any] | None) -> str:
-    rank = {"HIGH": 5, "MEDIUM_HIGH": 4, "MEDIUM": 3, "MEDIUM_LOW": 2, "LOW": 1, "UNKNOWN": 0, "exact": 5, "approximation": 3, "assumption": 2, "missing": 0}
-    values = [str((a or {}).get("source_quality") or "UNKNOWN") for a in artifacts if a]
-    if not values:
+def _effective_artifact_source_quality(artifact: Mapping[str, Any] | None) -> str:
+    """Effective source quality of a component artifact (P1.2-cal, B2).
+
+    Real calibration showed the memo displaying 'Source quality: UNKNOWN'
+    even though the audit summary carried a full quality picture — the audit
+    artifact has no top-level source_quality key; its signal lives in
+    data_confidence.source_quality_mix. Inheritance order:
+    1. the artifact's own declared source_quality;
+    2. the dominant non-missing quality from data_confidence.source_quality_mix
+       (ties broken toward the weaker quality — never overstating);
+    3. 'missing' when the mix exists but contains only missing fields;
+    4. 'UNKNOWN' when the artifact declares nothing at all.
+    """
+    if not artifact:
         return "UNKNOWN"
-    return min(values, key=lambda v: rank.get(v, 0))
+    declared = artifact.get("source_quality")
+    if declared:
+        return str(declared)
+    mix = ((artifact.get("data_confidence") or {}).get("source_quality_mix") or {})
+    known = {q: int(n) for q, n in mix.items() if q in ("exact", "approximation", "assumption") and n}
+    if known:
+        weakness = {"exact": 0, "approximation": 1, "assumption": 2}
+        # dominant count first; ties broken toward the weaker quality
+        return max(known, key=lambda q: (known[q], weakness[q]))
+    if mix.get("missing"):
+        return "missing"
+    return "UNKNOWN"
+
+
+def _aggregate_source_quality(*artifacts: Mapping[str, Any] | None) -> str:
+    rank = {"HIGH": 5, "MEDIUM_HIGH": 4, "MEDIUM": 3, "MEDIUM_LOW": 2, "LOW": 1, "UNKNOWN": 0, "exact": 5, "approximation": 3, "assumption": 2, "missing": 1}
+    values = [_effective_artifact_source_quality(a) for a in artifacts if a]
+    # P1.2-cal (B2): components that declare nothing must not drag the
+    # aggregate to UNKNOWN when other components carry a known quality;
+    # among known values the weakest link wins (never overstating).
+    known = [v for v in values if v != "UNKNOWN"]
+    if known:
+        return min(known, key=lambda v: rank.get(v, 0))
+    return "UNKNOWN"
 
 
 def _aggregate_source_class(*artifacts: Mapping[str, Any] | None) -> str:
