@@ -22,6 +22,7 @@ import os
 from typing import Any
 
 from sws_engine.rates.rates import bond_10y_5y_average, load_erp
+from sws_engine.sources.staleness import mark_lineage_stale, staleness_check
 
 CURATED_RATES_PROVIDER = "curated_rates"
 
@@ -46,7 +47,7 @@ def build_curated_rates_overrides(
         rf = bond_10y_5y_average(bond_csv, country, valuation_date)
         meta["risk_free"] = rf
         if rf.get("value") is not None:
-            overrides["risk_free_rate_10y_5y_avg"] = {
+            spec = {
                 "value": rf["value"],
                 "source_quality": "assumption",
                 "source_class": "E2",
@@ -54,6 +55,16 @@ def build_curated_rates_overrides(
                 "transform": "curated_rates_injection_bond_10y_5y_avg",
                 "as_of": rf.get("as_of") or valuation_date,
             }
+            # P2.3-enf: the 5y average window ends at valuation date by
+            # construction; the freshness contract applies to the NEWEST
+            # observation in the CSV, which is what must not be stale.
+            latest_obs = _latest_observation_date(bond_csv, country)
+            check = staleness_check(latest_obs, source_id="bond_10y_5y_avg_curated",
+                                    valuation_date=valuation_date)
+            if check["warning"]:
+                warnings.append(check["warning"])
+            mark_lineage_stale(spec, check)
+            overrides["risk_free_rate_10y_5y_avg"] = spec
         else:
             warnings.append(
                 "CURATED_RATES_NO_OBSERVATIONS: bond CSV present but no usable "
@@ -67,8 +78,17 @@ def build_curated_rates_overrides(
     if erp_json and os.path.exists(erp_json):
         erp = load_erp(erp_json, country)
         meta["erp"] = erp
-        if erp.get("value") is not None:
-            overrides["equity_risk_premium"] = {
+        expires_at = _erp_expires_at(erp_json)
+        if expires_at and str(valuation_date) > str(expires_at):
+            # P2.3-enf: expiry is a curation contract — a lapsed ERP is
+            # REFUSED (mirrors the estimates-pack behavior); the field stays
+            # honestly MISSING until the operator re-curates.
+            warnings.append(
+                f"CURATED_ERP_EXPIRED: erp_curated expired {expires_at} < valuation date "
+                f"{valuation_date}; equity_risk_premium stays MISSING until re-curated "
+                "(next Damodaran semiannual update)")
+        elif erp.get("value") is not None:
+            spec = {
                 "value": erp["value"],
                 "source_quality": "assumption",
                 "source_class": "E2",
@@ -76,6 +96,12 @@ def build_curated_rates_overrides(
                 "transform": "curated_rates_injection_erp",
                 "as_of": erp.get("as_of") or valuation_date,
             }
+            check = staleness_check(erp.get("as_of"), source_id="erp_curated",
+                                    valuation_date=valuation_date)
+            if check["warning"]:
+                warnings.append(check["warning"])
+            mark_lineage_stale(spec, check)
+            overrides["equity_risk_premium"] = spec
         else:
             warnings.append(
                 f"CURATED_ERP_NO_COUNTRY_ENTRY: ERP file present but no {country} "
@@ -86,3 +112,28 @@ def build_curated_rates_overrides(
             "equity_risk_premium stays MISSING")
 
     return {"overrides": overrides, "warnings": warnings, "meta": meta}
+
+def _latest_observation_date(bond_csv: str, country: str) -> str | None:
+    """Newest observation date for the country in the curated bond CSV."""
+    import csv
+    latest: str | None = None
+    try:
+        with open(bond_csv, newline="", encoding="utf-8") as fh:
+            for row in csv.DictReader(fh):
+                if row.get("country") != country:
+                    continue
+                d = row.get("date")
+                if d and (latest is None or d > latest):
+                    latest = d
+    except OSError:
+        return None
+    return latest
+
+
+def _erp_expires_at(erp_json: str) -> str | None:
+    import json as _json
+    try:
+        with open(erp_json, encoding="utf-8") as fh:
+            return (_json.load(fh) or {}).get("expires_at")
+    except (OSError, ValueError):
+        return None

@@ -63,6 +63,16 @@ def apply_averages_snapshot(
     }
     meta = snapshot.get("meta") or {}
     source = str(meta.get("source") or "")
+    # P2.3-enf: averages carry a snapshot date; compare against the industry
+    # averages TTL when the operator declared one (registry id
+    # industry_averages_curated), default 90 days otherwise.
+    from sws_engine.sources.staleness import staleness_check, ttl_days_for_source
+    ttl = ttl_days_for_source("industry_averages_curated")
+    stale_check = staleness_check(
+        meta.get("industry_averages_as_of"),
+        source_id="industry_averages_curated",
+        valuation_date=payload.get("valuation_date"),
+        ttl_days=ttl if ttl is not None else 90)
     if "synthetic" in source.lower() or "demo" in source.lower():
         report["status"] = "FAIL"
         report["reason_code"] = "SYNTHETIC_AVERAGES_REFUSED"
@@ -82,7 +92,10 @@ def apply_averages_snapshot(
             report["skipped_existing"].append("market_averages")
         else:
             payload["market_averages"] = dict(market)
-            lineage["market_averages"] = _lineage(meta, "curated_averages_market")
+            entry = _lineage(meta, "curated_averages_market")
+            from sws_engine.sources.staleness import mark_lineage_stale
+            mark_lineage_stale(entry, stale_check)
+            lineage["market_averages"] = entry
             report["applied_fields"].append("market_averages")
 
     industry_name = industry or payload.get("industry")
@@ -95,7 +108,10 @@ def apply_averages_snapshot(
             report["skipped_existing"].append("industry_averages")
         else:
             payload["industry_averages"] = dict(entry)
-            lineage["industry_averages"] = _lineage(meta, f"curated_averages_industry:{industry_name}")
+            lin_entry = _lineage(meta, f"curated_averages_industry:{industry_name}")
+            from sws_engine.sources.staleness import mark_lineage_stale
+            mark_lineage_stale(lin_entry, stale_check)
+            lineage["industry_averages"] = lin_entry
             report["applied_fields"].append("industry_averages")
     else:
         msg = (f"INDUSTRY_AVERAGES_NOT_FOUND: industry {industry_name!r} has no entry in the "
@@ -107,6 +123,9 @@ def apply_averages_snapshot(
     if meta.get("industry_averages_as_of") and payload.get("industry_averages_as_of") is None:
         payload["industry_averages_as_of"] = meta["industry_averages_as_of"]
 
+    if stale_check.get("warning") and report["applied_fields"]:
+        warnings.append(stale_check["warning"])
+        report["warnings"].append(stale_check["warning"])
     if report["applied_fields"]:
         warnings.append(
             f"CURATED_AVERAGES_INJECTED: {', '.join(report['applied_fields'])} from curated "
