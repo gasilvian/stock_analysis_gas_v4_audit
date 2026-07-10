@@ -109,6 +109,7 @@ def run_real_dashboard_bootstrap(
     erp_json: str = DEFAULT_ERP_CURATED,
     sec_dir: Optional[str] = None,
     averages_json: Optional[str] = None,
+    estimates_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
     from sws_engine.orchestration.company_run import run_company_analysis
 
@@ -171,6 +172,18 @@ def run_real_dashboard_bootstrap(
                 payload = provider.build_payload(
                     ticker, valuation_date=vdate, market=market, industry=None,
                     overrides=rates_overrides or None)
+                if estimates_dir:
+                    # B4: operator-transcribed analyst estimates (reviewed,
+                    # unexpired) — the last honest-free-source gap.
+                    from sws_engine.estimates.manual_pack import apply_estimates_from_dir
+                    from datetime import date as _date2
+                    est_report = apply_estimates_from_dir(
+                        payload, estimates_dir,
+                        valuation_date=vdate or _date2.today().isoformat())
+                    item["estimates_injection"] = {
+                        "reason_code": est_report["reason_code"],
+                        "applied_fields": est_report["applied_fields"],
+                    }
                 if averages_snapshot is not None:
                     from sws_engine.averages.injection import apply_averages_snapshot
                     avg_report = apply_averages_snapshot(payload, averages_snapshot)

@@ -1,0 +1,23 @@
+{
+  "ticker": "TICKER",
+  "source": "template_do_not_use",
+  "source_detail": "Fill from a platform you can read (TIKR / Koyfin / TradingView) and rename to {TICKER}_analyst_estimates.json",
+  "source_as_of": "YYYY-MM-DD",
+  "review_status": "operator_review_required",
+  "reviewed_by": null,
+  "review_date": null,
+  "expires_at": "YYYY-MM-DD",
+  "currency": "USD",
+  "earnings_estimates": [
+    {"fiscal_year": 2026, "value": null, "analysts": null},
+    {"fiscal_year": 2027, "value": null, "analysts": null}
+  ],
+  "fcf_estimates": [
+    {"fiscal_year": 2026, "value": null},
+    {"fiscal_year": 2027, "value": null}
+  ],
+  "earnings_growth": null,
+  "revenue_growth": null,
+  "becomes_profitable_in_5y": null,
+  "notes": "SWS weighted format requires analyst count per forecast year. Values are absolute company-level figures in the stated currency. Set review_status=reviewed only after operator verification; packs expire and are refused after expires_at."
+}

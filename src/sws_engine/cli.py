@@ -77,6 +77,8 @@ def main(argv=None):
     byf.add_argument("--refresh", action="store_true")
     byf.add_argument("--averages-json", default=None,
                      help="B3: curated averages snapshot from build-averages (synthetic refused)")
+    byf.add_argument("--estimates-pack", default=None,
+                     help="B4: operator analyst-estimates pack JSON (reviewed + unexpired)")
     byf.add_argument("--sec-payload-updates", default=None,
                      help="P1.3b: optional {ticker}_sec_payload_updates.json from "
                           "refresh-sec-financials; merged with sec_precedence and "
@@ -161,6 +163,10 @@ def main(argv=None):
                      help="B3: curated averages snapshot from build-averages (real universe only; "
                           "synthetic sources are refused); injects market/industry averages with "
                           "approximation/E2 lineage")
+    rdb.add_argument("--estimates-dir", default=None,
+                     help="B4: directory with operator estimates packs "
+                          "({TICKER}_analyst_estimates.json); reviewed, unexpired packs are "
+                          "injected with assumption/E3 lineage")
     rdb.add_argument("--sec-dir", default=None,
                      help="P1.3b: directory with refresh-sec-financials outputs "
                           "({ticker}_sec_payload_updates.json, directly or under normalized/); "
@@ -1087,6 +1093,13 @@ def main(argv=None):
 
             payload = provider.build_payload(args.ticker, valuation_date=args.valuation_date, market=args.market, industry=args.industry)
             if args.cmd == "build-payload-yfinance":
+                if getattr(args, "estimates_pack", None):
+                    from sws_engine.estimates.manual_pack import apply_estimates_pack, load_estimates_pack
+                    from datetime import date as _date
+                    apply_estimates_pack(
+                        payload, load_estimates_pack(args.estimates_pack),
+                        valuation_date=args.valuation_date or _date.today().isoformat(),
+                        pack_path=args.estimates_pack)
                 if getattr(args, "averages_json", None):
                     from sws_engine.averages.injection import apply_averages_snapshot, load_averages_snapshot
                     apply_averages_snapshot(payload, load_averages_snapshot(args.averages_json))
@@ -1191,7 +1204,8 @@ def main(argv=None):
             min_success_count=args.min_success_count,
             assumptions_path=args.assumptions, schema_path=args.schema,
             bond_csv=args.bond_csv, erp_json=args.erp_json,
-            sec_dir=args.sec_dir, averages_json=args.averages_json)
+            sec_dir=args.sec_dir, averages_json=args.averages_json,
+            estimates_dir=args.estimates_dir)
         print(json.dumps({
             "status": rep["status"],
             "tickers_succeeded": rep["tickers_succeeded"],
