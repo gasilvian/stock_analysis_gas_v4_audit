@@ -76,6 +76,27 @@ def normalize_capex_series(facts_json: dict[str, Any]) -> tuple[list[float], lis
     return values, lineage
 
 
+def normalize_earnings_history(facts_json: dict[str, Any], *, max_years: int = 5) -> tuple[list[float], list[dict[str, Any]]]:
+    """Annual net-income series, chronological (oldest -> newest).
+
+    P1.4a (calibration B5 'base valuation enablement'): CompanyFacts carries
+    the full annual history per tag, but the snapshot previously mapped only
+    the latest FY, leaving payloads without earnings_history — so the growth
+    resolver's 'historical' route could never fire and fair_value stayed null
+    on every yfinance-pragmatic ticker. This extracts up to max_years of
+    us-gaap NetIncomeLoss annual values from official filings (E0).
+    """
+    facts = annual_series(facts_json, "net_income", max_items=max_years)
+    values: list[float] = []
+    lineage: list[dict[str, Any]] = []
+    for fact in facts:
+        if fact.value is None:
+            continue
+        values.append(float(fact.value))
+        lineage.append(fact.as_dict())
+    return values, lineage
+
+
 def build_statement_snapshot(
     facts_json: dict[str, Any],
     *,
@@ -112,6 +133,38 @@ def build_statement_snapshot(
         mapped.append(field)
 
     capex_values, capex_lineage = normalize_capex_series(facts_json)
+    earnings_values, earnings_lineage = normalize_earnings_history(facts_json)
+    if len(earnings_values) >= 3:
+        # P1.4a: enables the growth resolver's 'historical' route (>=3 years)
+        # with official-filing data, which in turn enables base fair value.
+        payload_updates["earnings_history"] = earnings_values
+        mapped.append("earnings_history")
+        payload_lineage["earnings_history"] = {
+            "source_id": PROVIDER_ID,
+            "provider": PROVIDER_ID,
+            "source_field": "us-gaap:NetIncomeLoss",
+            "source_quality": SourceQuality.EXACT.value,
+            "source_class": SourceClass.E0.value,
+            "tier": "official_filing",
+            "as_of": earnings_lineage[-1].get("filed") if earnings_lineage else None,
+            "transform": f"annual_series_last_{len(earnings_values)}y_chronological",
+            "cik": cik,
+            "source_path": source_path,
+        }
+    else:
+        unmapped.append({"field": "earnings_history", "reason_code": "XBRL_INSUFFICIENT_ANNUAL_HISTORY"})
+        payload_lineage["earnings_history"] = {
+            "source_id": PROVIDER_ID,
+            "provider": PROVIDER_ID,
+            "source_field": "us-gaap:NetIncomeLoss",
+            "source_quality": SourceQuality.MISSING.value,
+            "source_class": SourceClass.E0.value,
+            "tier": "official_filing",
+            "as_of": None,
+            "cik": cik,
+            "source_path": source_path,
+            "reason_code": "XBRL_INSUFFICIENT_ANNUAL_HISTORY",
+        }
     if capex_values:
         payload_updates["capex_history_3y"] = capex_values
         mapped.append("capex_history_3y")
