@@ -52,6 +52,11 @@ def main(argv=None):
     b.add_argument("--savings-rate", type=float, default=None)
     b.add_argument("--cpi", type=float, default=None)
     b.add_argument("--out-dir", default="data/averages")
+    b.add_argument("--source", default="synthetic_curated",
+                   help="B3: provenance label written into meta.source; use e.g. "
+                        "'yfinance_universe_curated' when building from a real "
+                        "numerics-populated universe — snapshots labeled synthetic "
+                        "are refused by averages injection")
 
     bp = sub.add_parser("build-payload", help="assemble a company payload from a recorded snapshot")
     bp.add_argument("--snapshot", required=True)
@@ -70,6 +75,8 @@ def main(argv=None):
     byf.add_argument("--industry", default=None)
     byf.add_argument("--output", required=True)
     byf.add_argument("--refresh", action="store_true")
+    byf.add_argument("--averages-json", default=None,
+                     help="B3: curated averages snapshot from build-averages (synthetic refused)")
     byf.add_argument("--sec-payload-updates", default=None,
                      help="P1.3b: optional {ticker}_sec_payload_updates.json from "
                           "refresh-sec-financials; merged with sec_precedence and "
@@ -150,6 +157,10 @@ def main(argv=None):
     rdb.add_argument("-s", "--schema", default=DEFAULT_SCHEMA)
     rdb.add_argument("--bond-csv", default="data/real_sources/rates/bond_yields_10y_curated.csv")
     rdb.add_argument("--erp-json", default="data/real_sources/rates/erp_curated.json")
+    rdb.add_argument("--averages-json", default=None,
+                     help="B3: curated averages snapshot from build-averages (real universe only; "
+                          "synthetic sources are refused); injects market/industry averages with "
+                          "approximation/E2 lineage")
     rdb.add_argument("--sec-dir", default=None,
                      help="P1.3b: directory with refresh-sec-financials outputs "
                           "({ticker}_sec_payload_updates.json, directly or under normalized/); "
@@ -1031,7 +1042,8 @@ def main(argv=None):
                                                  save_snapshot)
         snap = build_averages(load_universe(args.universe), as_of=args.date,
                               min_universe_count=args.min_universe,
-                              savings_rate=args.savings_rate, cpi=args.cpi)
+                              savings_rate=args.savings_rate, cpi=args.cpi,
+                              source=args.source)
         path = save_snapshot(snap, args.out_dir, args.market)
         print(json.dumps({"written": path, "warnings": snap["warnings"]}, indent=2))
         return 0
@@ -1075,6 +1087,9 @@ def main(argv=None):
 
             payload = provider.build_payload(args.ticker, valuation_date=args.valuation_date, market=args.market, industry=args.industry)
             if args.cmd == "build-payload-yfinance":
+                if getattr(args, "averages_json", None):
+                    from sws_engine.averages.injection import apply_averages_snapshot, load_averages_snapshot
+                    apply_averages_snapshot(payload, load_averages_snapshot(args.averages_json))
                 sec_merge_report = None
                 if getattr(args, "sec_payload_updates", None):
                     from sws_engine.sec.payload_merge import apply_sec_payload_updates, load_sec_payload_updates
@@ -1176,7 +1191,7 @@ def main(argv=None):
             min_success_count=args.min_success_count,
             assumptions_path=args.assumptions, schema_path=args.schema,
             bond_csv=args.bond_csv, erp_json=args.erp_json,
-            sec_dir=args.sec_dir)
+            sec_dir=args.sec_dir, averages_json=args.averages_json)
         print(json.dumps({
             "status": rep["status"],
             "tickers_succeeded": rep["tickers_succeeded"],

@@ -108,6 +108,7 @@ def run_real_dashboard_bootstrap(
     bond_csv: str = DEFAULT_BOND_CURATED,
     erp_json: str = DEFAULT_ERP_CURATED,
     sec_dir: Optional[str] = None,
+    averages_json: Optional[str] = None,
 ) -> Dict[str, Any]:
     from sws_engine.orchestration.company_run import run_company_analysis
 
@@ -128,6 +129,18 @@ def run_real_dashboard_bootstrap(
         valuation_date=vdate or _date.today().isoformat())
     rates_overrides = rates_injection["overrides"]
     global_warnings.extend(rates_injection["warnings"])
+    averages_snapshot = None
+    if averages_json:
+        # B3: curated market/industry averages, previously never consumed by
+        # live payloads (9/19 UNKNOWN checks per ticker in real calibration).
+        from sws_engine.averages.injection import load_averages_snapshot
+        import os as _os
+        if _os.path.exists(averages_json):
+            averages_snapshot = load_averages_snapshot(averages_json)
+        else:
+            global_warnings.append(
+                f"CURATED_AVERAGES_FILE_MISSING: '{averages_json}' not found; "
+                "market/industry averages stay MISSING")
 
     provider = None
     provider_error: Optional[str] = None
@@ -158,6 +171,14 @@ def run_real_dashboard_bootstrap(
                 payload = provider.build_payload(
                     ticker, valuation_date=vdate, market=market, industry=None,
                     overrides=rates_overrides or None)
+                if averages_snapshot is not None:
+                    from sws_engine.averages.injection import apply_averages_snapshot
+                    avg_report = apply_averages_snapshot(payload, averages_snapshot)
+                    item["averages_injection"] = {
+                        "reason_code": avg_report["reason_code"],
+                        "applied_fields": avg_report["applied_fields"],
+                        "industry_matched": avg_report["industry_matched"],
+                    }
                 if sec_dir:
                     # P1.3b (B4/B8): merge SEC official-filing values with
                     # documented sec_precedence; conflicts stay visible in
