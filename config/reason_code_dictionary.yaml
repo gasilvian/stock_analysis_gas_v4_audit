@@ -1,5 +1,5 @@
 metadata:
-  version: reason_code_dictionary.v0.10
+  version: reason_code_dictionary.v0.11
   scope: v4.0_p0.14_release_hardening_foundation
   not_investment_advice: true
   template_engine: deterministic_python_format
@@ -834,3 +834,28 @@ reason_codes:
     analyst: Local MVP smoke workflow completed using offline fixtures and release artifacts.
     plain_english: The local smoke check completed.
     remediation_hint: Review the generated release manifest and workflow package before archiving the release.
+  SOURCE_CONFLICTS_NONE:
+    severity: INFO
+    analyst: No conflicting values were recorded between data sources for this payload.
+    plain_english: All data sources agreed for this company.
+    remediation_hint: Nothing to do.
+  SOURCE_CONFLICTS_RESOLVED_BY_PRECEDENCE:
+    severity: INFO
+    analyst: Conflicting source values were resolved by the documented registry precedence chain; details are listed per field.
+    plain_english: Some sources disagreed; the configured priority order decided which value was used, and every case is listed.
+    remediation_hint: Review the per-field conflict list; adjust the registry precedence chain if the resolution is wrong.
+  SOURCE_CONFLICT_MATERIAL_REVIEW_REQUIRED:
+    severity: WARN
+    analyst: At least one resolved source conflict exceeds the materiality threshold; the divergence is large enough to warrant operator review.
+    plain_english: Two sources disagreed by a lot on at least one number; a human should look at it.
+    remediation_hint: Compare the underlying filings/exports for the flagged fields and correct or annotate the weaker source.
+  SOURCE_CONFLICT_UNRESOLVED:
+    severity: FAIL
+    analyst: Conflicting values exist between sources with no precedence rule covering the pair; the field was set to UNKNOWN rather than silently picking a side.
+    plain_english: Two sources disagreed and there is no configured rule to choose between them, so the value is treated as unknown.
+    remediation_hint: Add the source pair to the registry precedence chain after deciding which source should win, then rebuild the payload.
+  SOURCE_CONFLICT_REPORT_ERROR:
+    severity: FAIL
+    analyst: The source-conflict report could not be generated from the supplied payload.
+    plain_english: The conflict report failed to build; check the payload path and format.
+    remediation_hint: Verify the payload JSON exists and is a post-merge engine payload.

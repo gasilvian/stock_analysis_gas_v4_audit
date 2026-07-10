@@ -65,17 +65,23 @@ def apply_sec_payload_updates(
     sec_updates: Mapping[str, Any],
     *,
     conflict_tolerance: float = DEFAULT_CONFLICT_TOLERANCE,
+    precedence: list[str] | None = None,
 ) -> dict[str, Any]:
     """Apply SEC payload updates in place; return a transparent merge report.
 
-    The report is {"status", "reason_code", "ticker", "applied_fields",
-    "skipped_missing", "conflicts", "warnings"} and mirrors exactly what was
-    written into the payload. On ticker mismatch nothing is mutated.
+    B5: conflict resolution is registry-driven. The winner between
+    sec_companyfacts and the base field's provider comes from the precedence
+    chain (config/source_registry.yaml); when the pair is not covered by the
+    chain, the field is set to UNKNOWN (None + missing lineage) rather than
+    silently picking either side. On ticker mismatch nothing is mutated.
     """
+    from sws_engine.sources.conflict_detector import load_precedence, resolve_precedence
+    chain = precedence if precedence is not None else load_precedence()
     report: dict[str, Any] = {
         "status": "PASS", "reason_code": "SEC_ENRICHMENT_APPLIED",
         "ticker": payload.get("ticker"),
         "applied_fields": [], "skipped_missing": [], "conflicts": [],
+        "unresolved_fields": [],
         "warnings": [],
     }
     sec_ticker = sec_updates.get("ticker")
@@ -107,14 +113,37 @@ def apply_sec_payload_updates(
             conflicting, rel = _values_conflict(base_value, value, conflict_tolerance)
             if conflicting:
                 base_lin = base_lineage.get(field) or {}
-                report["conflicts"].append({
+                base_provider = base_lin.get("provider") or payload.get("provider_profile") or "unknown"
+                winner = resolve_precedence("sec_companyfacts", str(base_provider), chain)
+                record = {
                     "field": field,
                     "base_value": base_value,
-                    "base_provider": base_lin.get("provider") or payload.get("provider_profile") or "unknown",
+                    "base_provider": base_provider,
                     "sec_value": value,
                     "relative_diff": round(rel, 6) if rel is not None else None,
-                    "resolution": "sec_precedence",
-                })
+                }
+                if winner is None:
+                    # Doctrine: no precedence rule for the pair -> UNKNOWN,
+                    # never a silent pick between disagreeing sources.
+                    record["resolution"] = "unresolved_no_precedence_rule"
+                    report["conflicts"].append(record)
+                    report["unresolved_fields"].append(field)
+                    payload[field] = None
+                    base_lineage[field] = {
+                        "provider": "conflict_detector",
+                        "source_field": field,
+                        "source_quality": "missing",
+                        "source_class": "E0",
+                        "reason_code": "SOURCE_CONFLICT_UNRESOLVED",
+                        "detail": f"{base_provider} vs sec_companyfacts, no precedence rule",
+                    }
+                    continue
+                if winner != "sec_companyfacts":
+                    record["resolution"] = f"precedence:{winner}"
+                    report["conflicts"].append(record)
+                    continue  # base wins per registry; SEC value not applied
+                record["resolution"] = "sec_precedence"
+                report["conflicts"].append(record)
         payload[field] = value
         if not field_lin:
             field_lin = {

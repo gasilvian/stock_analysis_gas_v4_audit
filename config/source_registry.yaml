@@ -385,6 +385,21 @@ sources:
   - currency_pair
   field_quality_caps:
     '*': exact
+# B5 (P1.6): source precedence chain for per-field conflict resolution.
+# Highest priority first. A conflict between two sources is resolvable ONLY
+# when both appear in this chain; otherwise the field must become UNKNOWN
+# (SOURCE_CONFLICT_UNRESOLVED) rather than silently picking a winner.
+# Rationale: a deliberate operator decision (manual_override, reviewed
+# estimates pack) outranks official filings, which outrank curated
+# assumptions, which outrank the pragmatic live provider.
+precedence:
+- manual_override
+- manual_estimates_pack
+- sec_companyfacts
+- curated_rates
+- curated_averages
+- yfinance
+
 field_rules:
   intangible_assets:
     allowed_sources:

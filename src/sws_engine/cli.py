@@ -312,6 +312,13 @@ def main(argv=None):
     pa.add_argument("--valuation-date", default=None)
     pa.add_argument("--output", required=True, help="output directory for portfolio_audit JSON and markdown report")
 
+    scr = sub.add_parser("source-conflict-report",
+                         help="B5: standalone source-conflict artifact from a payload's recorded conflicts")
+    scr.add_argument("--payload", required=True, help="payload JSON (post-merge, with source_conflicts)")
+    scr.add_argument("--output", required=True)
+    scr.add_argument("--material-threshold", type=float, default=0.05)
+    scr.add_argument("--db", default=None, help="optional SQLite DB; registers the artifact in the index")
+
     gm = sub.add_parser("generate-memo", help="run v4.0 P0.11 deterministic investment research audit memo")
     gm.add_argument("--audit-summary", default=None, help="audit_summary JSON artifact (required unless --auto)")
     gm.add_argument("--auto", action="store_true",
@@ -777,6 +784,33 @@ def main(argv=None):
             else:
                 notes[attr] = "UNKNOWN"
         return notes
+
+    if args.cmd == "source-conflict-report":
+        try:
+            from sws_engine.sources.conflict_detector import write_conflict_report
+            with open(args.payload, "r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+            rep = write_conflict_report(payload, args.output,
+                                        material_threshold=args.material_threshold)
+            report = rep["report"]
+            if args.db:
+                from sws_engine.db.artifacts import register_paths
+                register_paths(args.db, ticker=str(report.get("ticker")), paths=rep["paths"])
+            print(json.dumps({
+                "status": report["status"],
+                "reason_code": report["reason_code"],
+                "ticker": report["ticker"],
+                "conflicts_count": report["conflicts_count"],
+                "material_count": report["material_count"],
+                "unresolved_count": report["unresolved_count"],
+                "manual_review_required": report["manual_review_required"],
+                **rep["paths"],
+            }, indent=2))
+            return 0 if report["status"] != "FAIL" else 2
+        except Exception as exc:
+            print(json.dumps({"status": "FAIL", "reason_code": "SOURCE_CONFLICT_REPORT_ERROR",
+                              "error": str(exc)}))
+            return 1
 
     if args.cmd == "generate-memo":
         try:
