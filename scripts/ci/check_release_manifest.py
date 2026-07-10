@@ -49,8 +49,26 @@ def main(argv: list[str]) -> int:
     ]:
         if guardrails.get(key) is not True:
             failures.append(f"scope_guardrails.{key} must be true")
-    if guardrails.get("production_readiness") != "NOT_READY":
-        failures.append("production_readiness should remain NOT_READY for this MVP closure unless curated sources are actually reviewed")
+    # P2.7: the template-era assertion pinned NOT_READY forever. Rule 19 says
+    # NOT_READY *until* curated sources are populated and reviewed — which is
+    # now a live, verifiable condition. The gate therefore RECOMPUTES
+    # readiness (legal scope + source registry, production scope) and
+    # requires the manifest to match it exactly: a manifest claiming PASS
+    # while the live evaluation says NOT_READY (or vice versa) is a
+    # falsification and fails the gate.
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+    from sws_engine.governance.legal_scope import validate_legal_scope
+    from sws_engine.sources.real_sources import validate_source_registry
+    _root = Path(__file__).resolve().parents[2]
+    _legal = validate_legal_scope(str(_root / "config/legal_scope.yaml")).as_dict()
+    _sources = validate_source_registry(str(_root / "config/source_registry.yaml"),
+                                        require_production=True).as_dict()
+    expected_readiness = "PASS" if _legal["status"] == "PASS" and _sources["status"] == "PASS" else "NOT_READY"
+    if guardrails.get("production_readiness") != expected_readiness:
+        failures.append(
+            f"production_readiness mismatch: manifest says {guardrails.get('production_readiness')!r} "
+            f"but live evaluation (legal scope + source registry) says {expected_readiness!r}")
     if not obj.get("capabilities"):
         failures.append("capabilities missing")
     summary = obj.get("capability_summary") or {}

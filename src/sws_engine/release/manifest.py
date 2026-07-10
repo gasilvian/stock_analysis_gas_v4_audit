@@ -266,6 +266,19 @@ def build_release_manifest(
         status = "MVP_COMPLETE"
         reason_code = "RELEASE_MVP_COMPLETE"
 
+    # P2.7: a green release must carry its own proof. When the unified CI
+    # entrypoint produced evidence (out/p14_ci/ci_evidence.json), embed it;
+    # otherwise state honestly that no evidence was provided.
+    evidence_path = root / "out" / "p14_ci" / "ci_evidence.json"
+    if evidence_path.exists():
+        try:
+            quality_evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            quality_evidence = {"status": "EVIDENCE_UNREADABLE", "path": str(evidence_path)}
+    else:
+        quality_evidence = {"status": "NOT_PROVIDED",
+                            "note": "run scripts/ci/run_full_ci.py to generate ruff/pytest/gates evidence"}
+
     gate_summary = gates_report or {
         "status": "NOT_RUN",
         "reason_code": "RELEASE_GATES_NOT_RUN",
@@ -314,6 +327,7 @@ def build_release_manifest(
             "missing_artifacts": missing_artifact_count,
         },
         "gate_summary": gate_summary,
+        "quality_evidence": quality_evidence,
         "known_limitations": KNOWN_LIMITATIONS,
         "next_phase": {
             "recommended_phase": "P1.0 production data population",

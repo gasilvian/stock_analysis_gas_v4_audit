@@ -20,7 +20,9 @@ from sws_engine.sources.real_sources import validate_source_registry  # noqa: E4
 
 def main() -> int:
     report = validate_source_registry(ROOT / "config/source_registry.yaml", require_production=True).as_dict()
-    out_dir = ROOT / "validation" / "audit_final_artifacts"
+    # P2.7: gates write ONLY under out/ — the committed artifact in
+    # validation/audit_final_artifacts remains untouched historical evidence.
+    out_dir = ROOT / "out" / "p14_ci"
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "real_source_population_workflow_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 

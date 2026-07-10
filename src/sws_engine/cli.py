@@ -365,7 +365,11 @@ def main(argv=None):
     rel.add_argument("--release-id", default="v4.0-mvp-p0.14")
     rel.add_argument("--output", required=True, help="output directory for release_manifest JSON and Markdown report")
     rel.add_argument("--validation-dir", default="validation")
-    rel.add_argument("--production-readiness", default="NOT_READY", choices=["NOT_READY", "PASS"])
+    rel.add_argument("--production-readiness", default="auto", choices=["auto", "NOT_READY", "PASS"],
+                     help="P2.7: 'auto' (default) computes readiness live from legal scope + "
+                          "source registry — no surface hardcodes it; explicit values are for "
+                          "reproducing historical manifests only and must match the live state "
+                          "or the manifest gate fails")
     rel.add_argument("--gates-report", default=None, help="optional gates_report.json to embed")
 
     bt = sub.add_parser("batch", help="run the watchlist batch and persist to DB")
@@ -958,12 +962,20 @@ def main(argv=None):
     if args.cmd == "release-package":
         try:
             from sws_engine.release.manifest import release_to_files
+            readiness = args.production_readiness
+            if readiness == "auto":
+                from sws_engine.governance.legal_scope import validate_legal_scope
+                from sws_engine.sources.real_sources import validate_source_registry
+                _legal = validate_legal_scope("config/legal_scope.yaml").as_dict()
+                _sources = validate_source_registry("config/source_registry.yaml",
+                                                    require_production=True).as_dict()
+                readiness = "PASS" if _legal["status"] == "PASS" and _sources["status"] == "PASS" else "NOT_READY"
             rep = release_to_files(
                 args.output,
                 repo_root=args.repo_root,
                 release_id=args.release_id,
                 validation_dir=args.validation_dir,
-                production_readiness=args.production_readiness,
+                production_readiness=readiness,
                 gates_report_path=args.gates_report,
             )
             manifest = rep["manifest"]

@@ -40,11 +40,19 @@ def main() -> int:
         workflow_id="p14-local-smoke",
     )
 
+    # P2.7: readiness is computed live, never hardcoded — the manifest must
+    # describe the build it ships, not the historical template era.
+    from sws_engine.governance.legal_scope import validate_legal_scope
+    from sws_engine.sources.real_sources import validate_source_registry
+    legal = validate_legal_scope(str(root / "config/legal_scope.yaml")).as_dict()
+    sources = validate_source_registry(str(root / "config/source_registry.yaml"),
+                                       require_production=True).as_dict()
+    readiness = "PASS" if legal["status"] == "PASS" and sources["status"] == "PASS" else "NOT_READY"
     release = release_to_files(
         out,
         repo_root=root,
         release_id=args.release_id,
-        production_readiness="NOT_READY",
+        production_readiness=readiness,
     )
     summary = {
         "status": "PASS_WITH_LIMITATIONS",
