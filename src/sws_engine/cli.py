@@ -312,6 +312,16 @@ def main(argv=None):
     pa.add_argument("--valuation-date", default=None)
     pa.add_argument("--output", required=True, help="output directory for portfolio_audit JSON and markdown report")
 
+    rfx = sub.add_parser("refresh-fx",
+                         help="P2.3: build the curated FX CSV from official ECB/BNR publications "
+                              "(local XML files, or --live); rows enter operator_review_required")
+    rfx.add_argument("--ecb-xml", default=None, help="local ECB eurofxref-daily XML export")
+    rfx.add_argument("--bnr-xml", default=None, help="local BNR nbrfxrates XML export")
+    rfx.add_argument("--live", action="store_true",
+                     help="fetch the official ECB/BNR daily XML endpoints (personal use, stdlib)")
+    rfx.add_argument("--pairs", default="EURUSD,EURRON,USDRON")
+    rfx.add_argument("--output", default="data/real_sources/fx/fx_eod_curated.csv")
+
     scr = sub.add_parser("source-conflict-report",
                          help="B5: standalone source-conflict artifact from a payload's recorded conflicts")
     scr.add_argument("--payload", required=True, help="payload JSON (post-merge, with source_conflicts)")
@@ -788,6 +798,49 @@ def main(argv=None):
             else:
                 notes[attr] = "UNKNOWN"
         return notes
+
+    if args.cmd == "refresh-fx":
+        try:
+            from datetime import date as _date
+            from sws_engine.rates.fx_loaders import (
+                build_fx_curated_rows, fetch_bnr_daily_live, fetch_ecb_daily_live,
+                parse_bnr_nbrfxrates_xml, parse_ecb_eurofxref_xml, write_fx_curated_csv)
+            ecb = bnr = None
+            if args.ecb_xml:
+                with open(args.ecb_xml, encoding="utf-8") as fh:
+                    ecb = parse_ecb_eurofxref_xml(fh.read())
+            elif args.live:
+                ecb = parse_ecb_eurofxref_xml(fetch_ecb_daily_live())
+            if args.bnr_xml:
+                with open(args.bnr_xml, encoding="utf-8") as fh:
+                    bnr = parse_bnr_nbrfxrates_xml(fh.read())
+            elif args.live:
+                bnr = parse_bnr_nbrfxrates_xml(fetch_bnr_daily_live())
+            if ecb is None and bnr is None:
+                print(json.dumps({"status": "FAIL", "reason_code": "FX_NO_SOURCE_SUPPLIED",
+                                  "detail": "provide --ecb-xml/--bnr-xml or --live"}))
+                return 1
+            result = build_fx_curated_rows(
+                ecb=ecb, bnr=bnr, pairs=args.pairs.split(","),
+                fetched_as_of=_date.today().isoformat())
+            if not result["rows"]:
+                print(json.dumps({"status": "FAIL", "reason_code": "FX_NO_ROWS_BUILT",
+                                  "warnings": result["warnings"]}, indent=2))
+                return 1
+            path = write_fx_curated_csv(result["rows"], args.output)
+            print(json.dumps({
+                "status": "PASS_WITH_LIMITATIONS",
+                "reason_code": "FX_CURATED_WRITTEN_REVIEW_REQUIRED",
+                "rows_written": len(result["rows"]),
+                "skipped_pairs": result["skipped"],
+                "review_status": "operator_review_required",
+                "output_csv": path,
+                "warnings": result["warnings"],
+            }, indent=2))
+            return 0
+        except Exception as exc:
+            print(json.dumps({"status": "FAIL", "reason_code": "FX_REFRESH_ERROR", "error": str(exc)}))
+            return 1
 
     if args.cmd == "source-conflict-report":
         try:

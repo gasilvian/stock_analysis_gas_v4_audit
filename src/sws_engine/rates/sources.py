@@ -94,6 +94,13 @@ def inspect_fx_csv(path: str) -> dict:
     as_of = max((r.get("date", "") for r in rows), default=None)
     if not rows:
         warnings.append("no observations")
+    # P2.3: FX freshness contract (registry fx_eod_curated ttl, 7d) checked
+    # against the newest observation - a stale FX file must say so here.
+    if as_of:
+        from sws_engine.sources.staleness import staleness_check
+        check = staleness_check(as_of, source_id="fx_eod_curated", valuation_date=None)
+        if check.get("warning"):
+            warnings.append(check["warning"])
     return SourceStatus(path, True, source=source, as_of=as_of, kind=_classify_source(source, path), warnings=warnings).as_dict()
 
 
