@@ -61,6 +61,16 @@ PYTHONPATH=src python scripts/ci/check_release_manifest.py out/p14_ci
 The same chain is exercised automatically by
 `tests/e2e/test_full_research_flow_cli.py`.
 
+**P2.1:** the entire chain above (steps 1–6, plus the source-conflict report)
+can now be run with a single command — see
+`docs/research_company_orchestrator.md`:
+
+```bash
+PYTHONPATH=src python -m sws_engine.cli research-company \
+  --input tests/fixtures/demo_complete_non_financial.json \
+  --db "$FLOW_OUT/research.db" --output "$FLOW_OUT/chain"
+```
+
 Notes:
 - Replace the demo payload with a real recorded snapshot / built payload to run
   the chain on a real company; every governance rule (UNKNOWN preserved,

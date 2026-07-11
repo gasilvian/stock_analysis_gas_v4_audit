@@ -214,6 +214,29 @@ def main(argv=None):
     ac.add_argument("--source-registry", default="config/source_registry.yaml", help="source registry with tier/ttl/field rules")
     ac.add_argument("--identifier-master", default="data/real_sources/reference/identifier_master.csv", help="optional identifier master CSV for model applicability")
 
+    rc = sub.add_parser("research-company",
+                        help="run v4.0 P2.1 orchestrated research chain: payload (with "
+                             "curated injections) -> engine -> persist -> audit -> "
+                             "sensitivity -> explain -> business-risk -> conflict-report "
+                             "-> memo, with a per-step report artifact")
+    rc.add_argument("--ticker", default=None, help="live mode: build payload via yfinance pragmatic provider")
+    rc.add_argument("--input", default=None, help="offline mode: pre-built company payload JSON (mutually exclusive with --ticker)")
+    rc.add_argument("--db", default="data/sws.db", help="SQLite DB for persistence and the artifact index (required by the chain)")
+    rc.add_argument("--output", required=True, help="output directory; per-step artifacts land in subdirectories")
+    rc.add_argument("--market", default="US")
+    rc.add_argument("--valuation-date", default="auto")
+    rc.add_argument("--assumptions", default="config/assumptions.yaml")
+    rc.add_argument("--schema", default="schemas/output_schema.json")
+    rc.add_argument("--bond-csv", default=None, help="curated 10Y bond CSV for rates injection (live mode)")
+    rc.add_argument("--erp-json", default=None, help="curated ERP JSON for rates injection (live mode)")
+    rc.add_argument("--sec-dir", default=None, help="normalized SEC snapshots directory for payload merge")
+    rc.add_argument("--averages-json", default=None, help="curated market/industry averages snapshot JSON")
+    rc.add_argument("--estimates-dir", default=None, help="operator-curated analyst estimates pack directory")
+    rc.add_argument("--memo-type", default="company")
+    rc.add_argument("--explain-mode", default="analyst")
+    rc.add_argument("--material-threshold", type=float, default=0.05)
+    rc.add_argument("--refresh", action="store_true", help="live mode: bypass provider cache")
+
     sec = sub.add_parser("refresh-sec-financials", help="normalize SEC CompanyFacts financial statement snapshots")
     sec.add_argument("--tickers", required=True, help="comma-separated tickers, e.g. AAPL,MSFT")
     sec.add_argument("--output", default="data/real_sources/sec", help="output directory for raw/cache, normalized snapshots and mapping reports")
@@ -1076,6 +1099,50 @@ def main(argv=None):
             return 1
         except Exception as exc:
             print(f"refresh-sec-financials failed: {exc.__class__.__name__}: {exc}", file=sys.stderr)
+            return 1
+
+    if args.cmd == "research-company":
+        try:
+            from sws_engine.research.orchestrator import run_research_company
+            rep = run_research_company(
+                db_path=args.db,
+                output_dir=args.output,
+                ticker=args.ticker,
+                payload_path=args.input,
+                market=args.market,
+                valuation_date=args.valuation_date,
+                assumptions_path=args.assumptions,
+                schema_path=args.schema,
+                bond_csv=args.bond_csv,
+                erp_json=args.erp_json,
+                sec_dir=args.sec_dir,
+                averages_json=args.averages_json,
+                estimates_dir=args.estimates_dir,
+                memo_type=args.memo_type,
+                explain_mode=args.explain_mode,
+                material_threshold=args.material_threshold,
+                refresh=args.refresh,
+            )
+            package = rep["package"]
+            print(json.dumps({
+                "status": package["status"],
+                "reason_code": package["reason_code"],
+                "ticker": package["ticker"],
+                "run_id": package["run_id"],
+                "steps": {s["step_id"]: s["status"] for s in package["steps"]},
+                "unknown_steps": package["unknown_summary"]["unknown_steps"],
+                "failed_steps": package["unknown_summary"]["failed_steps"],
+                "manual_review_items_count": len(package["manual_review_items"]),
+                **rep["paths"],
+            }, indent=2))
+            if package["status"] == "PASS":
+                return 0
+            return 2 if package["status"] == "PASS_WITH_LIMITATIONS" else 1
+        except (FileNotFoundError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+        except Exception as exc:
+            print(f"research-company failed: {exc.__class__.__name__}: {exc}", file=sys.stderr)
             return 1
 
     if args.cmd == "audit-company":

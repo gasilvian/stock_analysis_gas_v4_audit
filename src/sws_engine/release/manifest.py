@@ -110,6 +110,14 @@ REQUIRED_CAPABILITY_GROUPS = [
         ],
     },
     {
+        "id": "research_orchestrator",
+        "label": "Orchestrated research chain (research-company, P2.1)",
+        "required_files": [
+            "src/sws_engine/research/orchestrator.py",
+            "schemas/aux/research_company_run.schema.json",
+        ],
+    },
+    {
         "id": "release_closure",
         "label": "Release hardening and local operator closure",
         "required_files": [

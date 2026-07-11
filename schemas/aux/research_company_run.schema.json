@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.sws-engine/schemas/aux/research_company_run.schema.json",
+  "title": "SWS v4 P2.1 Research Company Run (orchestrated chain report)",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sprint",
+    "status",
+    "reason_code",
+    "ticker",
+    "run_id",
+    "mode",
+    "generated_at",
+    "steps",
+    "injections",
+    "payload_warnings",
+    "unknown_summary",
+    "manual_review_items",
+    "recommendation_language_absent",
+    "not_investment_advice"
+  ],
+  "properties": {
+    "schema_version": {"const": "research_company_run.v0.1"},
+    "sprint": {"const": "v4.0-p2.1"},
+    "status": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "FAIL"]},
+    "reason_code": {"type": "string", "minLength": 1},
+    "ticker": {"type": "string", "minLength": 1},
+    "run_id": {"type": ["string", "null"]},
+    "mode": {"enum": ["offline_payload", "live"]},
+    "generated_at": {"type": "string"},
+    "steps": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": ["step_id", "label", "status", "reason_code", "detail", "artifacts", "duration_ms"],
+        "properties": {
+          "step_id": {"enum": ["payload", "engine", "persist", "audit", "sensitivity", "explain", "business_risk", "conflict_report", "memo"]},
+          "label": {"type": "string", "minLength": 1},
+          "status": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL", "SKIPPED"]},
+          "reason_code": {"type": "string", "minLength": 1},
+          "detail": {"type": ["string", "null"]},
+          "artifacts": {
+            "type": "object",
+            "additionalProperties": {"type": "string"}
+          },
+          "duration_ms": {"type": ["integer", "null"], "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "injections": {"type": "object"},
+    "payload_warnings": {"type": "array", "items": {"type": "string"}},
+    "unknown_summary": {
+      "type": "object",
+      "required": ["unknown_steps", "failed_steps", "skipped_steps", "unknown_checks_count"],
+      "properties": {
+        "unknown_steps": {"type": "array", "items": {"type": "string"}},
+        "failed_steps": {"type": "array", "items": {"type": "string"}},
+        "skipped_steps": {"type": "array", "items": {"type": "string"}},
+        "unknown_checks_count": {"type": ["integer", "null"], "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "manual_review_items": {"type": "array", "items": {"type": "string"}},
+    "recommendation_language_absent": {"const": true},
+    "not_investment_advice": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

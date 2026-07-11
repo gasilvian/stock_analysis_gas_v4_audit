@@ -859,3 +859,48 @@ reason_codes:
     analyst: The source-conflict report could not be generated from the supplied payload.
     plain_english: The conflict report failed to build; check the payload path and format.
     remediation_hint: Verify the payload JSON exists and is a post-merge engine payload.
+  RESEARCH_CHAIN_COMPLETE:
+    severity: INFO
+    analyst: The orchestrated research chain completed with every step in PASS and no payload warnings.
+    plain_english: The full research pipeline ran end to end without any limitations.
+    remediation_hint: None; artifacts are registered in the index and ready for review.
+  RESEARCH_CHAIN_COMPLETE_WITH_LIMITATIONS:
+    severity: WARN
+    analyst: The orchestrated research chain completed, but at least one step returned UNKNOWN, FAIL or SKIPPED, or the payload carried curated-source warnings; the per-step table lists each limitation.
+    plain_english: The pipeline finished, but some parts have missing data, honest unknowns or errors that are listed step by step.
+    remediation_hint: Review the failed/UNKNOWN steps and payload warnings; resolve curated sources or accept the limitation explicitly.
+  RESEARCH_CHAIN_STEP_OK:
+    severity: INFO
+    analyst: This chain step completed successfully; its artifacts are on disk and registered in the artifact index.
+    plain_english: This step worked and its outputs were saved.
+    remediation_hint: None.
+  RESEARCH_CHAIN_STEP_FAILED:
+    severity: FAIL
+    analyst: This chain step raised an error; the failure is isolated and the remaining independent steps still ran.
+    plain_english: This step broke, but the rest of the pipeline continued where possible.
+    remediation_hint: Read the step detail for the exception; fix the underlying input or configuration and re-run.
+  RESEARCH_CHAIN_STEP_SKIPPED:
+    severity: WARN
+    analyst: This chain step did not run because a dependency it requires was unavailable (for example the memo requires a registered audit summary).
+    plain_english: This step was skipped because something it needs is missing.
+    remediation_hint: Fix the failed upstream step and re-run the chain.
+  RESEARCH_CHAIN_INPUT_MISSING:
+    severity: FAIL
+    analyst: The chain could not build or load the company payload; nothing downstream ran.
+    plain_english: The pipeline could not even start because the input payload is missing or unreadable.
+    remediation_hint: Check the payload path (offline mode) or provider availability and injections (live mode).
+  RESEARCH_CHAIN_ENGINE_FAILED:
+    severity: FAIL
+    analyst: The v3.1 engine run failed on the assembled payload; the chain aborted because every downstream step depends on a persisted run.
+    plain_english: The core analysis failed, so the rest of the pipeline could not run.
+    remediation_hint: Validate the payload against the input contract and re-run.
+  RESEARCH_CHAIN_PERSIST_FAILED:
+    severity: FAIL
+    analyst: Persisting the engine run to SQLite failed; the chain aborted because the audit steps consume the persisted run.
+    plain_english: The results could not be saved to the database, so the audit steps could not run.
+    remediation_hint: Check the database path and permissions, then re-run.
+  RATES_INJECTION_NOT_APPLICABLE_OFFLINE:
+    severity: INFO
+    analyst: Curated rates injection flows through the live provider mapper and does not apply to a pre-built payload; the offline payload is used exactly as provided.
+    plain_english: In offline mode the payload is taken as-is; curated rate files are only injected in live mode.
+    remediation_hint: If the offline payload lacks rates, rebuild it with rates included or run in live mode with --bond-csv/--erp-json.
