@@ -39,7 +39,12 @@ def normalize_cik(value: str | int) -> str:
 def _iter_records(raw: Any) -> Iterable[dict[str, Any]]:
     if isinstance(raw, dict):
         # SEC shape: {"0": {"cik_str": 320193, "ticker": "AAPL", ...}}
-        if all(isinstance(v, dict) for v in raw.values()):
+        if raw and all(
+            isinstance(v, dict)
+            and bool(v.get("ticker") or v.get("symbol"))
+            and v.get("cik_str") not in (None, "")
+            for v in raw.values()
+        ):
             yield from raw.values()
             return
         # Simplified shape: {"AAPL": {"cik": "0000320193", ...}}

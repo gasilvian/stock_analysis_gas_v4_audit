@@ -10,7 +10,13 @@ from typing import Any
 
 from sws_engine.core.enums import ProviderProfile, SourceClass, SourceQuality
 from sws_engine.sec.cik_resolver import CikRecord
-from sws_engine.sec.xbrl_tag_resolver import FactValue, annual_series, intangible_assets, latest_fact
+from sws_engine.sec.xbrl_tag_resolver import (
+    FactValue,
+    annual_series,
+    intangible_assets,
+    latest_fact,
+    total_debt_fact,
+)
 
 PROVIDER_ID = "sec_companyfacts"
 
@@ -46,7 +52,7 @@ def utc_now() -> str:
 
 
 def _lineage_for(fact: FactValue, *, cik: str, source_path: str) -> dict[str, Any]:
-    return {
+    lineage = {
         "source_id": PROVIDER_ID,
         "provider": PROVIDER_ID,
         "source_field": f"us-gaap:{fact.tag}" if fact.tag else None,
@@ -62,6 +68,14 @@ def _lineage_for(fact: FactValue, *, cik: str, source_path: str) -> dict[str, An
         "source_path": source_path,
         "reason_code": fact.reason_code,
     }
+    if fact.components:
+        lineage["component_source_fields"] = [
+            f"us-gaap:{component.tag}" for component in fact.components
+        ]
+        lineage["components"] = [component.as_dict() for component in fact.components]
+    if fact.transform:
+        lineage["transform"] = fact.transform
+    return lineage
 
 
 def normalize_capex_series(facts_json: dict[str, Any]) -> tuple[list[float], list[dict[str, Any]]]:
@@ -119,7 +133,12 @@ def build_statement_snapshot(
     unmapped: list[dict[str, str]] = []
 
     for field in SNAPSHOT_FIELDS:
-        fact = intangible_assets(facts_json) if field == "intangible_assets" else latest_fact(facts_json, field)
+        if field == "intangible_assets":
+            fact = intangible_assets(facts_json)
+        elif field == "total_debt":
+            fact = total_debt_fact(facts_json)
+        else:
+            fact = latest_fact(facts_json, field)
         fields[field] = fact.as_dict()
         target_field = PAYLOAD_FIELD_ALIASES.get(field, field)
         payload_lineage[target_field] = _lineage_for(fact, cik=cik, source_path=source_path)

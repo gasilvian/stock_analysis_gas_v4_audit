@@ -5,11 +5,13 @@ previously recorded CompanyFacts files from a fixture/cache directory.
 """
 from __future__ import annotations
 
+import gzip
 import json
 import os
 import time
 import urllib.error
 import urllib.request
+import zlib
 from pathlib import Path
 from typing import Any
 
@@ -92,13 +94,33 @@ def fetch_companyfacts_live(
     """
     resolved_agent = resolve_user_agent(user_agent)
     url = SEC_COMPANYFACTS_URL.format(cik=normalize_cik(cik))
-    req = urllib.request.Request(url, headers={"User-Agent": resolved_agent, "Accept-Encoding": "gzip, deflate"})
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": resolved_agent,
+            "Accept": "application/json",
+            "Accept-Encoding": "gzip, deflate",
+        },
+    )
     attempt = 0
     while True:
         time.sleep(max(0.0, sleep_seconds))
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:  # nosec - public SEC API URL
-                return json.loads(resp.read().decode("utf-8"))
+                body = resp.read()
+                content_encoding = (
+                    resp.headers.get("Content-Encoding") or ""
+                ).lower()
+
+                if "gzip" in content_encoding:
+                    body = gzip.decompress(body)
+                elif "deflate" in content_encoding:
+                    try:
+                        body = zlib.decompress(body)
+                    except zlib.error:
+                        body = zlib.decompress(body, -zlib.MAX_WBITS)
+
+                return json.loads(body.decode("utf-8"))
         except urllib.error.HTTPError as exc:
             if exc.code in (429, 500, 502, 503, 504) and attempt < max_retries:
                 time.sleep(2 ** attempt)

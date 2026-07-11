@@ -108,7 +108,24 @@ def _register(db_path: str, ticker: str, paths: Mapping[str, str],
 
 
 def _count_unknown_checks(output: Mapping[str, Any]) -> int:
-    return sum(1 for c in (output.get("checks") or []) if c.get("status") == "UNKNOWN")
+    checks = output.get("checks")
+    if not isinstance(checks, list):
+        raise ValueError("engine output checks must be a list")
+    count = 0
+    for check in checks:
+        if not isinstance(check, Mapping) or check.get("result") not in {
+            "PASS", "FAIL", "UNKNOWN"
+        }:
+            raise ValueError("engine output check has no canonical result")
+        count += check["result"] == "UNKNOWN"
+    return count
+
+
+def _source_step_status(status: Any) -> str:
+    canonical = str(status or "")
+    if canonical not in {"PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL"}:
+        raise ValueError(f"unsupported source step status: {canonical!r}")
+    return canonical
 
 
 def run_research_company(
@@ -369,8 +386,7 @@ def run_research_company(
                                     material_threshold=material_threshold)
         _register(db_path, tk, rep["paths"], run_id)
         r = rep["report"]
-        status = "PASS" if r["status"] == "PASS" else (
-            "UNKNOWN" if r["status"] == "UNKNOWN" else "FAIL")
+        status = _source_step_status(r.get("status"))
         _finish(steps["conflict_report"], t0, status,
                 r.get("reason_code") or "RESEARCH_CHAIN_STEP_OK",
                 detail=(f"conflicts={r.get('conflicts_count')}; "
@@ -437,7 +453,7 @@ def _finalize(steps: Dict[str, Dict[str, Any]], out_dir: Path, *, db_path: str,
             "RESEARCH_CHAIN_ENGINE_FAILED" if steps["engine"]["status"] == "FAIL"
             else "RESEARCH_CHAIN_PERSIST_FAILED" if steps["persist"]["status"] == "FAIL"
             else "RESEARCH_CHAIN_INPUT_MISSING")
-    elif any(s in ("FAIL", "UNKNOWN", "SKIPPED") for s in statuses) or warnings:
+    elif any(s in ("PASS_WITH_LIMITATIONS", "FAIL", "UNKNOWN", "SKIPPED") for s in statuses) or warnings:
         overall, reason = "PASS_WITH_LIMITATIONS", "RESEARCH_CHAIN_COMPLETE_WITH_LIMITATIONS"
     else:
         overall, reason = "PASS", "RESEARCH_CHAIN_COMPLETE"
@@ -450,6 +466,12 @@ def _finalize(steps: Dict[str, Dict[str, Any]], out_dir: Path, *, db_path: str,
         manual_review.append(
             f"step '{sid}' is honestly UNKNOWN ({steps[sid]['reason_code']}): "
             f"{steps[sid]['detail']}")
+    for step in ordered:
+        if step["status"] == "PASS_WITH_LIMITATIONS":
+            manual_review.append(
+                f"step '{step['step_id']}' completed with limitations "
+                f"({step['reason_code']}): {step['detail']}"
+            )
     for sid in failed_steps:
         manual_review.append(f"step '{sid}' failed: {steps[sid]['detail']}")
     for sid in skipped_steps:

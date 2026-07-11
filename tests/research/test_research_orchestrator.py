@@ -10,7 +10,11 @@ from pathlib import Path
 import pytest
 from jsonschema import validate
 
-from sws_engine.research.orchestrator import run_research_company
+from sws_engine.research.orchestrator import (
+    _count_unknown_checks,
+    _source_step_status,
+    run_research_company,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DEMO_PAYLOAD = ROOT / "tests" / "fixtures" / "demo_complete_non_financial.json"
@@ -173,3 +177,111 @@ def test_offline_mode_documents_rates_injection_scope(chain):
     _, rep = chain
     inj = rep["package"]["injections"]
     assert inj["rates"]["reason_code"] == "RATES_INJECTION_NOT_APPLICABLE_OFFLINE"
+
+
+def test_count_unknown_checks_uses_canonical_result_and_rejects_malformed_data():
+    checks = ([{"result": "UNKNOWN"}] * 17
+              + [{"result": "PASS"}] * 8
+              + [{"result": "FAIL"}] * 5)
+    assert _count_unknown_checks({"checks": checks}) == 17
+    with pytest.raises(ValueError, match="canonical result"):
+        _count_unknown_checks({"checks": [{"status": "UNKNOWN"}]})
+    with pytest.raises(ValueError, match="must be a list"):
+        _count_unknown_checks({})
+
+
+@pytest.mark.parametrize(
+    "status", ["PASS", "PASS_WITH_LIMITATIONS", "UNKNOWN", "FAIL"]
+)
+def test_source_step_status_preserves_all_canonical_mappings(status):
+    assert _source_step_status(status) == status
+
+
+def test_unknown_count_agrees_in_engine_detail_json_and_markdown(
+    workdir, monkeypatch
+):
+    from sws_engine.orchestration.company_run import run_company_analysis
+
+    payload = json.loads(DEMO_PAYLOAD.read_text(encoding="utf-8"))
+    output = run_company_analysis(
+        payload, "config/assumptions.yaml", "schemas/output_schema.json"
+    )
+    for index, check in enumerate(output["checks"]):
+        if index < 17:
+            check["result"] = "UNKNOWN"
+            check["reason_code"] = "MISSING_INPUT"
+
+    def _output_with_unknowns(*_args, **_kwargs):
+        return output
+
+    monkeypatch.setattr(
+        "sws_engine.orchestration.company_run.run_company_analysis",
+        _output_with_unknowns,
+    )
+    rep = run_research_company(
+        db_path=str(workdir / "unknowns.db"),
+        output_dir=workdir / "unknowns",
+        payload_path=str(DEMO_PAYLOAD),
+    )
+    package = rep["package"]
+    engine = _steps(package)["engine"]
+    assert "unknown_checks=17" in engine["detail"]
+    assert package["unknown_summary"]["unknown_checks_count"] == 17
+
+    json_package = json.loads(
+        Path(rep["paths"]["research_company_run_json"]).read_text(encoding="utf-8")
+    )
+    md = Path(rep["paths"]["research_company_run_md"]).read_text(encoding="utf-8")
+    assert json_package["unknown_summary"]["unknown_checks_count"] == 17
+    assert "UNKNOWN checks in engine output: 17" in md
+
+
+def test_conflict_limitations_remain_visible_without_failed_step(
+    workdir, monkeypatch
+):
+    def _limited_conflict_report(_payload, output_dir, **_kwargs):
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        json_path = output_dir / "conflicts.json"
+        md_path = output_dir / "conflicts.md"
+        json_path.write_text("{}", encoding="utf-8")
+        md_path.write_text("manual review required", encoding="utf-8")
+        return {
+            "report": {
+                "status": "PASS_WITH_LIMITATIONS",
+                "reason_code": "SOURCE_CONFLICT_MATERIAL_REVIEW_REQUIRED",
+                "conflicts_count": 3,
+                "material_count": 1,
+                "unresolved_count": 0,
+                "manual_review_required": True,
+            },
+            "paths": {
+                "source_conflicts_json": str(json_path),
+                "source_conflicts_report_md": str(md_path),
+            },
+        }
+
+    monkeypatch.setattr(
+        "sws_engine.sources.conflict_detector.write_conflict_report",
+        _limited_conflict_report,
+    )
+    rep = run_research_company(
+        db_path=str(workdir / "limited.db"),
+        output_dir=workdir / "limited",
+        payload_path=str(DEMO_PAYLOAD),
+    )
+    package = rep["package"]
+    step = _steps(package)["conflict_report"]
+    assert step["status"] == "PASS_WITH_LIMITATIONS"
+    assert step["reason_code"] == "SOURCE_CONFLICT_MATERIAL_REVIEW_REQUIRED"
+    assert package["status"] == "PASS_WITH_LIMITATIONS"
+    assert "conflict_report" not in package["unknown_summary"]["failed_steps"]
+    assert any(
+        "conflict_report" in item
+        and "SOURCE_CONFLICT_MATERIAL_REVIEW_REQUIRED" in item
+        for item in package["manual_review_items"]
+    )
+    validate(
+        instance=package,
+        schema=json.loads(SCHEMA.read_text(encoding="utf-8")),
+    )
